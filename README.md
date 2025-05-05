@@ -1,7 +1,6 @@
 # CreatureChat Evolved
-
 <p align="center">
-<img src="https://github.com/user-attachments/assets/cbbf14e8-d157-4cf8-84da-fb310a1729a0" width="45%"/>
+<img src="https://github.com/user-attachments/assets/810b503a-4c20-4e71-9a29-1e402ddd0563" width="45%"/>
 </p>
 
 ## What is CreatureChat Evolved?
