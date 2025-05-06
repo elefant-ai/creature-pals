@@ -64,12 +64,7 @@ jobs:
             git push origin "$branch"
           fi 
 
-          if git ls-remote --tags origin | grep -q "refs/tags/${{ env.tag }}"; then
-            echo "Remote tag already exists, skipping push"
-          else
-            git tag "${{ env.tag }}"
-            git push origin "${{ env.tag }}"
-          fi
+          
 
           # will use branch in other blocks
           echo "branch=$branch" >> "$GITHUB_ENV"
