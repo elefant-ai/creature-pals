@@ -4,7 +4,7 @@
 </p>
 
 ## What is CreatureChat Evolved?
-**CreatureChat Evolved** is a client-side Minecraft mod that lets you chat with any creature in the game using AI. With built-in [Player2](https://player2.game/) integration, creatures can speak, remember past interactions, and react dynamically to your actions — no extra setup required. 
+**CreatureChat Evolved** is a Minecraft mod that lets you chat with any creature in the game using AI. With built-in [Player2](https://player2.game/) integration, creatures can speak, remember past interactions, and react dynamically to your actions — no extra setup required. 
 
 ## Features
 - **No LLM/API Setup:** All you need is the [Player2 App](https://player2.game/), no need to set up your own API account.
@@ -16,14 +16,14 @@
 
 
 ## Installation Instructions
-👉 Check [releases](https://github.com/elefant-ai/creature-chat-evolved/releases) and download the appropriate jar file for your minecraft version.
+👉 Check [releases](https://github.com/elefant-ai/creature-chat-evolved/releases) and download the appropriate jar file for your Minecraft version.
 
 Then follow either of the following:
 
 ### Fabric (Recommended)
-1. **Install Fabric Loader & API:** Follow the instructions [here](https://fabricmc.net/use/).
-2. **Install CreatureChat Mod:** Download and copy the jar file and `fabric-api-*.jar` into your `.minecraft/mods` folder.
-3. **Install the Player2 App:** Download, run, and install the [Player2 App](https://player2.game/).
+1. **Install the Player2 App:** Download, run, and install the [Player2 App](https://player2.game/).
+2. **Install Fabric Loader & API:** Follow the instructions [here](https://fabricmc.net/use/).
+3. **Install CreatureChat Mod:** Download and copy the jar file and `fabric-api-*.jar` into your `.minecraft/mods` folder.
 4. **Launch Minecraft** with the Fabric profile.
 
 ### Forge (with Sinytra Connector)
@@ -38,8 +38,6 @@ Then follow either of the following:
 
 
 # In-game Commands / Configuration
-- **REQUIRED:** `/creaturechat key set <key>`
-  - Sets the *OpenAI API key*. This is required for making requests to the LLM.
 - **OPTIONAL:** `/creaturechat url set "<url>"`
   - Sets the URL of the API used to make LLM requests. Defaults to `"https://api.openai.com/v1/chat/completions"`.
 - **OPTIONAL:** `/creaturechat model set <model>`
@@ -77,7 +75,7 @@ options for connecting an LLM.
 
 1. **Free & Local**: Use open-source and free-to-use LLMs without any API fees. [**Difficulty: Hard**]
 2. **Bring Your Own Key**: Use your own API key from providers like OpenAI or Groq. [**Difficulty: Medium**]
-3. **Token Shop**: Supports CreatureChat by purchasing tokens from the developers on Discord. [**Difficulty: Easy**]
+3. **Token Shop**: Supports CreatureChat by purchasing tokens from the CreatureChat original developers on Discord [This is not part of player2]. [**Difficulty: Easy**]
 
 ### 1. Free & Local
 CreatureChat fully supports **free and open-source** LLMs. To get started:
@@ -107,7 +105,7 @@ For those already using a third-party API (e.g., OpenAI, Groq):
   - `/creaturechat model set gpt-3.5-turbo`
 
 ### 3. Token Shop
-Supports CreatureChat by purchasing tokens from the developers:
+Supports CreatureChat by purchasing tokens from the original developers [Not player2 affiliated]:
 
 - Easy setup with simple token packs, created for CreatureChat users.
 - More info is available in the #token-shop channel on our [Discord](https://discord.gg/m9dvPFmN3e).
@@ -118,4 +116,3 @@ Supports CreatureChat by purchasing tokens from the developers:
 # Acknowledgements
 
 This mod is built upon [the original creature chat mod](http://gitlab.openshot.org/public-projects/creature-chat), by Jonathan Thomas and owlmaddie.
-
