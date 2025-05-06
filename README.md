@@ -16,7 +16,9 @@
 
 
 ## Installation Instructions
-👉 Check releases and download the appropriate jar file for your minecraft version
+👉 Check [releases](https://github.com/elefant-ai/creature-chat-evolved/releases) and download the appropriate jar file for your minecraft version.
+
+Then follow either of the following:
 
 ### Fabric (Recommended)
 1. **Install Fabric Loader & API:** Follow the instructions [here](https://fabricmc.net/use/).
