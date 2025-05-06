@@ -33,7 +33,7 @@ jobs:
           # 2) ${{ env.version }} evaluates to "1.0.3"
           echo "tag=v${new_version}" >> "$GITHUB_ENV"
           echo "version=${new_version}" >> "$GITHUB_ENV"
-          ``
+          
       - name: Gradle perms
         run: chmod +x ./gradlew
 
