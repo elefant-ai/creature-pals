@@ -1,13 +1,13 @@
 # CreatureChat Evolved
 <p align="center">
-<img src="https://github.com/user-attachments/assets/810b503a-4c20-4e71-9a29-1e402ddd0563" width="45%"/>
+<img src="https://cdn.elefant.gg/image/png/creaturechatevolved.png" width="45%"/>
 </p>
 
 ## What is CreatureChat Evolved?
 **CreatureChat Evolved** is a client-side Minecraft mod that lets you chat with any creature in the game using AI. With built-in [Player2](https://player2.game/) integration, creatures can speak, remember past interactions, and react dynamically to your actions — no extra setup required. 
 
 ## Features
-- **No LLM Setup:** All you need is the [Player2 App](https://player2.game/), no need to set up your own API account.
+- **No LLM/API Setup:** All you need is the [Player2 App](https://player2.game/), no need to set up your own API account.
 - **Behaviors:** Creatures can make decisions on their own and **Follow, Flee, Attack, Protect**, and more!
 - **Reactions:** Creatures automatically react to being damaged or receiving items from players.
 - **Friendship:** Track your relationships from friends to foes.
@@ -16,8 +16,9 @@
 
 
 ## Installation Instructions
-### Fabric (Recommended)
+👉 Check releases and download the appropriate jar file for your minecraft version
 
+### Fabric (Recommended)
 1. **Install Fabric Loader & API:** Follow the instructions [here](https://fabricmc.net/use/).
 2. **Install CreatureChat Mod:** Download and copy the jar file and `fabric-api-*.jar` into your `.minecraft/mods` folder.
 3. **Install the Player2 App:** Download, run, and install the [Player2 App](https://player2.game/).
