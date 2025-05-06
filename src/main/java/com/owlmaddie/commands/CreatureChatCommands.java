@@ -225,15 +225,15 @@ public class CreatureChatCommands {
         ConfigurationHandler.Config config = configHandler.loadConfig();
         try {
             switch (settingName) {
-                // case "key":
-                //     config.setApiKey((String) value);
-                //     break;
-                // case "url":
-                //     config.setUrl((String) value);
-                //     break;
-                // case "model":
-                //     config.setModel((String) value);
-                //     break;
+                case "key":
+                    config.setApiKey((String) value);
+                    break;
+                case "url":
+                    config.setUrl((String) value);
+                    break;
+                case "model":
+                    config.setModel((String) value);
+                    break;
                 case "timeout":
                     if (value instanceof Integer) {
                         config.setTimeout((Integer) value);
