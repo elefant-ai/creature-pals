@@ -60,6 +60,10 @@ jobs:
           git commit -m "change version v${{ env.version }}"
           git push origin "$branch"
 
+          # must also create tag
+          git tag "${{ env.tag }}"
+          git push origin "${{ env.tag }}"
+
           # will use branch in other blocks
           echo "branch=$branch" >> "$GITHUB_ENV"
       - name: Create PR for release
