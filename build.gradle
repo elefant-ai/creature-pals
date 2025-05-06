@@ -102,3 +102,64 @@ publishing {
 		// retrieving dependencies.
 	}
 }
+
+
+task buildAllVersions {
+    doLast {
+        def versions = [
+            [mc: "1.20",   yarn: "1.20+build.1",    fabric: "0.83.0+1.20"],
+            [mc: "1.20.1", yarn: "1.20.1+build.10", fabric: "0.92.1+1.20.1"],
+            [mc: "1.20.2", yarn: "1.20.2+build.4",  fabric: "0.91.6+1.20.2"],
+            [mc: "1.20.3", yarn: "1.20.3+build.1",  fabric: "0.91.1+1.20.3"],
+            [mc: "1.20.4", yarn: "1.20.4+build.3",  fabric: "0.97.0+1.20.4"]
+        ]
+
+        def isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
+
+        if (isWindows) {
+            exec {
+                commandLine "cmd", "/c", "gradlew.bat", "clean"
+            }
+        } else {
+            exec {
+                commandLine "./gradlew", "clean"
+            }
+        }
+
+        versions.each { v ->
+            println "Building for version: ${v.mc}"
+
+            def props = file("gradle.properties").text
+                .replaceAll("minecraft_version=.*", "minecraft_version=${v.mc}")
+                .replaceAll("yarn_mappings=.*", "yarn_mappings=${v.yarn}")
+                .replaceAll("fabric_version=.*", "fabric_version=${v.fabric}")
+            file("gradle.properties").text = props
+
+            def modJson = file("src/main/resources/fabric.mod.json").text
+                .replaceAll('"minecraft": ".*"', "\"minecraft\": \"~${v.mc}\"")
+            file("src/main/resources/fabric.mod.json").text = modJson
+
+            if (isWindows) {
+                exec {
+                    commandLine "cmd", "/c", "gradlew.bat", "build", "-x", "test"
+                }
+            } else {
+                exec {
+                    commandLine "./gradlew", "build", "-x", "test"
+                }
+            }
+
+            copy {
+                from "build/libs"
+                include "creaturechat-*.jar"
+                into "build/outputs"
+                rename { "creaturechat-${v.mc}.jar" }
+                duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+            }
+
+            delete fileTree('build/libs') {
+                include 'creaturechat-*.jar'
+            }
+        }
+    }
+}
