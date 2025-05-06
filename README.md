@@ -118,3 +118,4 @@ Supports CreatureChat by purchasing tokens from the developers:
 # Acknowledgements
 
 This mod is built upon [the original creature chat mod](http://gitlab.openshot.org/public-projects/creature-chat), by Jonathan Thomas and owlmaddie.
+

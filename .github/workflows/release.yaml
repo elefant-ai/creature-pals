@@ -1,0 +1,88 @@
+name: Auto release builds
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Get version and release variables
+        id: version
+        run: |
+          version=$(grep "^mod_version=" gradle.properties | cut -d= -f2)
+          echo "Current version: $version"
+          base=$(echo "$version" | cut -d. -f1,2)
+          patch=$(echo "$version" | cut -d. -f3 | tr -d '\r' | tr -d ' ')
+          next_patch=$((patch + 1))
+          new_version="${base}.${next_patch}"
+          echo "New version: $new_version"
+          # for other blocks now:
+          # 1) ${{ steps.version.outputs.tag }} evaluates to "v1.0.3"
+          # 2) ${{ steps.version.outputs.version }} evaluates to "1.0.3"
+          echo "tag=v${new_version}" >> $GITHUB_OUTPUT
+          echo "version=${new_version}" >> $GITHUB_OUTPUT
+      
+      - name: Gradle perms
+        run: chmod +x ./gradlew
+
+      - name: Build all versions
+        run: ./gradlew buildAllVersions
+      
+      - name: Change gradle file, branch, and push 
+        id: commit
+        run: |
+          branch="action/release-to-${{ steps.version.outputs.tag }}"
+
+
+          # actually change  "mod_version=x.y.z" -> "mod_version=x.y.z+1" in gradle.properties
+          sed -i "s/^mod_version=.*/mod_version=${{ steps.version.outputs.version }}/" gradle.properties
+          echo "Bumped version to ${{ steps.version.outputs.version }}"
+
+          
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+
+          git checkout -b "$branch"
+          git add gradle.properties
+          git commit -m "change version v${{ steps.version.outputs.version }}"
+          git push origin "$branch"
+
+          # will use branch in other blocks
+          echo "branch=$branch" >> $GITHUB_OUTPUT
+      - name: Create PR for release
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: main
+          head: ${{ steps.commit.outputs.branch }}
+          title: "release for ${{ steps.version.outputs.tag }}"
+          body: |
+            Auto generated PR from release to change the version in `gradle.properties`
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: CreatureChat Evolved ${{ steps.version.outputs.tag }}
+          body: |
+            To download, install [Player2 app](https://player2.game/), install fabric, the fabric API, then drag the jar file into your mod folder
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload jar files
+        uses: softprops/action-gh-release@v1
+        with:
+          files: build/outputs/creaturechat-*.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
