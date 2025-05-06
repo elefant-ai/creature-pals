@@ -38,17 +38,37 @@ jobs:
       - name: Build all versions
         run: ./gradlew buildAllVersions
       
-      - name: Change gradle file and commit/push
+      - name: Change gradle file, branch, and push 
+        id: commit
         run: |
+          branch="action/release-to-${{ steps.version.outputs.tag }}"
+
+
           # actually change  "mod_version=x.y.z" -> "mod_version=x.y.z+1" in gradle.properties
           sed -i "s/^mod_version=.*/mod_version=${{ steps.version.outputs.version }}/" gradle.properties
-          echo "Bumped version to $new_version"
+          echo "Bumped version to ${{ steps.version.outputs.version }}"
+
+          
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
+
+
+          git checkout -b "$branch"
           git add gradle.properties
-          git commit -m "Release v${{ steps.version.outputs.version }}"
-          git tag ${{ steps.version.outputs.tag }}
-          git push origin HEAD --tags
+          git commit -m "change version v${{ steps.version.outputs.version }}"
+          git push origin "$branch"
+
+          # will use branch in other blocks
+          echo "branch=$branch" >> $GITHUB_OUTPUT
+      - name: Create PR for release
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: main
+          head: ${{ steps.commit.outputs.branch }}
+          title: "release for ${{ steps.version.outputs.tag }}"
+          body: |
+            Auto generated PR from release to change the version in `gradle.properties`
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
