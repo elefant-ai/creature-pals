@@ -58,11 +58,18 @@ jobs:
           git checkout -b "$branch"
           git add gradle.properties
           git commit -m "change version v${{ env.version }}"
-          git push origin "$branch"
+          if git ls-remote --heads origin "$branch" | grep -q "$branch"; then
+            echo "Branch '$branch' already exists on remote. Skipping push."
+          else
+            git push origin "$branch"
+          fi 
 
-          # must also create tag
-          git tag "${{ env.tag }}"
-          git push origin "${{ env.tag }}"
+          if git ls-remote --tags origin | grep -q "refs/tags/${{ env.tag }}"; then
+            echo "Remote tag already exists, skipping push"
+          else
+            git tag "${{ env.tag }}"
+            git push origin "${{ env.tag }}"
+          fi
 
           # will use branch in other blocks
           echo "branch=$branch" >> "$GITHUB_ENV"
