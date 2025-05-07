@@ -445,7 +445,7 @@ public class ServerPackets {
         for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
             // Check if the player is an operator
             if (server.getPlayerManager().isOperator(player.getGameProfile())) {
-                ServerPackets.SendClickableError(player, message, "http://discord.creaturechat.com");
+                ServerPackets.SendClickableError(player, message, "https://elefant.gg/discord");
             }
         }
     }

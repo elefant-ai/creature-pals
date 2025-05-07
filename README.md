@@ -96,7 +96,7 @@ CreatureChat fully supports **free and open-source** LLMs. To get started:
     - `/creaturechat url set "http://ENTER-YOUR-HTTP-ENDPOINT-FROM-LITE-LLM"`
     - `/creaturechat model set ENTER-MODEL-NAME`
     - `/creaturechat timeout set 360`
-  - Additional help can be found in the **#locall-llm-info** channel on our [Discord](https://discord.gg/m9dvPFmN3e).
+  - Additional help can be found in the **#locall-llm-info** channel in the creaturechat [Discord](https://discord.gg/m9dvPFmN3e).
 
 ### 2. Bring Your Own Key
 For those already using a third-party API (e.g., OpenAI, Groq):
@@ -114,7 +114,7 @@ For those already using a third-party API (e.g., OpenAI, Groq):
 Supports CreatureChat by purchasing tokens from the original developers [Not player2 affiliated]:
 
 - Easy setup with simple token packs, created for CreatureChat users.
-- More info is available in the #token-shop channel on our [Discord](https://discord.gg/m9dvPFmN3e).
+- More info is available in the #token-shop channel on the creaturechat [Discord](https://discord.gg/m9dvPFmN3e).
 - Set the token-shop API key in-game:
   - `/creaturechat key set <YOUR-SECRET-KEY-HERE>`
 
