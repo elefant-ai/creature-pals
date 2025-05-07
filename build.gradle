@@ -147,12 +147,12 @@ task buildAllVersions {
             def modJson = file("src/main/resources/fabric.mod.json").text
                 .replaceAll('"minecraft": ".*"', "\"minecraft\": \"~${v.mc}\"")
             file("src/main/resources/fabric.mod.json").text = modJson
+			def modVersion = file("gradle.properties").readLines().find { it.startsWith("mod_version=") }?.split("=")[1]?.trim()
 
 			// BUILD WRAPPED FORGE JAR FILE
 			if (v.mc == "1.20.1") {
 				println "Building Forge version for 1.20.1"
 
-				def modVersion = file("gradle.properties").readLines().find { it.startsWith("mod_version=") }?.split("=")[1]?.trim()
 
 				def neoforgeTomlPath = "src/main/resources/META-INF/neoforge.mods.toml"
 				def neoforgeTomlContent = """
@@ -221,7 +221,7 @@ task buildAllVersions {
 					from "build/libs"
 					include "creaturechat-*.jar"
 					into "build/outputs"
-					rename { "creaturechatevolved-1.20.1-forge.jar" }
+					rename { "creaturechatevolved-${modVersion}-1.20.1-forge.jar" }
 					duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 				}
 
@@ -249,7 +249,7 @@ task buildAllVersions {
                 from "build/libs"
                 include "creaturechat-*.jar"
                 into "build/outputs"
-                rename { "creaturechatevolved-${v.mc}.jar" }
+                rename { "creaturechatevolved-${modVersion}-${v.mc}.jar" }
                 duplicatesStrategy = DuplicatesStrategy.EXCLUDE
             }
 
