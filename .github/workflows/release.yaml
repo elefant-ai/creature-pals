@@ -74,7 +74,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           base: main
           branch: ${{ env.branch }}
-          commit-message: "release for ${{ env.tag }}"
           title: "release for ${{ env.tag }}"
           body: |
             Auto generated PR from release to change the version in `gradle.properties`
