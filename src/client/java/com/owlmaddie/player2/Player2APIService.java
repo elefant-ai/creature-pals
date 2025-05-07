@@ -32,7 +32,7 @@ public class Player2APIService {
 
         connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
         connection.setRequestProperty("accept", "application/json; charset=utf-8");
-        connection.setRequestProperty("player2-game-key", "ai-gods");
+        connection.setRequestProperty("player2-game-key", "creature-chat-evolved");
 
         System.out.printf("Sending %s request to %s\n", postRequest? "POST":"GET", endpoint);
 
