@@ -91,6 +91,7 @@ jobs:
       - name: Upload jar files
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{ env.tag }}
           files: build/outputs/creaturechat-*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
