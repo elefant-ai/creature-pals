@@ -74,24 +74,19 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           base: main
           head: ${{ env.branch }}
+          commit-message: "release for ${{ env.tag }}"
+          push: false
           title: "release for ${{ env.tag }}"
           body: |
             Auto generated PR from release to change the version in `gradle.properties`
 
-      - name: Create Release
+      - name: Create Release and upload
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ env.tag }}
           name: CreatureChat Evolved ${{ env.tag }}
           body: |
             To download, install [Player2 app](https://player2.game/), install fabric, the fabric API, then drag the jar file into your mod folder
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload jar files
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ env.tag }}
-          files: build/outputs/creaturechat-*.jar
+          files: build/outputs/creaturechatevolved-*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
