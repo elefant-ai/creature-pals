@@ -124,6 +124,7 @@ public class ChatGPTRequest {
         String apiKey = config.getApiKey();
         String modelName = config.getModel();
         Integer timeout = config.getTimeout() * 1000;
+        LOGGER.info("[CHATGPTRequest]/fetchMessageFromChatGPT with timeout in seconds: " + config.getTimeout());
         int maxContextTokens = config.getMaxContextTokens();
         int maxOutputTokens = config.getMaxOutputTokens();
         double percentOfContext = config.getPercentOfContext();
@@ -139,8 +140,8 @@ public class ChatGPTRequest {
                 connection.setRequestProperty("Content-Type", "application/json");
                 connection.setRequestProperty("Authorization", "Bearer " + apiKey);
                 connection.setDoOutput(true);
-                connection.setConnectTimeout(timeout); // 10 seconds connection timeout
-                connection.setReadTimeout(timeout); // 10 seconds read timeout
+                connection.setConnectTimeout(timeout); // connection timeout
+                connection.setReadTimeout(timeout); // read timeout
                 connection.setRequestProperty("player2-game-key", "creature-chat-evolved");
 
                 // Create messages list (for chat history)
