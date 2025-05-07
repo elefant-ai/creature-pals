@@ -164,7 +164,7 @@ task buildAllVersions {
 
             copy {
                 from "build/libs"
-                include "creaturechatevolved-*.jar"
+                include "creaturechat-*.jar"
                 into "build/outputs"
                 rename { "creaturechatevolved-${v.mc}.jar" }
                 duplicatesStrategy = DuplicatesStrategy.EXCLUDE

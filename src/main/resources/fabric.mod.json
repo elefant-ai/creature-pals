@@ -1,8 +1,8 @@
 {
 	"schemaVersion": 1,
-	"id": "creaturechat",
+	"id": "creaturechatevolved",
 	"version": "${version}",
-	"name": "CreatureChat",
+	"name": "CreatureChatEvolved",
 	"description": "Chat, befriend, and interact with a rich world of creatures like never before! All creatures can talk and respond naturally using AI.",
 	"authors": [
 		"Jonathan Thomas <jonathan@openshot.org>",
