@@ -68,16 +68,15 @@ jobs:
 
           # will use branch in other blocks
           echo "branch=$branch" >> "$GITHUB_ENV"
-      - name: Create PR for release
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          base: main
-          branch: ${{ env.branch }}
-          title: "release for ${{ env.tag }}"
-          body: |
-            Auto generated PR from release to change the version in `gradle.properties`
-
+      - name: Create PR using GitHub CLI
+        run: |
+          gh pr create \
+            --title "Release for ${{ env.tag }}" \
+            --body "Auto-generated PR from release to change the version in \`gradle.properties\`" \
+            --base main \
+            --head ${{ env.branch }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create Release and upload
         uses: softprops/action-gh-release@v1
         with:
