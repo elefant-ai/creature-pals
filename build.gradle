@@ -200,6 +200,7 @@ task buildAllVersions {
 				side="BOTH"
 	
 				""".stripIndent()
+				file("src/main/resources/META-INF").mkdirs()
 				file(neoforgeTomlPath).text = neoforgeTomlContent
 
 				if (isWindows) {
