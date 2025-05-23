@@ -8,23 +8,21 @@ import com.owlmaddie.commands.ConfigurationHandler;
 import com.owlmaddie.goals.EntityBehaviorManager;
 import com.owlmaddie.goals.GoalPriority;
 import com.owlmaddie.goals.TalkPlayerGoal;
-import com.owlmaddie.particle.LeadParticleEffect;
+import com.owlmaddie.network.C2S.*;
+import com.owlmaddie.network.S2C.*;
 import com.owlmaddie.utils.Compression;
 import com.owlmaddie.utils.Randomizer;
 import com.owlmaddie.utils.ServerEntityFinder;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.particle.SimpleParticleType;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -42,6 +40,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import static com.owlmaddie.network.NetworkingConstants.PACKET_C2S_READ_NEXT;
+
 /**
  * The {@code ServerPackets} class provides methods to send packets to/from the client for generating greetings,
  * updating message details, and sending user messages.
@@ -50,47 +50,38 @@ public class ServerPackets {
     public static final Logger LOGGER = LoggerFactory.getLogger("creaturechat");
     public static MinecraftServer serverInstance;
     public static ChatDataSaverScheduler scheduler = null;
-    public static final Identifier PACKET_C2S_GREETING = Identifier.of("creaturechat", "packet_c2s_greeting");
-    public static final Identifier PACKET_C2S_READ_NEXT = Identifier.of("creaturechat", "packet_c2s_read_next");
-    public static final Identifier PACKET_C2S_SET_STATUS =  Identifier.of("creaturechat", "packet_c2s_set_status");
-    public static final Identifier PACKET_C2S_OPEN_CHAT =  Identifier.of("creaturechat", "packet_c2s_open_chat");
-    public static final Identifier PACKET_C2S_CLOSE_CHAT = Identifier.of("creaturechat", "packet_c2s_close_chat");
-    public static final Identifier PACKET_C2S_SEND_CHAT =  Identifier.of("creaturechat", "packet_c2s_send_chat");
-    public static final Identifier PACKET_S2C_ENTITY_MESSAGE = Identifier.of("creaturechat", "packet_s2c_entity_message");
-    public static final Identifier PACKET_S2C_PLAYER_MESSAGE = Identifier.of("creaturechat", "packet_s2c_player_message");
-    public static final Identifier PACKET_S2C_LOGIN = Identifier.of("creaturechat", "packet_s2c_login");
-    public static final Identifier PACKET_S2C_WHITELIST =  Identifier.of("creaturechat", "packet_s2c_whitelist");
-    public static final Identifier PACKET_S2C_PLAYER_STATUS = Identifier.of("creaturechat", "packet_s2c_player_status");
 
 
     public static void register() {
 
 
+        PayloadTypeRegistry.playC2S().register(GreetingPayload.ID, GreetingPayload.CODEC);
         // Handle packet for Greeting
-        ServerPlayNetworking.registerGlobalReceiver(PACKET_C2S_GREETING, (server, player, handler, buf, responseSender) -> {
-            UUID entityId = UUID.fromString(buf.readString());
-            String userLanguage = buf.readString(32767);
+        ServerPlayNetworking.registerGlobalReceiver(GreetingPayload.ID, (payload, context) -> {
+
+            ServerPlayerEntity player = context.player();
 
             // Ensure that the task is synced with the server thread
-            server.execute(() -> {
-                MobEntity entity = (MobEntity)ServerEntityFinder.getEntityByUUID(player.getServerWorld(), entityId);
+            context.server().execute(() -> {
+                MobEntity entity = (MobEntity)ServerEntityFinder.getEntityByUUID(player.getServerWorld(), payload.entityId());
                 if (entity != null) {
                     EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(entity.getUuidAsString());
                     if (chatData.characterSheet.isEmpty()) {
-                        generate_character(userLanguage, chatData, player, entity);
+                        generate_character(payload.userLanguage(), chatData, player, entity);
                     }
                 }
             });
         });
 
-        // Handle packet for reading lines of message
-        ServerPlayNetworking.registerGlobalReceiver(PACKET_C2S_READ_NEXT, (server, player, handler, buf, responseSender) -> {
-            UUID entityId = UUID.fromString(buf.readString());
-            int lineNumber = buf.readInt();
+        PayloadTypeRegistry.playC2S().register(ReadNextPayload.ID, ReadNextPayload.CODEC);
 
+        // Handle packet for reading lines of message
+        ServerPlayNetworking.registerGlobalReceiver(ReadNextPayload.ID, (payload, context) -> {
+            int lineNumber = payload.lineNumber();
+            ServerPlayerEntity player = context.player();
             // Ensure that the task is synced with the server thread
-            server.execute(() -> {
-                MobEntity entity = (MobEntity)ServerEntityFinder.getEntityByUUID(player.getServerWorld(), entityId);
+            context.server().execute(() -> {
+                MobEntity entity = (MobEntity)ServerEntityFinder.getEntityByUUID(player.getServerWorld(), payload.entityId());
                 if (entity != null) {
                     // Set talk to player goal (prevent entity from walking off)
                     TalkPlayerGoal talkGoal = new TalkPlayerGoal(player, entity, 3.5F);
@@ -103,14 +94,15 @@ public class ServerPackets {
             });
         });
 
-        // Handle packet for setting status of chat bubbles
-        ServerPlayNetworking.registerGlobalReceiver(PACKET_C2S_SET_STATUS, (server, player, handler, buf, responseSender) -> {
-            UUID entityId = UUID.fromString(buf.readString());
-            String status_name = buf.readString(32767);
+        PayloadTypeRegistry.playC2S().register(SetStatusPayload.ID, SetStatusPayload.CODEC);
 
+        // Handle packet for setting status of chat bubbles
+        ServerPlayNetworking.registerGlobalReceiver(SetStatusPayload.ID, (payload,context) -> {
+
+            ServerPlayerEntity player = context.player();
             // Ensure that the task is synced with the server thread
-            server.execute(() -> {
-                MobEntity entity = (MobEntity)ServerEntityFinder.getEntityByUUID(player.getServerWorld(), entityId);
+            context.server().execute(() -> {
+                MobEntity entity = (MobEntity)ServerEntityFinder.getEntityByUUID(player.getServerWorld(), payload.entityId());
                 if (entity != null) {
                     // Set talk to player goal (prevent entity from walking off)
                     TalkPlayerGoal talkGoal = new TalkPlayerGoal(player, entity, 3.5F);
@@ -118,18 +110,21 @@ public class ServerPackets {
 
                     EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(entity.getUuidAsString());
                     LOGGER.debug("Hiding chat bubble for: " + entity.getType().toString());
-                    chatData.setStatus(ChatDataManager.ChatStatus.valueOf(status_name));
+                    chatData.setStatus(ChatDataManager.ChatStatus.valueOf(payload.statusName()));
                 }
             });
         });
 
+        PayloadTypeRegistry.playC2S().register(OpenChatPayload.ID, OpenChatPayload.CODEC);
+
         // Handle packet for Open Chat
-        ServerPlayNetworking.registerGlobalReceiver(PACKET_C2S_OPEN_CHAT, (server, player, handler, buf, responseSender) -> {
-            UUID entityId = UUID.fromString(buf.readString());
-            // AAA when you right click and open chat 
+        ServerPlayNetworking.registerGlobalReceiver(OpenChatPayload.ID, (payload, context) -> {
+            // AAA when you right click and open chat
             // Ensure that the task is synced with the server thread
-            server.execute(() -> {
-                MobEntity entity = (MobEntity)ServerEntityFinder.getEntityByUUID(player.getServerWorld(), entityId);
+
+            ServerPlayerEntity player = context.player();
+            context.server().execute(() -> {
+                MobEntity entity = (MobEntity)ServerEntityFinder.getEntityByUUID(player.getServerWorld(), payload.entityId());
                 if (entity != null) {
                     // Set talk to player goal (prevent entity from walking off)
                     TalkPlayerGoal talkGoal = new TalkPlayerGoal(player, entity, 7F);
@@ -141,35 +136,42 @@ public class ServerPackets {
             });
         });
 
-        // Handle packet for Close Chat
-        ServerPlayNetworking.registerGlobalReceiver(PACKET_C2S_CLOSE_CHAT, (server, player, handler, buf, responseSender) -> {
+        PayloadTypeRegistry.playC2S().register(CloseChatPayload.ID, CloseChatPayload.CODEC);
 
-            server.execute(() -> {
+        // Handle packet for Close Chat
+        ServerPlayNetworking.registerGlobalReceiver(CloseChatPayload.ID, (payload, context) -> {
+
+            context.server().execute(() -> {
                 // Sync player UI status to all clients
-                BroadcastPlayerStatus(player, false);
+                BroadcastPlayerStatus(context.player(), false);
             });
         });
 
-        // Handle packet for new chat message
-        ServerPlayNetworking.registerGlobalReceiver(PACKET_C2S_SEND_CHAT, (server, player, handler, buf, responseSender) -> {
-            UUID entityId = UUID.fromString(buf.readString());
-            String message = buf.readString(32767);
-            String userLanguage = buf.readString(32767);
+        PayloadTypeRegistry.playC2S().register(SendChatPayload.ID, SendChatPayload.CODEC);
 
+        // Handle packet for new chat message
+        ServerPlayNetworking.registerGlobalReceiver(SendChatPayload.ID, (payload, context) -> {
+
+            ServerPlayerEntity player = context.player();
+            String userLanguage = payload.userLanguage();
             // Ensure that the task is synced with the server thread
-            server.execute(() -> {
-                MobEntity entity = (MobEntity)ServerEntityFinder.getEntityByUUID(player.getServerWorld(), entityId);
+            context.server().execute(() -> {
+                MobEntity entity = (MobEntity)ServerEntityFinder.getEntityByUUID(player.getServerWorld(), payload.entityId());
                 if (entity != null) {
                     EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(entity.getUuidAsString());
                     if (chatData.characterSheet.isEmpty()) {
                         generate_character(userLanguage, chatData, player, entity);
                     } else {
                         // AAA server side generate llm response on entity
-                        generate_chat(userLanguage, chatData, player, entity, message, false);
+                        generate_chat(userLanguage, chatData, player, entity, payload.chatMessage(), false);
                     }
                 }
             });
         });
+
+        PayloadTypeRegistry.playS2C().register(LoginPayload.ID, LoginPayload.CODEC);
+
+
 
         // Send lite chat data JSON to new player (to populate client data)
         // Data is sent in chunks, to prevent exceeding the 32767 limit per String.
@@ -196,17 +198,18 @@ public class ServerPackets {
                 int start = i * chunkSize;
                 int end = Math.min(compressedData.length, start + chunkSize);
 
-                PacketByteBuf buffer = new PacketByteBuf(Unpooled.buffer());
-                buffer.writeInt(i); // Packet sequence number
-                buffer.writeInt(totalPackets); // Total number of packets
-
                 // Write chunk as byte array
                 byte[] chunk = Arrays.copyOfRange(compressedData, start, end);
-                buffer.writeByteArray(chunk);
 
-                ServerPlayNetworking.send(player, PACKET_S2C_LOGIN, buffer);
+                ServerPlayNetworking.send(player, new LoginPayload(i, totalPackets, chunk));
             }
         });
+
+        PayloadTypeRegistry.playS2C().register(EntityMessagePayload.ID, EntityMessagePayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(WhitelistPayload.ID, WhitelistPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(PlayerMessagePayload.ID, PlayerMessagePayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(PlayerStatusPayload.ID, PlayerStatusPayload.CODEC);
+
 
         ServerWorldEvents.LOAD.register((server, world) -> {
             String world_name = world.getRegistryKey().getValue().getPath();
@@ -219,6 +222,7 @@ public class ServerPackets {
                 scheduler.startAutoSaveTask(server, 15, TimeUnit.MINUTES);
             }
         });
+
         ServerWorldEvents.UNLOAD.register((server, world) -> {
             String world_name = world.getRegistryKey().getValue().getPath();
             if (world_name == "overworld") {
@@ -241,30 +245,21 @@ public class ServerPackets {
 
     public static void send_whitelist_blacklist(ServerPlayerEntity player) {
         ConfigurationHandler.Config config = new ConfigurationHandler(ServerPackets.serverInstance).loadConfig();
-        PacketByteBuf buffer = new PacketByteBuf(Unpooled.buffer());
 
         // Write the whitelist data to the buffer
         List<String> whitelist = config.getWhitelist();
-        buffer.writeInt(whitelist.size());
-        for (String entry : whitelist) {
-            buffer.writeString(entry);
-        }
-
-        // Write the blacklist data to the buffer
         List<String> blacklist = config.getBlacklist();
-        buffer.writeInt(blacklist.size());
-        for (String entry : blacklist) {
-            buffer.writeString(entry);
-        }
+
+        WhitelistPayload packet = new WhitelistPayload(whitelist, blacklist);
 
         if (player != null) {
             // Send packet to specific player
             LOGGER.info("Sending whitelist / blacklist packet to player: " + player.getName().getString());
-            ServerPlayNetworking.send(player, PACKET_S2C_WHITELIST, buffer);
+            ServerPlayNetworking.send(player, packet);
         } else {
             // Iterate over all players and send the packet
             for (ServerPlayerEntity serverPlayer : serverInstance.getPlayerManager().getPlayerList()) {
-                ServerPlayNetworking.send(serverPlayer, PACKET_S2C_WHITELIST, buffer);
+                ServerPlayNetworking.send(serverPlayer, packet);
             }
         }
     }
@@ -310,14 +305,7 @@ public class ServerPackets {
     }
 
     // Writing a Map<String, PlayerData> to the buffer
-    public static void writePlayerDataMap(PacketByteBuf buffer, Map<String, PlayerData> map) {
-        buffer.writeInt(map.size()); // Write the size of the map
-        for (Map.Entry<String, PlayerData> entry : map.entrySet()) {
-            buffer.writeString(entry.getKey()); // Write the key (playerName)
-            PlayerData data = entry.getValue();
-            buffer.writeInt(data.friendship); // Write PlayerData field(s)
-        }
-    }
+
 
     // Send new message to all connected players
     public static void BroadcastEntityMessage(EntityChatData chatData) {
@@ -348,16 +336,8 @@ public class ServerPackets {
 
             // Iterate over all players and send the packet
             for (ServerPlayerEntity player : serverInstance.getPlayerManager().getPlayerList()) {
-                PacketByteBuf buffer = new PacketByteBuf(Unpooled.buffer());
-                buffer.writeString(chatData.entityId);
-                buffer.writeString(chatData.currentMessage);
-                buffer.writeInt(chatData.currentLineNumber);
-                buffer.writeString(chatData.status.toString());
-                buffer.writeString(chatData.sender.toString());
-                writePlayerDataMap(buffer, chatData.players);
-
                 // Send message to player
-                ServerPlayNetworking.send(player, PACKET_S2C_ENTITY_MESSAGE, buffer);
+                ServerPlayNetworking.send(player, EntityMessagePayload.make(chatData.entityId, chatData.currentMessage, chatData.currentLineNumber,chatData.status.toString(),chatData.sender.toString(),chatData.players));
             }
             break;
         }
@@ -369,33 +349,20 @@ public class ServerPackets {
         LOGGER.info("Broadcasting player message: senderUUID={}, message={}", sender.getUuidAsString(),
                 chatData.currentMessage);
 
-        // Create the buffer for the packet
-        PacketByteBuf buffer = new PacketByteBuf(Unpooled.buffer());
-
-        // Write the sender's UUID and the chat message to the buffer
-        buffer.writeString(sender.getUuidAsString());
-        buffer.writeString(sender.getDisplayName().getString());
-        buffer.writeString(chatData.currentMessage);
-        buffer.writeBoolean(fromMinecraftChat);
-
         // Iterate over all connected players and send the packet
         for (ServerPlayerEntity serverPlayer : serverInstance.getPlayerManager().getPlayerList()) {
-            ServerPlayNetworking.send(serverPlayer, PACKET_S2C_PLAYER_MESSAGE, buffer);
+            ServerPlayNetworking.send(serverPlayer, new PlayerMessagePayload(sender.getUuid(), sender.getDisplayName().getString(), chatData.currentMessage, fromMinecraftChat));
         }
     }
 
     // Send new message to all connected players
     public static void BroadcastPlayerStatus(PlayerEntity player, boolean isChatOpen) {
-        PacketByteBuf buffer = new PacketByteBuf(Unpooled.buffer());
-
-        // Write the entity's chat updated data
-        buffer.writeString(player.getUuidAsString());
-        buffer.writeBoolean(isChatOpen);
+        PlayerStatusPayload packet = new PlayerStatusPayload(player.getUuid(), isChatOpen);
 
         // Iterate over all players and send the packet
         for (ServerPlayerEntity serverPlayer : serverInstance.getPlayerManager().getPlayerList()) {
             LOGGER.debug("Server broadcast " + player.getName().getString() + " player status to client: " + serverPlayer.getName().getString() + " | isChatOpen: " + isChatOpen);
-            ServerPlayNetworking.send(serverPlayer, PACKET_S2C_PLAYER_STATUS, buffer);
+            ServerPlayNetworking.send(serverPlayer, packet);
         }
     }
 

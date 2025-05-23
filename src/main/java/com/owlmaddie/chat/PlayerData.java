@@ -5,6 +5,7 @@ package com.owlmaddie.chat;
  * specifically tracking their friendship level.
  */
 public class PlayerData {
+
     public int friendship;
 
     public PlayerData() {
