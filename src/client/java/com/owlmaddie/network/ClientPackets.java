@@ -5,6 +5,8 @@ import com.google.gson.reflect.TypeToken;
 import com.owlmaddie.chat.ChatDataManager;
 import com.owlmaddie.chat.EntityChatData;
 import com.owlmaddie.chat.PlayerData;
+import com.owlmaddie.network.C2S.*;
+import com.owlmaddie.network.S2C.*;
 import com.owlmaddie.ui.BubbleRenderer;
 import com.owlmaddie.ui.PlayerMessageManager;
 import com.owlmaddie.utils.ClientEntityFinder;
@@ -38,12 +40,8 @@ public class ClientPackets {
         String userLanguageCode = MinecraftClient.getInstance().getLanguageManager().getLanguage();
         String userLanguageName = MinecraftClient.getInstance().getLanguageManager().getLanguage(userLanguageCode).getDisplayText().getString();
 
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeString(entity.getUuidAsString());
-        buf.writeString(userLanguageName);
-
         // Send C2S packet
-        ClientPlayNetworking.send(ServerPackets.PACKET_C2S_GREETING, buf);
+        ClientPlayNetworking.send(new GreetingPayload(entity.getUuid(), userLanguageName));
     }
 
     public static void sendUpdateLineNumber(Entity entity, Integer lineNumber) {
@@ -52,31 +50,22 @@ public class ClientPackets {
         buf.writeInt(lineNumber);
 
         // Send C2S packet
-        ClientPlayNetworking.send(ServerPackets.PACKET_C2S_READ_NEXT, buf);
+        ClientPlayNetworking.send(new ReadNextPayload(entity.getUuid(), lineNumber));
     }
 
     public static void sendOpenChat(Entity entity) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeString(entity.getUuidAsString());
-
         // Send C2S packet
-        ClientPlayNetworking.send(ServerPackets.PACKET_C2S_OPEN_CHAT, buf);
+        ClientPlayNetworking.send(new OpenChatPayload(entity.getUuid()));
     }
 
     public static void sendCloseChat() {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-
         // Send C2S packet
-        ClientPlayNetworking.send(ServerPackets.PACKET_C2S_CLOSE_CHAT, buf);
+        ClientPlayNetworking.send(new CloseChatPayload(false));
     }
 
-    public static void setChatStatus(Entity entity, ChatDataManager.ChatStatus new_status) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeString(entity.getUuidAsString());
-        buf.writeString(new_status.toString());
-
+    public static void setChatStatus(Entity entity, ChatDataManager.ChatStatus newStatus) {
         // Send C2S packet
-        ClientPlayNetworking.send(ServerPackets.PACKET_C2S_SET_STATUS, buf);
+        ClientPlayNetworking.send(new SetStatusPayload(entity.getUuid(), newStatus.toString()));
     }
 
     public static void sendChat(Entity entity, String message) {
@@ -85,13 +74,8 @@ public class ClientPackets {
         String userLanguageCode = MinecraftClient.getInstance().getLanguageManager().getLanguage();
         String userLanguageName = MinecraftClient.getInstance().getLanguageManager().getLanguage(userLanguageCode).getDisplayText().getString();
 
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeString(entity.getUuidAsString());
-        buf.writeString(message);
-        buf.writeString(userLanguageName);
-
         // Send C2S packet
-        ClientPlayNetworking.send(ServerPackets.PACKET_C2S_SEND_CHAT, buf);
+        ClientPlayNetworking.send(new SendChatPayload(entity.getUuid(), message, userLanguageName));
     }
 
     // Reading a Map<String, PlayerData> from the buffer
@@ -111,17 +95,19 @@ public class ClientPackets {
 
     public static void register() {
         // Client-side packet handler, message sync
-        ClientPlayNetworking.registerGlobalReceiver(ServerPackets.PACKET_S2C_ENTITY_MESSAGE, (client, handler, buffer, responseSender) -> {
+
+        ClientPlayNetworking.registerGlobalReceiver(EntityMessagePayload.ID, (payload, context) -> {
             // Read the data from the server packet
-            UUID entityId = UUID.fromString(buffer.readString());
-            String message = buffer.readString(32767);
-            int line = buffer.readInt();
-            String status_name = buffer.readString(32767);
+            UUID entityId = payload.entityID();
+            String message = payload.currentMessage();
+            int line = payload.currentLineNumber();
+            String status_name = payload.status();
             ChatDataManager.ChatStatus status = ChatDataManager.ChatStatus.valueOf(status_name);
-            String sender_name = buffer.readString(32767);
+            String sender_name = payload.sender();
             ChatDataManager.ChatSender sender = ChatDataManager.ChatSender.valueOf(sender_name);
             Map<UUID, PlayerData> players = readPlayerDataMap(payload.playerMap());
 
+            MinecraftClient client = context.client();
             // Update the chat data manager on the client-side
             client.execute(() -> { // Make sure to run on the client thread
                 // Ensure client.player is initialized
@@ -132,15 +118,15 @@ public class ClientPackets {
 
                 // Get entity chat data for current entity & player
                 ChatDataManager chatDataManager = ChatDataManager.getClientInstance();
-                EntityChatData chatData = chatDataManager.getOrCreateChatData(entityId.toString());
+                EntityChatData chatData = chatDataManager.getOrCreateChatData(entityId);
 
                 // Add entity message
                 if (!message.isEmpty()) {
                     chatData.currentMessage = message;
                 }
                 chatData.currentLineNumber = line;
-                chatData.status = status;
-                chatData.sender = sender;
+                chatData.status = ChatDataManager.ChatStatus.valueOf(payload.status());
+                chatData.sender = ChatDataManager.ChatSender.valueOf(payload.sender());
                 chatData.players = players;
 
                 // Play sound with volume based on distance (from player or entity)
@@ -152,13 +138,14 @@ public class ClientPackets {
         });
 
         // Client-side packet handler, message sync
-        ClientPlayNetworking.registerGlobalReceiver(ServerPackets.PACKET_S2C_PLAYER_MESSAGE, (client, handler, buffer, responseSender) -> {
+        ClientPlayNetworking.registerGlobalReceiver(PlayerMessagePayload.ID, (payload, context) -> {
             // Read the data from the server packet
-            UUID senderPlayerId = UUID.fromString(buffer.readString());
-            String senderPlayerName = buffer.readString(32767);
-            String message = buffer.readString(32767);
-            boolean fromMinecraftChat = buffer.readBoolean();
+            UUID senderPlayerId = payload.senderId();
+            String senderPlayerName = payload.senderName();
+            String message = payload.message();
+            boolean fromMinecraftChat = payload.fromMinecraftChat();
 
+            MinecraftClient client = context.client();
             // Update the chat data manager on the client-side
             client.execute(() -> { // Make sure to run on the client thread
                 // Ensure client.player is initialized
@@ -183,11 +170,11 @@ public class ClientPackets {
         });
 
         // Client-side player login: get all chat data
-        ClientPlayNetworking.registerGlobalReceiver(ServerPackets.PACKET_S2C_LOGIN, (client, handler, buffer, responseSender) -> {
-            int sequenceNumber = buffer.readInt(); // Sequence number of the current packet
-            int totalPackets = buffer.readInt(); // Total number of packets for this data
-            byte[] chunk = buffer.readByteArray(); // Read the byte array chunk from the current packet
-
+        ClientPlayNetworking.registerGlobalReceiver(LoginPayload.ID, (payload, context) -> {
+            int sequenceNumber = payload.sequence(); // Sequence number of the current packet
+            int totalPackets = payload.totalPackets(); // Total number of packets for this data
+            byte[] chunk = payload.chunk(); // Read the byte array chunk from the current packet
+            MinecraftClient client = context.client();
             client.execute(() -> { // Make sure to run on the client thread
                 // Store the received chunk
                 receivedChunks.put(sequenceNumber, chunk);
@@ -221,36 +208,28 @@ public class ClientPackets {
         });
 
         // Client-side packet handler, receive entire whitelist / blacklist, and update BubbleRenderer
-        ClientPlayNetworking.registerGlobalReceiver(ServerPackets.PACKET_S2C_WHITELIST, (client, handler, buffer, responseSender) -> {
+        ClientPlayNetworking.registerGlobalReceiver(WhitelistPayload.ID, (payload, context) -> {
             // Read the whitelist data from the buffer
-            int whitelistSize = buffer.readInt();
-            List<String> whitelist = new ArrayList<>(whitelistSize);
-            for (int i = 0; i < whitelistSize; i++) {
-                whitelist.add(buffer.readString(32767));
-            }
+            List<String> whitelist = payload.whitlelist();
+            List<String> blacklist = payload.blacklist();
 
-            // Read the blacklist data from the buffer
-            int blacklistSize = buffer.readInt();
-            List<String> blacklist = new ArrayList<>(blacklistSize);
-            for (int i = 0; i < blacklistSize; i++) {
-                blacklist.add(buffer.readString(32767));
-            }
 
-            client.execute(() -> {
+            context.client().execute(() -> {
                 BubbleRenderer.whitelist = whitelist;
                 BubbleRenderer.blacklist = blacklist;
             });
         });
 
         // Client-side packet handler, player status sync
-        ClientPlayNetworking.registerGlobalReceiver(ServerPackets.PACKET_S2C_PLAYER_STATUS, (client, handler, buffer, responseSender) -> {
+        ClientPlayNetworking.registerGlobalReceiver(PlayerStatusPayload.ID, (payload, context) -> {
             // Read the data from the server packet
-            UUID playerId = UUID.fromString(buffer.readString());
-            boolean isChatOpen = buffer.readBoolean();
+            UUID playerId = payload.senderId();
+            boolean isChatOpen = payload.isChatOpen();
 
             // Get player instance
             PlayerEntity player = ClientEntityFinder.getPlayerEntityFromUUID(playerId);
 
+            MinecraftClient client = context.client();
             // Update the player status data manager on the client-side
             client.execute(() -> {
                 if (player == null) {
