@@ -66,7 +66,7 @@ public class BubbleRenderer {
 
         // Prepare the tessellator and buffer
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuffer();
+        BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT);
         float z = 0.01F;
 
         // Draw UI text background (based on friendship)
@@ -99,17 +99,14 @@ public class BubbleRenderer {
         Matrix4f matrix4f = matrices.peek().getPositionMatrix();
 
         // Begin drawing quads with the correct vertex format
-        buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT);
 
-        buffer.vertex(matrix4f, x, y + height, z).color(255, 255, 255, 255).texture(0, 1).light(light).overlay(overlay)
-                .next(); // bottom left
+        buffer.vertex(matrix4f, x, y + height, z).color(255, 255, 255, 255).texture(0, 1).light(light).overlay(overlay); // bottom left
         buffer.vertex(matrix4f, x + width, y + height, z).color(255, 255, 255, 255).texture(1, 1).light(light)
-                .overlay(overlay).next(); // bottom right
-        buffer.vertex(matrix4f, x + width, y, z).color(255, 255, 255, 255).texture(1, 0).light(light).overlay(overlay)
-                .next(); // top right
-        buffer.vertex(matrix4f, x, y, z).color(255, 255, 255, 255).texture(0, 0).light(light).overlay(overlay).next(); // top
+                .overlay(overlay); // bottom right
+        buffer.vertex(matrix4f, x + width, y, z).color(255, 255, 255, 255).texture(1, 0).light(light).overlay(overlay); // top right
+        buffer.vertex(matrix4f, x, y, z).color(255, 255, 255, 255).texture(0, 0).light(light).overlay(overlay); // top
                                                                                                                        // left
-        Tessellator.getInstance().draw();
+        BufferRenderer.draw(buffer.end());
     }
 
     private static void drawIcon(String ui_icon_name, MatrixStack matrices, float x, float y, float width,
@@ -129,27 +126,25 @@ public class BubbleRenderer {
 
         // Prepare the tessellator and buffer
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuffer();
+        BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT);
 
         // Get the current matrix position
         Matrix4f matrix4f = matrices.peek().getPositionMatrix();
 
         // Begin drawing quads with the correct vertex format
-        buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT);
 
         buffer.vertex(matrix4f, x, y + height, 0.0F).color(255, 255, 255, 255).texture(0, 1).light(light)
-                .overlay(overlay).next(); // bottom left
+                .overlay(overlay); // bottom left
         buffer.vertex(matrix4f, x + width, y + height, 0.0F).color(255, 255, 255, 255).texture(1, 1).light(light)
-                .overlay(overlay).next(); // bottom right
+                .overlay(overlay); // bottom right
         buffer.vertex(matrix4f, x + width, y, 0.0F).color(255, 255, 255, 255).texture(1, 0).light(light)
-                .overlay(overlay).next(); // top right
-        buffer.vertex(matrix4f, x, y, 0.0F).color(255, 255, 255, 255).texture(0, 0).light(light).overlay(overlay)
-                .next(); // top left
-        tessellator.draw();
+                .overlay(overlay); // top right
+        buffer.vertex(matrix4f, x, y, 0.0F).color(255, 255, 255, 255).texture(0, 0).light(light).overlay(overlay); // top left
 
         // Disable blending and depth test
         RenderSystem.disableBlend();
         RenderSystem.disableDepthTest();
+        BufferRenderer.draw(buffer.end());
     }
 
     private static void drawFriendshipStatus(MatrixStack matrices, float x, float y, float width, float height,
@@ -172,28 +167,26 @@ public class BubbleRenderer {
 
         // Prepare the tessellator and buffer
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferBuilder = tessellator.getBuffer();
+        BufferBuilder bufferBuilder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT);
 
         // Get the current matrix position
         Matrix4f matrix4f = matrices.peek().getPositionMatrix();
 
         // Begin drawing quads with the correct vertex format
-        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT);
 
         float z = -0.01F;
         bufferBuilder.vertex(matrix4f, x, y + height, z).color(255, 255, 255, 255).texture(0, 1).light(light)
-                .overlay(overlay).next(); // bottom left
+                .overlay(overlay); // bottom left
         bufferBuilder.vertex(matrix4f, x + width, y + height, z).color(255, 255, 255, 255).texture(1, 1).light(light)
-                .overlay(overlay).next(); // bottom right
+                .overlay(overlay); // bottom right
         bufferBuilder.vertex(matrix4f, x + width, y, z).color(255, 255, 255, 255).texture(1, 0).light(light)
-                .overlay(overlay).next(); // top right
-        bufferBuilder.vertex(matrix4f, x, y, z).color(255, 255, 255, 255).texture(0, 0).light(light).overlay(overlay)
-                .next(); // top left
-        tessellator.draw();
+                .overlay(overlay); // top right
+        bufferBuilder.vertex(matrix4f, x, y, z).color(255, 255, 255, 255).texture(0, 0).light(light).overlay(overlay); // top left
 
         // Disable blending and depth test
         RenderSystem.disableBlend();
         RenderSystem.disableDepthTest();
+        BufferRenderer.draw(bufferBuilder.end());
     }
 
     private static void drawEntityIcon(MatrixStack matrices, Entity entity, float x, float y, float width,
@@ -220,28 +213,26 @@ public class BubbleRenderer {
 
         // Prepare the tessellator and buffer
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferBuilder = tessellator.getBuffer();
+        BufferBuilder bufferBuilder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT);
 
         // Get the current matrix position
         Matrix4f matrix4f = matrices.peek().getPositionMatrix();
 
         // Begin drawing quads with the correct vertex format
-        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT);
 
         float z = -0.01F;
         bufferBuilder.vertex(matrix4f, x, y + height, z).color(255, 255, 255, 255).texture(0, 1).light(light)
-                .overlay(overlay).next(); // bottom left
+                .overlay(overlay); // bottom left
         bufferBuilder.vertex(matrix4f, x + width, y + height, z).color(255, 255, 255, 255).texture(1, 1).light(light)
-                .overlay(overlay).next(); // bottom right
+                .overlay(overlay); // bottom right
         bufferBuilder.vertex(matrix4f, x + width, y, z).color(255, 255, 255, 255).texture(1, 0).light(light)
-                .overlay(overlay).next(); // top right
-        bufferBuilder.vertex(matrix4f, x, y, z).color(255, 255, 255, 255).texture(0, 0).light(light).overlay(overlay)
-                .next(); // top left
-        tessellator.draw();
+                .overlay(overlay); // top right
+        bufferBuilder.vertex(matrix4f, x, y, z).color(255, 255, 255, 255).texture(0, 0).light(light).overlay(overlay); // top left
 
         // Disable blending and depth test
         RenderSystem.disableBlend();
         RenderSystem.disableDepthTest();
+        BufferRenderer.draw(bufferBuilder.end());
     }
 
     private static void drawPlayerIcon(MatrixStack matrices, Entity entity, float x, float y, float width,
@@ -265,8 +256,7 @@ public class BubbleRenderer {
 
         // Prepare the tessellator and buffer
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferBuilder = tessellator.getBuffer();
-        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT);
+        BufferBuilder bufferBuilder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT);
 
         Matrix4f matrix4f = matrices.peek().getPositionMatrix();
         float z = -0.01F;
@@ -302,13 +292,13 @@ public class BubbleRenderer {
                 float scaledHeight = (coords[3] - coords[1]) * scaleFactor;
 
                 bufferBuilder.vertex(matrix4f, scaledX, scaledY + scaledHeight, z)
-                        .color(255, 255, 255, 255).texture(newU1, newV2).light(light).overlay(overlay).next();
+                        .color(255, 255, 255, 255).texture(newU1, newV2).light(light).overlay(overlay);
                 bufferBuilder.vertex(matrix4f, scaledX + scaledWidth, scaledY + scaledHeight, z)
-                        .color(255, 255, 255, 255).texture(newU2, newV2).light(light).overlay(overlay).next();
+                        .color(255, 255, 255, 255).texture(newU2, newV2).light(light).overlay(overlay);
                 bufferBuilder.vertex(matrix4f, scaledX + scaledWidth, scaledY, z)
-                        .color(255, 255, 255, 255).texture(newU2, newV1).light(light).overlay(overlay).next();
+                        .color(255, 255, 255, 255).texture(newU2, newV1).light(light).overlay(overlay);
                 bufferBuilder.vertex(matrix4f, scaledX, scaledY, z)
-                        .color(255, 255, 255, 255).texture(newU1, newV1).light(light).overlay(overlay).next();
+                        .color(255, 255, 255, 255).texture(newU1, newV1).light(light).overlay(overlay);
             }
         } else {
             // make skin appear smaller and centered
@@ -324,13 +314,13 @@ public class BubbleRenderer {
             float v2 = 16.0F / 64.0F;
 
             bufferBuilder.vertex(matrix4f, x, y + height, z)
-                    .color(255, 255, 255, 255).texture(u1, v2).light(light).overlay(overlay).next();
+                    .color(255, 255, 255, 255).texture(u1, v2).light(light).overlay(overlay);
             bufferBuilder.vertex(matrix4f, x + width, y + height, z)
-                    .color(255, 255, 255, 255).texture(u2, v2).light(light).overlay(overlay).next();
+                    .color(255, 255, 255, 255).texture(u2, v2).light(light).overlay(overlay);
             bufferBuilder.vertex(matrix4f, x + width, y, z)
-                    .color(255, 255, 255, 255).texture(u2, v1).light(light).overlay(overlay).next();
+                    .color(255, 255, 255, 255).texture(u2, v1).light(light).overlay(overlay);
             bufferBuilder.vertex(matrix4f, x, y, z)
-                    .color(255, 255, 255, 255).texture(u1, v1).light(light).overlay(overlay).next();
+                    .color(255, 255, 255, 255).texture(u1, v1).light(light).overlay(overlay);
 
             // Hat layer
             float hatU1 = 40.0F / 64.0F;
@@ -341,20 +331,20 @@ public class BubbleRenderer {
             z -= 0.01F;
 
             bufferBuilder.vertex(matrix4f, x, y + height, z)
-                    .color(255, 255, 255, 255).texture(hatU1, hatV2).light(light).overlay(overlay).next();
+                    .color(255, 255, 255, 255).texture(hatU1, hatV2).light(light).overlay(overlay);
             bufferBuilder.vertex(matrix4f, x + width, y + height, z)
-                    .color(255, 255, 255, 255).texture(hatU2, hatV2).light(light).overlay(overlay).next();
+                    .color(255, 255, 255, 255).texture(hatU2, hatV2).light(light).overlay(overlay);
             bufferBuilder.vertex(matrix4f, x + width, y, z)
-                    .color(255, 255, 255, 255).texture(hatU2, hatV1).light(light).overlay(overlay).next();
+                    .color(255, 255, 255, 255).texture(hatU2, hatV1).light(light).overlay(overlay);
             bufferBuilder.vertex(matrix4f, x, y, z)
-                    .color(255, 255, 255, 255).texture(hatU1, hatV1).light(light).overlay(overlay).next();
+                    .color(255, 255, 255, 255).texture(hatU1, hatV1).light(light).overlay(overlay);
         }
 
-        tessellator.draw();
 
         // Disable blending and depth test
         RenderSystem.disableBlend();
         RenderSystem.disableDepthTest();
+        BufferRenderer.draw(bufferBuilder.end());
     }
 
     private static void drawMessageText(Matrix4f matrix, List<String> lines, int starting_line, int ending_line,

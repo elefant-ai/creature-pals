@@ -448,7 +448,7 @@ public class EntityChatData {
                                 if (entity instanceof WitherEntity && new_friendship == 3) {
                                     // Best friend a Nether and get a NETHER_STAR
                                     WitherEntity wither = (WitherEntity) entity;
-                                    ((WitherEntityAccessor) wither).callDropEquipment(entity.getWorld().getDamageSources().generic(), 1, true);
+                                    ((WitherEntityAccessor) wither).callDropEquipment(serverInstance.getWorld(entity.getWorld().getRegistryKey()), entity.getWorld().getDamageSources().generic(), true);
                                     entity.getWorld().playSound(entity, entity.getBlockPos(), SoundEvents.ENTITY_WITHER_DEATH, SoundCategory.PLAYERS, 0.3F, 1.0F);
                                 }
 

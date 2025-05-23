@@ -23,7 +23,7 @@ public class TextureLoader {
 
     public Identifier GetUI(String name) {
         String texturePath = "textures/ui/" + name + ".png";
-        Identifier textureId = new Identifier("creaturechat", texturePath);
+        Identifier textureId = Identifier.of("creaturechat", texturePath);
         Optional<Resource> resource = MinecraftClient.getInstance().getResourceManager().getResource(textureId);
 
         if (resource.isPresent()) {
@@ -38,7 +38,7 @@ public class TextureLoader {
     }
 
     public Identifier GetEntity(String texturePath) {
-        Identifier textureId = new Identifier("creaturechat", texturePath);
+        Identifier textureId = Identifier.of("creaturechat", texturePath);
         Optional<Resource> resource = MinecraftClient.getInstance().getResourceManager().getResource(textureId);
 
         if (resource.isPresent()) {
@@ -47,7 +47,7 @@ public class TextureLoader {
             return textureId;
         } else {
             // Texture not found, log a message and return the "not_found" texture Identifier
-            Identifier notFoundTextureId = new Identifier("creaturechat", "textures/entity/not_found.png");
+            Identifier notFoundTextureId = Identifier.of("creaturechat", "textures/entity/not_found.png");
             MinecraftClient.getInstance().getTextureManager().bindTexture(notFoundTextureId);
             logMissingTextureOnce(texturePath);
             return notFoundTextureId;

@@ -3,7 +3,6 @@ package com.owlmaddie;
 import com.owlmaddie.chat.ChatDataManager;
 import com.owlmaddie.network.ClientPackets;
 import com.owlmaddie.particle.CreatureParticleFactory;
-import com.owlmaddie.particle.LeadParticleFactory;
 import com.owlmaddie.particle.Particles;
 import com.owlmaddie.player2.HeartbeatManager;
 import com.owlmaddie.ui.BubbleRenderer;
