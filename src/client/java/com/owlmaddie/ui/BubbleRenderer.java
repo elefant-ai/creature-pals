@@ -88,6 +88,7 @@ public class BubbleRenderer {
         RenderSystem.setShaderTexture(0, textures.GetUI("text-bottom"));
         drawTexturePart(matrices, buffer, x, y + 40 + height, z, width, 5);
 
+        BufferRenderer.draw(buffer.end());
         // Disable blending and depth test
         RenderSystem.disableBlend();
         RenderSystem.disableDepthTest();
@@ -100,13 +101,12 @@ public class BubbleRenderer {
 
         // Begin drawing quads with the correct vertex format
 
-        buffer.vertex(matrix4f, x, y + height, z).color(255, 255, 255, 255).texture(0, 1).light(light).overlay(overlay); // bottom left
-        buffer.vertex(matrix4f, x + width, y + height, z).color(255, 255, 255, 255).texture(1, 1).light(light)
-                .overlay(overlay); // bottom right
-        buffer.vertex(matrix4f, x + width, y, z).color(255, 255, 255, 255).texture(1, 0).light(light).overlay(overlay); // top right
-        buffer.vertex(matrix4f, x, y, z).color(255, 255, 255, 255).texture(0, 0).light(light).overlay(overlay); // top
+        buffer
+            .vertex(matrix4f, x, y + height, z).color(255, 255, 255, 255).texture(0, 1).light(light).overlay(overlay)
+            .vertex(matrix4f, x + width, y + height, z).color(255, 255, 255, 255).texture(1, 1).light(light).overlay(overlay) // bottom right
+            .vertex(matrix4f, x + width, y, z).color(255, 255, 255, 255).texture(1, 0).light(light).overlay(overlay) // top right
+            .vertex(matrix4f, x, y, z).color(255, 255, 255, 255).texture(0, 0).light(light).overlay(overlay); // top
                                                                                                                        // left
-        BufferRenderer.draw(buffer.end());
     }
 
     private static void drawIcon(String ui_icon_name, MatrixStack matrices, float x, float y, float width,
