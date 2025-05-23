@@ -46,7 +46,7 @@ import static com.owlmaddie.particle.Particles.*;
  */
 public class EntityChatData {
     public static final Logger LOGGER = LoggerFactory.getLogger("creaturechat");
-    public String entityId;
+    public UUID entityId;
     public String currentMessage;
     public int currentLineNumber;
     public ChatDataManager.ChatStatus status;
@@ -66,9 +66,9 @@ public class EntityChatData {
     public Integer legacyFriendship;
 
     // The map to store data for each player interacting with this entity
-    public Map<String, PlayerData> players;
+    public Map<UUID, PlayerData> players;
 
-    public EntityChatData(String entityId) {
+    public EntityChatData(UUID entityId) {
         this.entityId = entityId;
         this.players = new HashMap<>();
         this.currentMessage = "";
@@ -98,7 +98,7 @@ public class EntityChatData {
     // Migrate old data into the new structure
     private void migrateData() {
         // Ensure the blank player data entry exists
-        PlayerData blankPlayerData = this.players.computeIfAbsent("", k -> new PlayerData());
+        PlayerData blankPlayerData = this.players.computeIfAbsent(UUID.fromString(""), k -> new PlayerData());
 
         // Update the previousMessages arraylist and add timestamps if missing
         if (this.previousMessages != null) {
@@ -122,7 +122,7 @@ public class EntityChatData {
     }
 
     // Get the player data (or fallback to the blank player)
-    public PlayerData getPlayerData(String playerName) {
+    public PlayerData getPlayerData(UUID playerName) {
         if (this.players == null) {
             return new PlayerData();
         }
@@ -145,7 +145,7 @@ public class EntityChatData {
     }
 
     // Generate light version of chat data (no previous messages)
-    public EntityChatDataLight toLightVersion(String playerName) {
+    public EntityChatDataLight toLightVersion(UUID playerName) {
         return new EntityChatDataLight(this, playerName);
     }
 
@@ -223,7 +223,7 @@ public class EntityChatData {
         contextData.put("world_moon_phase", moonPhaseDescription);
 
         // Get Entity details
-        MobEntity entity = (MobEntity) ServerEntityFinder.getEntityByUUID(player.getServerWorld(), UUID.fromString(entityId));
+        MobEntity entity = (MobEntity) ServerEntityFinder.getEntityByUUID(player.getServerWorld(), entityId);
         if (entity.getCustomName() == null) {
             contextData.put("entity_name", "");
         } else {
@@ -246,7 +246,7 @@ public class EntityChatData {
             contextData.put("entity_maturity", "Adult");
         }
 
-        PlayerData playerData = this.getPlayerData(player.getDisplayName().getString());
+        PlayerData playerData = this.getPlayerData(player.getUuid());
         if (playerData != null) {
             contextData.put("entity_friendship", String.valueOf(playerData.friendship));
         } else {
@@ -340,7 +340,7 @@ public class EntityChatData {
         Map<String, String> contextData = getPlayerContext(player, userLanguage, config);
 
         // Get messages for player
-        PlayerData playerData = this.getPlayerData(player.getDisplayName().getString());
+        PlayerData playerData = this.getPlayerData(player.getUuid());
         if (previousMessages.size() == 1) {
             // No messages exist yet for this player (start with normal greeting)
             String shortGreeting = Optional.ofNullable(getCharacterProp("short greeting")).filter(s -> !s.isEmpty()).orElse(Randomizer.getRandomMessage(Randomizer.RandomType.NO_RESPONSE)).replace("\n", " ");
@@ -353,7 +353,7 @@ public class EntityChatData {
                 if (output_message != null) {
                     // Chat Message: Parse message for behaviors
                     ParsedMessage result = MessageParser.parseMessage(output_message.replace("\n", " "));
-                    MobEntity entity = (MobEntity) ServerEntityFinder.getEntityByUUID(player.getServerWorld(), UUID.fromString(entityId));
+                    MobEntity entity = (MobEntity) ServerEntityFinder.getEntityByUUID(player.getServerWorld(), entityId);
 
                     // Determine entity's default speed
                     // Some Entities (i.e. Axolotl) set this incorrectly... so adjusting in the SpeedControls class

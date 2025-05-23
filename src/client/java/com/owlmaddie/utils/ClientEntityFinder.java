@@ -53,7 +53,7 @@ public class ClientEntityFinder {
                     if (!(entity instanceof MobEntity))
                         return false;
                     EntityChatData chatData = ChatDataManager.getClientInstance()
-                            .getOrCreateChatData(entity.getUuidAsString());
+                            .getOrCreateChatData(entity.getUuid());
                     return chatData.status != ChatStatus.HIDDEN && chatData.status != ChatStatus.NONE;
                 })
                 .min(Comparator.comparingDouble(e -> e.getPos().distanceTo(player.getPos())));

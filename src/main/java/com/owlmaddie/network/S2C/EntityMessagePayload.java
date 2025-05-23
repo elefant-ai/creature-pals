@@ -13,10 +13,10 @@ import net.minecraft.util.Uuids;
 import java.util.Map;
 import java.util.UUID;
 
-public record EntityMessagePayload(String entityID, String currentMessage, int currentLineNumber, String status, String sender, byte[] playerMap) implements CustomPayload {
+public record EntityMessagePayload(UUID entityID, String currentMessage, int currentLineNumber, String status, String sender, byte[] playerMap) implements CustomPayload {
     public static final CustomPayload.Id<EntityMessagePayload> ID = new CustomPayload.Id<>(NetworkingConstants.PACKET_S2C_ENTITY_MESSAGE);
     public static final PacketCodec<RegistryByteBuf, EntityMessagePayload> CODEC = PacketCodec.tuple(
-            PacketCodecs.STRING, EntityMessagePayload::entityID,
+            Uuids.PACKET_CODEC, EntityMessagePayload::entityID,
             PacketCodecs.STRING, EntityMessagePayload::currentMessage,
             PacketCodecs.INTEGER, EntityMessagePayload::currentLineNumber,
             PacketCodecs.STRING, EntityMessagePayload::status,
@@ -25,17 +25,17 @@ public record EntityMessagePayload(String entityID, String currentMessage, int c
             EntityMessagePayload::new
     );
 
-    public static byte[] writePlayerDataMap(Map<String, PlayerData> map) {
+    public static byte[] writePlayerDataMap(Map<UUID, PlayerData> map) {
         PacketByteBuf buffer = new PacketByteBuf(Unpooled.buffer());
         buffer.writeInt(map.size()); // Write the size of the map
-        for (Map.Entry<String, PlayerData> entry : map.entrySet()) {
-            buffer.writeString(entry.getKey()); // Write the key (playerName)
+        for (Map.Entry<UUID, PlayerData> entry : map.entrySet()) {
+            buffer.writeUuid(entry.getKey()); // Write the key (playerName)
             PlayerData data = entry.getValue();
             buffer.writeInt(data.friendship); // Write PlayerData field(s)
         }
         return buffer.array();
     }
-    public static EntityMessagePayload make(String entityID, String currentMessage, int currentLineNumber, String status, String sender, Map<String, PlayerData> playerMap) {
+    public static EntityMessagePayload make(UUID entityID, String currentMessage, int currentLineNumber, String status, String sender, Map<UUID, PlayerData> playerMap) {
         return new EntityMessagePayload(entityID, currentMessage, currentLineNumber, status, sender, writePlayerDataMap(playerMap));
     }
     @Override

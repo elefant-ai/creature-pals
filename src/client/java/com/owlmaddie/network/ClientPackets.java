@@ -95,13 +95,15 @@ public class ClientPackets {
     }
 
     // Reading a Map<String, PlayerData> from the buffer
-    public static Map<String, PlayerData> readPlayerDataMap(PacketByteBuf buffer) {
-        int size = buffer.readInt(); // Read the size of the map
-        Map<String, PlayerData> map = new HashMap<>();
+    public static Map<UUID, PlayerData> readPlayerDataMap(byte[] buffer) {
+        PacketByteBuf pBuffer = new PacketByteBuf(Unpooled.copiedBuffer(buffer));
+
+        int size = pBuffer.readInt(); // Read the size of the map
+        Map<UUID, PlayerData> map = new HashMap<>();
         for (int i = 0; i < size; i++) {
-            String key = buffer.readString(); // Read the key (playerName)
+            UUID key = pBuffer.readUuid(); // Read the key (playerName)
             PlayerData data = new PlayerData();
-            data.friendship = buffer.readInt(); // Read PlayerData field(s)
+            data.friendship = pBuffer.readInt(); // Read PlayerData field(s)
             map.put(key, data); // Add to the map
         }
         return map;
@@ -118,7 +120,7 @@ public class ClientPackets {
             ChatDataManager.ChatStatus status = ChatDataManager.ChatStatus.valueOf(status_name);
             String sender_name = buffer.readString(32767);
             ChatDataManager.ChatSender sender = ChatDataManager.ChatSender.valueOf(sender_name);
-            Map<String, PlayerData> players = readPlayerDataMap(buffer);
+            Map<UUID, PlayerData> players = readPlayerDataMap(payload.playerMap());
 
             // Update the chat data manager on the client-side
             client.execute(() -> { // Make sure to run on the client thread
