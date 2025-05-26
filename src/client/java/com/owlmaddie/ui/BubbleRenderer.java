@@ -65,8 +65,6 @@ public class BubbleRenderer {
         RenderSystem.depthMask(true);
 
         // Prepare the tessellator and buffer
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT);
         float z = 0.01F;
 
         // Draw UI text background (based on friendship)
@@ -78,35 +76,38 @@ public class BubbleRenderer {
         } else {
             RenderSystem.setShaderTexture(0, textures.GetUI(base_name));
         }
-        drawTexturePart(matrices, buffer, x - 50, y, z, 228, 40);
+        drawTexturePart(matrices, x - 50, y, z, 228, 40);
 
         // Draw MIDDLE
         RenderSystem.setShaderTexture(0, textures.GetUI("text-middle"));
-        drawTexturePart(matrices, buffer, x, y + 40, z, width, height);
+        drawTexturePart(matrices, x, y + 40, z, width, height);
 
         // Draw BOTTOM
         RenderSystem.setShaderTexture(0, textures.GetUI("text-bottom"));
-        drawTexturePart(matrices, buffer, x, y + 40 + height, z, width, 5);
+        drawTexturePart(matrices, x, y + 40 + height, z, width, 5);
 
-        BufferRenderer.draw(buffer.end());
         // Disable blending and depth test
         RenderSystem.disableBlend();
         RenderSystem.disableDepthTest();
     }
 
-    private static void drawTexturePart(MatrixStack matrices, BufferBuilder buffer, float x, float y, float z,
+    private static void drawTexturePart(MatrixStack matrices, float x, float y, float z,
             float width, float height) {
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT);
+
         // Define the vertices with color, texture, light, and overlay
         Matrix4f matrix4f = matrices.peek().getPositionMatrix();
 
         // Begin drawing quads with the correct vertex format
 
-        buffer
-            .vertex(matrix4f, x, y + height, z).color(255, 255, 255, 255).texture(0, 1).light(light).overlay(overlay)
-            .vertex(matrix4f, x + width, y + height, z).color(255, 255, 255, 255).texture(1, 1).light(light).overlay(overlay) // bottom right
-            .vertex(matrix4f, x + width, y, z).color(255, 255, 255, 255).texture(1, 0).light(light).overlay(overlay) // top right
-            .vertex(matrix4f, x, y, z).color(255, 255, 255, 255).texture(0, 0).light(light).overlay(overlay); // top
-                                                                                                                       // left
+        buffer.vertex(matrix4f, x, y + height, z).color(255, 255, 255, 255).texture(0, 1).light(light).overlay(overlay); // bottom left
+        buffer.vertex(matrix4f, x + width, y + height, z).color(255, 255, 255, 255).texture(1, 1).light(light)
+                .overlay(overlay); // bottom right
+        buffer.vertex(matrix4f, x + width, y, z).color(255, 255, 255, 255).texture(1, 0).light(light).overlay(overlay); // top right
+        buffer.vertex(matrix4f, x, y, z).color(255, 255, 255, 255).texture(0, 0).light(light).overlay(overlay); // top
+        // left
+        BufferRenderer.drawWithGlobalProgram(buffer.end());
     }
 
     private static void drawIcon(String ui_icon_name, MatrixStack matrices, float x, float y, float width,
@@ -141,10 +142,10 @@ public class BubbleRenderer {
                 .overlay(overlay); // top right
         buffer.vertex(matrix4f, x, y, 0.0F).color(255, 255, 255, 255).texture(0, 0).light(light).overlay(overlay); // top left
 
+        BufferRenderer.drawWithGlobalProgram(buffer.end());
         // Disable blending and depth test
         RenderSystem.disableBlend();
         RenderSystem.disableDepthTest();
-        BufferRenderer.draw(buffer.end());
     }
 
     private static void drawFriendshipStatus(MatrixStack matrices, float x, float y, float width, float height,
@@ -186,7 +187,7 @@ public class BubbleRenderer {
         // Disable blending and depth test
         RenderSystem.disableBlend();
         RenderSystem.disableDepthTest();
-        BufferRenderer.draw(bufferBuilder.end());
+        BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
     }
 
     private static void drawEntityIcon(MatrixStack matrices, Entity entity, float x, float y, float width,
@@ -232,7 +233,7 @@ public class BubbleRenderer {
         // Disable blending and depth test
         RenderSystem.disableBlend();
         RenderSystem.disableDepthTest();
-        BufferRenderer.draw(bufferBuilder.end());
+        BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
     }
 
     private static void drawPlayerIcon(MatrixStack matrices, Entity entity, float x, float y, float width,
@@ -340,11 +341,11 @@ public class BubbleRenderer {
                     .color(255, 255, 255, 255).texture(hatU1, hatV1).light(light).overlay(overlay);
         }
 
+        BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
 
         // Disable blending and depth test
         RenderSystem.disableBlend();
         RenderSystem.disableDepthTest();
-        BufferRenderer.draw(bufferBuilder.end());
     }
 
     private static void drawMessageText(Matrix4f matrix, List<String> lines, int starting_line, int ending_line,
