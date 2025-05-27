@@ -73,7 +73,7 @@ public class EventQueueData {
     }
 
     public void addOnlyCharacterToQueue(String userLanguage, ServerPlayerEntity player) {
-        addCharacterAndMaybeGreeting(userLanguage, player, MessageDataType.GreetingAndCharacter);
+        addCharacterAndMaybeGreeting(userLanguage, player, MessageDataType.Character);
     }
 
     // use to check if queue will generate character

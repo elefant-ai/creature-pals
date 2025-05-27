@@ -3,6 +3,7 @@ package com.owlmaddie.chat;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -70,6 +71,7 @@ public class EventQueueManager {
     }
 
     public static void addGreeting(Entity entity, String userLangauge, ServerPlayerEntity player) {
+        LOGGER.info("EventQueueManager: callign addGreeting");
         EventQueueData q = getOrCreateQueueData(entity.getUuidAsString(), entity);
         q.addGreeting(userLangauge, player);
     }
@@ -84,13 +86,14 @@ public class EventQueueManager {
         // addUserMessage(curQueue.entity, userLanguage, player, userMessage,
         // is_auto_message);
         // }
+        addingEntityQueues = true; // if dont have this, then will first create queue data and poll before
         ServerEntityFinder.getCloseEntities(player.getServerWorld(), player, 6).stream().filter(
                 (e) -> !e.isPlayer()).forEach((e) -> {
-                    addingEntityQueues = true; // if dont have this, then will first create queue data and poll before adding user message.
+                    // adding user message.
                     getOrCreateQueueData(e.getUuidAsString(), e);
                     addUserMessage(e, userLanguage, player, userMessage, is_auto_message);
-                    addingEntityQueues = false;
                 });
+        addingEntityQueues = false;
     }
 
     public static void addEntityMessageToAllClose(Entity fromEntity, String userLanguage, ServerPlayerEntity player,
@@ -109,13 +112,21 @@ public class EventQueueManager {
     }
 
     public static void injectOnServerTick(MinecraftServer server) {
-        for (String entityId : entityIdsToAdd) { // for chatdata on load we only have entity Id
+        Iterator<String> iterator = entityIdsToAdd.iterator();
+        while (iterator.hasNext()) {
+            String entityId = iterator.next();
+            boolean added = false;
+
             for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
                 Entity cur = ServerEntityFinder.getEntityByUUID(player.getServerWorld(), UUID.fromString(entityId));
                 if (cur != null) {
                     getOrCreateQueueData(entityId, cur);
-                    entityIdsToAdd.remove(entityId);
+                    added = true;
+                    break;
                 }
+            }
+            if (added) {
+                iterator.remove();
             }
         }
         if (llmProcessing || addingEntityQueues)
