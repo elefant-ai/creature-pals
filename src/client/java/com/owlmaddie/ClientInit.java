@@ -3,7 +3,7 @@ package com.owlmaddie;
 import com.owlmaddie.chat.ChatDataManager;
 import com.owlmaddie.network.ClientPackets;
 import com.owlmaddie.particle.CreatureParticleFactory;
-import com.owlmaddie.particle.Particles;
+import com.owlmaddie.particle.LeadParticleFactory;
 import com.owlmaddie.player2.HeartbeatManager;
 import com.owlmaddie.ui.BubbleRenderer;
 import com.owlmaddie.ui.ClickHandler;
@@ -27,7 +27,18 @@ public class ClientInit implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         // Register particle factories
-        Particles.register();
+        ParticleFactoryRegistry.getInstance().register(HEART_SMALL_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(HEART_BIG_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(FIRE_SMALL_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(FIRE_BIG_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(ATTACK_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(FLEE_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(FOLLOW_FRIEND_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(FOLLOW_ENEMY_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(PROTECT_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(LEAD_FRIEND_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(LEAD_ENEMY_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(LEAD_PARTICLE, LeadParticleFactory::new);
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             tickCounter++;
@@ -42,7 +53,7 @@ public class ClientInit implements ClientModInitializer {
 
         // Register an event callback to render text bubbles
         WorldRenderEvents.BEFORE_DEBUG_RENDER.register((context) -> {
-            BubbleRenderer.drawTextAboveEntities(context, tickCounter, context.tickCounter().getTickDelta(false));
+            BubbleRenderer.drawTextAboveEntities(context, tickCounter, context.tickDelta());
         });
 
         // Register an event callback for when the client disconnects from a server or

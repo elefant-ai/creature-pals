@@ -37,7 +37,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.owlmaddie.network.ServerPackets.*;
-import static com.owlmaddie.particle.Particles.*;
 
 /**
  * The {@code EntityChatData} class represents a conversation between an
@@ -46,7 +45,7 @@ import static com.owlmaddie.particle.Particles.*;
  */
 public class EntityChatData {
     public static final Logger LOGGER = LoggerFactory.getLogger("creaturechat");
-    public UUID entityId;
+    public String entityId;
     public String currentMessage;
     public int currentLineNumber;
     public ChatDataManager.ChatStatus status;
@@ -66,9 +65,9 @@ public class EntityChatData {
     public Integer legacyFriendship;
 
     // The map to store data for each player interacting with this entity
-    public Map<UUID, PlayerData> players;
+    public Map<String, PlayerData> players;
 
-    public EntityChatData(UUID entityId) {
+    public EntityChatData(String entityId) {
         this.entityId = entityId;
         this.players = new HashMap<>();
         this.currentMessage = "";
@@ -98,7 +97,7 @@ public class EntityChatData {
     // Migrate old data into the new structure
     private void migrateData() {
         // Ensure the blank player data entry exists
-        PlayerData blankPlayerData = this.players.computeIfAbsent(UUID.fromString(""), k -> new PlayerData());
+        PlayerData blankPlayerData = this.players.computeIfAbsent("", k -> new PlayerData());
 
         // Update the previousMessages arraylist and add timestamps if missing
         if (this.previousMessages != null) {
@@ -122,7 +121,7 @@ public class EntityChatData {
     }
 
     // Get the player data (or fallback to the blank player)
-    public PlayerData getPlayerData(UUID playerName) {
+    public PlayerData getPlayerData(String playerName) {
         if (this.players == null) {
             return new PlayerData();
         }
@@ -145,7 +144,7 @@ public class EntityChatData {
     }
 
     // Generate light version of chat data (no previous messages)
-    public EntityChatDataLight toLightVersion(UUID playerName) {
+    public EntityChatDataLight toLightVersion(String playerName) {
         return new EntityChatDataLight(this, playerName);
     }
 
@@ -187,7 +186,7 @@ public class EntityChatData {
 
         // Get active player effects
         String effectsString = player.getActiveStatusEffects().entrySet().stream()
-                .map(entry -> entry.getKey().getKey().get() + " x" + (entry.getValue().getAmplifier() + 1))
+                .map(entry -> entry.getKey().getTranslationKey() + " x" + (entry.getValue().getAmplifier() + 1))
                 .collect(Collectors.joining(", "));
         contextData.put("player_active_effects", effectsString);
 
@@ -223,7 +222,7 @@ public class EntityChatData {
         contextData.put("world_moon_phase", moonPhaseDescription);
 
         // Get Entity details
-        MobEntity entity = (MobEntity) ServerEntityFinder.getEntityByUUID(player.getServerWorld(), entityId);
+        MobEntity entity = (MobEntity) ServerEntityFinder.getEntityByUUID(player.getServerWorld(), UUID.fromString(entityId));
         if (entity.getCustomName() == null) {
             contextData.put("entity_name", "");
         } else {
@@ -246,7 +245,7 @@ public class EntityChatData {
             contextData.put("entity_maturity", "Adult");
         }
 
-        PlayerData playerData = this.getPlayerData(player.getUuid());
+        PlayerData playerData = this.getPlayerData(player.getDisplayName().getString());
         if (playerData != null) {
             contextData.put("entity_friendship", String.valueOf(playerData.friendship));
         } else {
@@ -340,7 +339,7 @@ public class EntityChatData {
         Map<String, String> contextData = getPlayerContext(player, userLanguage, config);
 
         // Get messages for player
-        PlayerData playerData = this.getPlayerData(player.getUuid());
+        PlayerData playerData = this.getPlayerData(player.getDisplayName().getString());
         if (previousMessages.size() == 1) {
             // No messages exist yet for this player (start with normal greeting)
             String shortGreeting = Optional.ofNullable(getCharacterProp("short greeting")).filter(s -> !s.isEmpty()).orElse(Randomizer.getRandomMessage(Randomizer.RandomType.NO_RESPONSE)).replace("\n", " ");
@@ -353,7 +352,7 @@ public class EntityChatData {
                 if (output_message != null) {
                     // Chat Message: Parse message for behaviors
                     ParsedMessage result = MessageParser.parseMessage(output_message.replace("\n", " "));
-                    MobEntity entity = (MobEntity) ServerEntityFinder.getEntityByUUID(player.getServerWorld(), entityId);
+                    MobEntity entity = (MobEntity) ServerEntityFinder.getEntityByUUID(player.getServerWorld(), UUID.fromString(entityId));
 
                     // Determine entity's default speed
                     // Some Entities (i.e. Axolotl) set this incorrectly... so adjusting in the SpeedControls class
@@ -448,7 +447,7 @@ public class EntityChatData {
                                 if (entity instanceof WitherEntity && new_friendship == 3) {
                                     // Best friend a Nether and get a NETHER_STAR
                                     WitherEntity wither = (WitherEntity) entity;
-                                    ((WitherEntityAccessor) wither).callDropEquipment(serverInstance.getWorld(entity.getWorld().getRegistryKey()), entity.getWorld().getDamageSources().generic(), true);
+                                    ((WitherEntityAccessor) wither).callDropEquipment(entity.getWorld().getDamageSources().generic(), 1, true);
                                     entity.getWorld().playSound(entity, entity.getBlockPos(), SoundEvents.ENTITY_WITHER_DEATH, SoundCategory.PLAYERS, 0.3F, 1.0F);
                                 }
 
@@ -518,7 +517,7 @@ public class EntityChatData {
                                 if (new_friendship == 3 && !tamableEntity.isTamed()) {
                                     tamableEntity.setOwner(player);
                                 } else if (new_friendship == -3 && tamableEntity.isTamed()) {
-                                    tamableEntity.setTamed(false, false);
+                                    tamableEntity.setTamed(false);
                                     tamableEntity.setOwnerUuid(null);
                                 }
                             }

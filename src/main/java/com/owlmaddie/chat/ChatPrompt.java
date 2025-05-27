@@ -16,7 +16,7 @@ public class ChatPrompt {
 
     // This method should be called in an appropriate context where ResourceManager is available
     public static String loadPromptFromResource(ResourceManager resourceManager, String promptName) {
-        Identifier fileIdentifier =  Identifier.of("creaturechat", "prompts/" + promptName);
+        Identifier fileIdentifier = new Identifier("creaturechat", "prompts/" + promptName);
         try (InputStream inputStream = resourceManager.getResource(fileIdentifier).get().getInputStream();
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
 

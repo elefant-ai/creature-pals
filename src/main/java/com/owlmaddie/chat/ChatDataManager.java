@@ -12,7 +12,6 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -44,7 +43,7 @@ public class ChatDataManager {
     }
 
     // HashMap to associate unique entity IDs with their chat data
-    public ConcurrentHashMap<UUID, EntityChatData> entityChatDataMap;
+    public ConcurrentHashMap<String, EntityChatData> entityChatDataMap;
 
     public void clearData() {
         // Clear the chat data for the previous session
@@ -73,12 +72,12 @@ public class ChatDataManager {
     }
 
     // Retrieve chat data for a specific entity, or create it if it doesn't exist
-    public EntityChatData getOrCreateChatData(UUID entityId) {
+    public EntityChatData getOrCreateChatData(String entityId) {
         return entityChatDataMap.computeIfAbsent(entityId, k -> new EntityChatData(entityId));
     }
 
     // Update the UUID in the map (i.e. bucketed entity and then released, changes their UUID)
-    public void updateUUID(UUID oldUUID, UUID newUUID) {
+    public void updateUUID(String oldUUID, String newUUID) {
         EntityChatData data = entityChatDataMap.remove(oldUUID);
         if (data != null) {
             data.entityId = newUUID;
@@ -93,11 +92,11 @@ public class ChatDataManager {
     }
 
     // Save chat data to file
-    public String GetLightChatData(UUID playerId) {
+    public String GetLightChatData(String playerName) {
         try {
             // Create "light" version of entire chat data HashMap
-            HashMap<UUID, EntityChatDataLight> lightVersionMap = new HashMap<>();
-            this.entityChatDataMap.forEach((name, entityChatData) -> lightVersionMap.put(name, entityChatData.toLightVersion(playerId)));
+            HashMap<String, EntityChatDataLight> lightVersionMap = new HashMap<>();
+            this.entityChatDataMap.forEach((name, entityChatData) -> lightVersionMap.put(name, entityChatData.toLightVersion(playerName)));
             return GSON.toJson(lightVersionMap);
         } catch (Exception e) {
             // Handle exceptions

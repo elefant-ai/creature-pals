@@ -30,7 +30,7 @@ public class MixinLivingEntity {
 
     private EntityChatData getChatData(LivingEntity entity) {
         ChatDataManager chatDataManager = ChatDataManager.getServerInstance();
-        return chatDataManager.getOrCreateChatData(entity.getUuid());
+        return chatDataManager.getOrCreateChatData(entity.getUuidAsString());
     }
 
     @Inject(method = "canTarget(Lnet/minecraft/entity/LivingEntity;)Z", at = @At("HEAD"), cancellable = true)
@@ -38,7 +38,7 @@ public class MixinLivingEntity {
         if (target instanceof PlayerEntity) {
             LivingEntity thisEntity = (LivingEntity) (Object) this;
             EntityChatData entityData = getChatData(thisEntity);
-            PlayerData playerData = entityData.getPlayerData(target.getUuid());
+            PlayerData playerData = entityData.getPlayerData(target.getDisplayName().getString());
             if (playerData.friendship > 0) {
                 // Friendly creatures can't target a player
                 cir.setReturnValue(false);
@@ -70,7 +70,7 @@ public class MixinLivingEntity {
                 String weaponName = weapon.isEmpty() ? "with fists" : "with " + weapon.getItem().toString();
 
                 // Determine if the damage was indirect
-                boolean isIndirect = !source.isDirect();
+                boolean isIndirect = source.isIndirect();
                 String directness = isIndirect ? "indirectly" : "directly";
 
                 String attackedMessage = "<" + player.getName().getString() + " attacked you " + directness + " with " + weaponName + ">";
