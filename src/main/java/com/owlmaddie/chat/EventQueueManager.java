@@ -3,6 +3,7 @@ package com.owlmaddie.chat;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,6 +22,7 @@ public class EventQueueManager {
     public static final Logger LOGGER = LoggerFactory.getLogger("creaturechat");
     public static final long maxDistance = 12;
     public static boolean llmProcessing = false;
+    public static boolean addingEntityQueues = false;
     public static String blacklistedEntityId = null;
 
     private static long lastErrorTime = 0L;
@@ -50,8 +52,8 @@ public class EventQueueManager {
 
     // }
 
-    public static void addEntityIdToCreate(String entityId){
-       entityIdsToAdd.add(entityId); 
+    public static void addEntityIdToCreate(String entityId) {
+        entityIdsToAdd.add(entityId);
     }
 
     public static EventQueueData getOrCreateQueueData(String entityId, Entity entity) {
@@ -74,13 +76,21 @@ public class EventQueueManager {
 
     public static void addUserMessageToAllClose(String userLanguage, ServerPlayerEntity player, String userMessage,
             boolean is_auto_message) {
-        for (EventQueueData curQueue : queueData.values()) {
-            Entity entity = curQueue.entity;
-            if (entity.distanceTo(player) > playerToEntityCutoffDistance) {
-                continue;
-            }
-            addUserMessage(curQueue.entity, userLanguage, player, userMessage, is_auto_message);
-        }
+        // for (EventQueueData curQueue : queueData.values()) {
+        // Entity entity = curQueue.entity;
+        // if (entity.distanceTo(player) > playerToEntityCutoffDistance) {
+        // continue;
+        // }
+        // addUserMessage(curQueue.entity, userLanguage, player, userMessage,
+        // is_auto_message);
+        // }
+        ServerEntityFinder.getCloseEntities(player.getServerWorld(), player, 6).stream().filter(
+                (e) -> !e.isPlayer()).forEach((e) -> {
+                    addingEntityQueues = true; // if dont have this, then will first create queue data and poll before adding user message.
+                    getOrCreateQueueData(e.getUuidAsString(), e);
+                    addUserMessage(e, userLanguage, player, userMessage, is_auto_message);
+                    addingEntityQueues = false;
+                });
     }
 
     public static void addEntityMessageToAllClose(Entity fromEntity, String userLanguage, ServerPlayerEntity player,
@@ -99,15 +109,16 @@ public class EventQueueManager {
     }
 
     public static void injectOnServerTick(MinecraftServer server) {
-        for(String entityId : entityIdsToAdd){ // for chatdata on load we only have entity Id
-            for(ServerPlayerEntity player : server.getPlayerManager().getPlayerList()){
+        for (String entityId : entityIdsToAdd) { // for chatdata on load we only have entity Id
+            for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
                 Entity cur = ServerEntityFinder.getEntityByUUID(player.getServerWorld(), UUID.fromString(entityId));
-                if(cur != null){
+                if (cur != null) {
                     getOrCreateQueueData(entityId, cur);
+                    entityIdsToAdd.remove(entityId);
                 }
             }
         }
-        if (llmProcessing)
+        if (llmProcessing || addingEntityQueues)
             return;
 
         // TODO: Figure out a smarter way to figure out which to poll?
