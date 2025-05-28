@@ -18,7 +18,7 @@ import static com.owlmaddie.particle.Particles.*;
  * and triggers sound effects based on particle type and count.
  */
 public class ParticleEmitter {
-    public static <T extends ParticleEffect> void emitCreatureParticle(ServerWorld world, Entity entity, T particleType, double spawnSize, int count) {
+    public static void emitCreatureParticle(ServerWorld world, Entity entity, ParticleEffect particleType, double spawnSize, int count) {
         // Calculate the offset for the particle to appear above and in front of the entity
         float yaw = entity.getHeadYaw();
         double offsetX = -MathHelper.sin(yaw * ((float) Math.PI / 180F)) * 0.9;
