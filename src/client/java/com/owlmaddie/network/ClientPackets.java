@@ -160,12 +160,12 @@ public class ClientPackets {
                 PlayerMessageManager.addMessage(senderPlayerId, message, senderPlayerName, ChatDataManager.TICKS_TO_DISPLAY_USER_MESSAGE);
 
                 // if the msg was from minecraft's chat, and this is the client for that player, then send to nearest entity with bubble open.
-                if(fromMinecraftChat && senderPlayerName.equals(client.player.getName().getString())){
-                    Optional<Entity> entityToSendChatTo = ClientEntityFinder.getClosestEntityToPlayerWithChatBubbleOpen();
-                    entityToSendChatTo.ifPresent(entity -> {
-                        ClientPackets.sendChat(entity, message);
-                    });
-                }
+                // if(fromMinecraftChat && senderPlayerName.equals(client.player.getName().getString())){
+                //     Optional<Entity> entityToSendChatTo = ClientEntityFinder.getClosestEntityToPlayerWithChatBubbleOpen();
+                //     entityToSendChatTo.ifPresent(entity -> {
+                //         ClientPackets.sendChat(entity, message);
+                //     });
+                // }
             });
         });
 

@@ -1,7 +1,9 @@
 package com.owlmaddie.goals;
 
+import com.mojang.authlib.yggdrasil.request.TelemetryEventsRequest.Event;
 import com.owlmaddie.chat.ChatDataManager;
 import com.owlmaddie.chat.EntityChatData;
+import com.owlmaddie.chat.EventQueueManager;
 import com.owlmaddie.controls.LookControls;
 import com.owlmaddie.network.ServerPackets;
 import com.owlmaddie.particle.LeadParticleEffect;
@@ -20,7 +22,8 @@ import java.util.EnumSet;
 import java.util.Random;
 
 /**
- * The {@code LeadPlayerGoal} class instructs a Mob Entity to lead the player to a random location, consisting
+ * The {@code LeadPlayerGoal} class instructs a Mob Entity to lead the player to
+ * a random location, consisting
  * of many random waypoints. It supports PathAware and NonPathAware entities.
  */
 public class LeadPlayerGoal extends PlayerBaseGoal {
@@ -44,12 +47,14 @@ public class LeadPlayerGoal extends PlayerBaseGoal {
 
     @Override
     public boolean canStart() {
-        return super.canStart() && !foundWaypoint && this.entity.squaredDistanceTo(this.targetEntity) <= 16 * 16 && !foundWaypoint;
+        return super.canStart() && !foundWaypoint && this.entity.squaredDistanceTo(this.targetEntity) <= 16 * 16
+                && !foundWaypoint;
     }
 
     @Override
     public boolean shouldContinue() {
-        return super.canStart() && !foundWaypoint && this.entity.squaredDistanceTo(this.targetEntity) <= 16 * 16 && !foundWaypoint;
+        return super.canStart() && !foundWaypoint && this.entity.squaredDistanceTo(this.targetEntity) <= 16 * 16
+                && !foundWaypoint;
     }
 
     @Override
@@ -72,15 +77,22 @@ public class LeadPlayerGoal extends PlayerBaseGoal {
 
                 ChatDataManager chatDataManager = ChatDataManager.getServerInstance();
                 EntityChatData chatData = chatDataManager.getOrCreateChatData(this.entity.getUuid());
-                if (!chatData.characterSheet.isEmpty() && chatData.auto_generated < chatDataManager.MAX_AUTOGENERATE_RESPONSES) {
-                    ServerPackets.generate_chat("N/A", chatData, (ServerPlayerEntity) this.targetEntity, this.entity, arrivedMessage, true);
+                if (!chatData.characterSheet.isEmpty()
+                        && chatData.auto_generated < chatDataManager.MAX_AUTOGENERATE_RESPONSES) {
+                    // EventQueueManager.addUserMessage(entity, arrivedMessage, null,
+                    // arrivedMessage, foundWaypoint);
+                    EventQueueManager.addUserMessage(entity, "N/A", (ServerPlayerEntity) this.targetEntity,
+                            arrivedMessage, true);
+                    // ServerPackets.generate_chat("N/A", chatData, (ServerPlayerEntity)
+                    // this.targetEntity, this.entity, arrivedMessage, true);
                 }
             });
 
             // Stop navigation
             this.entity.getNavigation().stop();
 
-        } else if (this.currentTarget == null || this.entity.squaredDistanceTo(this.currentTarget) < 2 * 2 || ticksSinceLastWaypoint >= 20 * 10) {
+        } else if (this.currentTarget == null || this.entity.squaredDistanceTo(this.currentTarget) < 2 * 2
+                || ticksSinceLastWaypoint >= 20 * 10) {
             // Set next waypoint
             setNewTarget();
             moveToTarget();
@@ -94,13 +106,14 @@ public class LeadPlayerGoal extends PlayerBaseGoal {
     private void moveToTarget() {
         if (this.currentTarget != null) {
             if (this.entity instanceof PathAwareEntity) {
-                 if (!this.entity.getNavigation().isFollowingPath()) {
-                     Path path = this.entity.getNavigation().findPathTo(this.currentTarget.x, this.currentTarget.y, this.currentTarget.z, 1);
-                     if (path != null) {
-                         LOGGER.debug("Start moving along path");
-                         this.entity.getNavigation().startMovingAlong(path, this.speed);
-                     }
-                 }
+                if (!this.entity.getNavigation().isFollowingPath()) {
+                    Path path = this.entity.getNavigation().findPathTo(this.currentTarget.x, this.currentTarget.y,
+                            this.currentTarget.z, 1);
+                    if (path != null) {
+                        LOGGER.debug("Start moving along path");
+                        this.entity.getNavigation().startMovingAlong(path, this.speed);
+                    }
+                }
             } else {
                 // Make the entity look at the player without moving towards them
                 LookControls.lookAtPosition(this.currentTarget, this.entity);
@@ -113,10 +126,12 @@ public class LeadPlayerGoal extends PlayerBaseGoal {
                 double currentSpeed = this.entity.getVelocity().horizontalLength();
 
                 // Gradually adjust speed towards the target speed
-                currentSpeed = MathHelper.stepTowards((float) currentSpeed, (float) this.speed, (float) (0.005 * (this.speed / Math.max(currentSpeed, 0.1))));
+                currentSpeed = MathHelper.stepTowards((float) currentSpeed, (float) this.speed,
+                        (float) (0.005 * (this.speed / Math.max(currentSpeed, 0.1))));
 
                 // Apply movement with the adjusted speed towards the target
-                Vec3d newVelocity = new Vec3d(moveDirection.x * currentSpeed, moveDirection.y * currentSpeed, moveDirection.z * currentSpeed);
+                Vec3d newVelocity = new Vec3d(moveDirection.x * currentSpeed, moveDirection.y * currentSpeed,
+                        moveDirection.z * currentSpeed);
 
                 this.entity.setVelocity(newVelocity);
                 this.entity.velocityModified = true;
@@ -141,7 +156,8 @@ public class LeadPlayerGoal extends PlayerBaseGoal {
         if (this.entity.getWorld() instanceof ServerWorld) {
             ServerWorld serverWorld = (ServerWorld) this.entity.getWorld();
 
-            // Pass the angle using the "speed" argument, with deltaX, deltaY, deltaZ set to 0
+            // Pass the angle using the "speed" argument, with deltaX, deltaY, deltaZ set to
+            // 0
             LeadParticleEffect effect = new LeadParticleEffect((float) angle);
             serverWorld.spawnParticles(effect, position.x, position.y + 0.05, position.z, 1, 0, 0, 0, 0);
         }
@@ -168,11 +184,12 @@ public class LeadPlayerGoal extends PlayerBaseGoal {
 
         // Emit particles along the ray from startRange to endRange
         double distance = start.distanceTo(end);
-        double startRange = Math.min(5, distance);;
+        double startRange = Math.min(5, distance);
+        ;
         double endRange = Math.min(startRange + 10, distance);
         for (double d = startRange; d <= endRange; d += 5) {
             Vec3d pos = start.add(direction.normalize().multiply(d));
-            emitParticleAt(pos, Math.toRadians(minecraftYaw));  // Convert back to radians for rendering
+            emitParticleAt(pos, Math.toRadians(minecraftYaw)); // Convert back to radians for rendering
         }
     }
 }

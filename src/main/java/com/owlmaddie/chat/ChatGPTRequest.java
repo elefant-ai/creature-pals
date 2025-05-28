@@ -2,6 +2,8 @@ package com.owlmaddie.chat;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.owlmaddie.chat.ChatGPTRequest.ChatGPTRequestMessage;
+import com.owlmaddie.chat.ChatGPTRequest.ChatGPTRequestPayload;
 import com.owlmaddie.commands.ConfigurationHandler;
 import com.owlmaddie.json.ChatGPTResponse;
 import org.slf4j.Logger;
@@ -118,7 +120,9 @@ public class ChatGPTRequest {
         return (int) Math.round(text.length() / 3.5);
     }
 
-    public static CompletableFuture<String> fetchMessageFromChatGPT(ConfigurationHandler.Config config, String systemPrompt, Map<String, String> contextData, List<ChatMessage> messageHistory, Boolean jsonMode) {
+    public static CompletableFuture<String> fetchMessageFromChatGPT(ConfigurationHandler.Config config,
+            String systemPrompt, Map<String, String> contextData, List<ChatMessage> messageHistory, Boolean jsonMode,
+            String wrapMsg) {
         // Init API & LLM details
         String apiUrl = config.getUrl();
         String apiKey = config.getApiKey();
@@ -147,7 +151,8 @@ public class ChatGPTRequest {
                 // Create messages list (for chat history)
                 List<ChatGPTRequestMessage> messages = new ArrayList<>();
 
-                // Don't exceed a specific % of total context window (to limit message history in request)
+                // Don't exceed a specific % of total context window (to limit message history
+                // in request)
                 int remainingContextTokens = (int) ((maxContextTokens - maxOutputTokens) * percentOfContext);
                 int usedTokens = estimateTokenSize("system: " + systemMessage);
 
@@ -156,10 +161,15 @@ public class ChatGPTRequest {
                     ChatMessage chatMessage = messageHistory.get(i);
                     String senderName = chatMessage.sender.toString().toLowerCase(Locale.ENGLISH);
                     String messageText = replacePlaceholders(chatMessage.message, contextData);
+                    if(messageText.equals("...")){ // replace ... with "" so that it makes more sense to LLM
+                        messageText = "";
+                    }
+                    messageText.replace("said ...", "said ");
                     int messageTokens = estimateTokenSize(senderName + ": " + messageText);
 
                     if (usedTokens + messageTokens > remainingContextTokens) {
-                        break;  // If adding this message would exceed the token limit, stop adding more messages
+                        break; // If adding this message would exceed the token limit, stop adding more
+                               // messages
                     }
 
                     // Add the message to the temporary list
@@ -171,11 +181,24 @@ public class ChatGPTRequest {
                 messages.add(new ChatGPTRequestMessage("system", systemMessage));
 
                 // Reverse the list to restore chronological order
-                // This is needed since we build the list in reverse order for token restricting above
+                // This is needed since we build the list in reverse order for token restricting
+                // above
                 Collections.reverse(messages);
 
+                if (wrapMsg != null && !wrapMsg.isBlank() && messages.size() > 0) {
+                    messages.get(messages.size() - 1).content = String.format("User message: '%s' |%s|",
+                            messages.get(messages.size() - 1).content, wrapMsg);
+                }
+                LOGGER.info("---- CONVERSATION HISTORY SENT TO LLM -----");
+                for (ChatGPTRequestMessage msg : messages) {
+                    LOGGER.info(String.format("%s:'%s'", msg.role.toString(), msg.content));
+                }
+
+                LOGGER.info("---- END CONVERSATION HISTORY SENT ---------");
+
                 // Convert JSON to String
-                ChatGPTRequestPayload payload = new ChatGPTRequestPayload(modelName, messages, jsonMode, 1.0f, maxOutputTokens);
+                ChatGPTRequestPayload payload = new ChatGPTRequestPayload(modelName, messages, jsonMode, 1.0f,
+                        maxOutputTokens);
                 Gson gsonInput = new Gson();
                 String jsonInputString = gsonInput.toJson(payload);
 
@@ -186,7 +209,8 @@ public class ChatGPTRequest {
 
                 // Check for error message in response
                 if (connection.getResponseCode() >= HttpURLConnection.HTTP_BAD_REQUEST) {
-                    try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(connection.getErrorStream(), StandardCharsets.UTF_8))) {
+                    try (BufferedReader errorReader = new BufferedReader(
+                            new InputStreamReader(connection.getErrorStream(), StandardCharsets.UTF_8))) {
                         String errorLine;
                         StringBuilder errorResponse = new StringBuilder();
                         while ((errorLine = errorReader.readLine()) != null) {
@@ -205,7 +229,8 @@ public class ChatGPTRequest {
                     lastErrorMessage = null;
                 }
 
-                try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
+                try (BufferedReader br = new BufferedReader(
+                        new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
                     StringBuilder response = new StringBuilder();
                     String responseLine;
                     while ((responseLine = br.readLine()) != null) {
@@ -214,7 +239,8 @@ public class ChatGPTRequest {
 
                     Gson gsonOutput = new Gson();
                     ChatGPTResponse chatGPTResponse = gsonOutput.fromJson(response.toString(), ChatGPTResponse.class);
-                    if (chatGPTResponse != null && chatGPTResponse.choices != null && !chatGPTResponse.choices.isEmpty()) {
+                    if (chatGPTResponse != null && chatGPTResponse.choices != null
+                            && !chatGPTResponse.choices.isEmpty()) {
                         String content = chatGPTResponse.choices.get(0).message.content;
                         return content;
                     } else {

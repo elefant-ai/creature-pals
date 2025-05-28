@@ -1,9 +1,12 @@
 package com.owlmaddie;
 
+import com.owlmaddie.chat.EventQueueManager;
 import com.owlmaddie.commands.CreatureChatCommands;
 import com.owlmaddie.network.ServerPackets;
 import com.owlmaddie.particle.Particles;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,8 +31,10 @@ public class ModInit implements ModInitializer {
 		// Register events
 		ServerPackets.register();
 
-
-
+		// ontick handling for server
+		ServerTickEvents.END_SERVER_TICK.register(server -> {
+			EventQueueManager.injectOnServerTick(server);
+		});
 
 		LOGGER.info("CreatureChat MOD Initialized!");
 	}

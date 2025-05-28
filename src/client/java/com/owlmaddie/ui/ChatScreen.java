@@ -77,6 +77,7 @@ public class ChatScreen extends Screen {
     private void sendChatMessage() {
         // Send message to server
         String message = textField.getText();
+        
         ClientPackets.sendChat(screenEntity, message);
         close();
     }

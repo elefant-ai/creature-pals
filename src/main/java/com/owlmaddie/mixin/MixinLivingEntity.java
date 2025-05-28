@@ -2,6 +2,7 @@ package com.owlmaddie.mixin;
 
 import com.owlmaddie.chat.ChatDataManager;
 import com.owlmaddie.chat.EntityChatData;
+import com.owlmaddie.chat.EventQueueManager;
 import com.owlmaddie.chat.PlayerData;
 import com.owlmaddie.network.ServerPackets;
 import net.minecraft.entity.Entity;
@@ -74,7 +75,9 @@ public class MixinLivingEntity {
                 String directness = isIndirect ? "indirectly" : "directly";
 
                 String attackedMessage = "<" + player.getName().getString() + " attacked you " + directness + " with " + weaponName + ">";
-                ServerPackets.generate_chat("N/A", chatData, player, (MobEntity) thisEntity, attackedMessage, true);
+                // ServerPackets.generate_chat("N/A", chatData, player, (MobEntity) thisEntity, attackedMessage, true);
+                EventQueueManager.addUserMessage(thisEntity, "N/A", (ServerPlayerEntity) player,
+                            attackedMessage, true);
             }
         }
     }
