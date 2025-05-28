@@ -19,6 +19,9 @@ public class LeadParticleEffect implements ParticleEffect {
     );
     private final float angle;
 
+    public float getAngle() {
+        return angle;
+    }
 
     public static final MapCodec<LeadParticleEffect> CODEC = RecordCodecBuilder.mapCodec(
             instance -> instance.group(

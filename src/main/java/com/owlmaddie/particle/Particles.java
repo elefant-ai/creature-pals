@@ -1,23 +1,25 @@
 package com.owlmaddie.particle;
 
 import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
+import net.minecraft.particle.ParticleType;
 import net.minecraft.particle.SimpleParticleType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 
 public class Particles {
-    public static final SimpleParticleType HEART_SMALL_PARTICLE = FabricParticleTypes.simple();
-    public static final SimpleParticleType HEART_BIG_PARTICLE = FabricParticleTypes.simple();
-    public static final SimpleParticleType FIRE_SMALL_PARTICLE = FabricParticleTypes.simple();
-    public static final SimpleParticleType FIRE_BIG_PARTICLE = FabricParticleTypes.simple();
-    public static final SimpleParticleType ATTACK_PARTICLE = FabricParticleTypes.simple();
-    public static final SimpleParticleType FLEE_PARTICLE = FabricParticleTypes.simple();
-    public static final SimpleParticleType FOLLOW_FRIEND_PARTICLE = FabricParticleTypes.simple();
-    public static final SimpleParticleType FOLLOW_ENEMY_PARTICLE = FabricParticleTypes.simple();
-    public static final SimpleParticleType PROTECT_PARTICLE = FabricParticleTypes.simple();
-    public static final SimpleParticleType LEAD_FRIEND_PARTICLE = FabricParticleTypes.simple();
-    public static final SimpleParticleType LEAD_ENEMY_PARTICLE = FabricParticleTypes.simple();
+    public static final SimpleParticleType HEART_SMALL_PARTICLE = FabricParticleTypes.simple(true);
+    public static final SimpleParticleType HEART_BIG_PARTICLE = FabricParticleTypes.simple(true);
+    public static final SimpleParticleType FIRE_SMALL_PARTICLE = FabricParticleTypes.simple(true);
+    public static final SimpleParticleType FIRE_BIG_PARTICLE = FabricParticleTypes.simple(true);
+    public static final SimpleParticleType ATTACK_PARTICLE = FabricParticleTypes.simple(true);
+    public static final SimpleParticleType FLEE_PARTICLE = FabricParticleTypes.simple(true);
+    public static final SimpleParticleType FOLLOW_FRIEND_PARTICLE = FabricParticleTypes.simple(true);
+    public static final SimpleParticleType FOLLOW_ENEMY_PARTICLE = FabricParticleTypes.simple(true);
+    public static final SimpleParticleType PROTECT_PARTICLE = FabricParticleTypes.simple(true);
+    public static final SimpleParticleType LEAD_FRIEND_PARTICLE = FabricParticleTypes.simple(true);
+    public static final SimpleParticleType LEAD_ENEMY_PARTICLE = FabricParticleTypes.simple(true);
+
     public static void register() {
 
         // Register custom particles
