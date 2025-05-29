@@ -183,6 +183,7 @@ public class ServerPackets {
             String userLanguage = buf.readString(32767);
             Entity ent = ServerEntityFinder.getEntityByUUID(player.getServerWorld(), entityId);
             String RHS = ent != null && ent.getCustomName() != null && !ent.getCustomName().equals("N/A")? "> (to " +ent.getCustomName().getString() + ") " : "> ";
+            
 
 // lastMessageData.player.server.getPlayerManager().broadcast(Text.of("<" + entityCustomName
                 // + " the " + entityType + "> " + message), false);
@@ -192,7 +193,8 @@ public class ServerPackets {
                 MobEntity entity = (MobEntity)ServerEntityFinder.getEntityByUUID(player.getServerWorld(), entityId);
                 if (entity != null) {
                     EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(entity.getUuidAsString());
-                    EventQueueManager.addUserMessage(entity, userLanguage, player, message, false );
+                    EventQueueManager.addUserMessage(entity, userLanguage, player, message, false , true);
+                    
                 }
             });
         });

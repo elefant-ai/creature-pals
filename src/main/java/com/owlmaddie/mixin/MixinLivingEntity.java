@@ -77,7 +77,7 @@ public class MixinLivingEntity {
                 String attackedMessage = "<" + player.getName().getString() + " attacked you " + directness + " with " + weaponName + ">";
                 // ServerPackets.generate_chat("N/A", chatData, player, (MobEntity) thisEntity, attackedMessage, true);
                 EventQueueManager.addUserMessage(thisEntity, "N/A", (ServerPlayerEntity) player,
-                            attackedMessage, true);
+                            attackedMessage, true, false);
             }
         }
     }
