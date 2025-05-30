@@ -68,7 +68,7 @@ public class EventQueueManager {
             boolean is_auto_message, boolean shouldImmediatlyPoll) {
         EventQueueData q = getOrCreateQueueData(entity.getUuidAsString(), entity);
         q.addUserMessage(userLanguage, player, userMessage, is_auto_message);
-        if(shouldImmediatlyPoll){
+        if (shouldImmediatlyPoll) {
             q.bubblePoll();
         }
     }
@@ -77,6 +77,7 @@ public class EventQueueManager {
         LOGGER.info("EventQueueManager: callign addGreeting");
         EventQueueData q = getOrCreateQueueData(entity.getUuidAsString(), entity);
         q.addGreeting(userLangauge, player);
+        q.immediateGreeting();
     }
 
     public static void addUserMessageToAllClose(String userLanguage, ServerPlayerEntity player, String userMessage,

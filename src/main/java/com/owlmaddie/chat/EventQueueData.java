@@ -29,7 +29,7 @@ public class EventQueueData {
     long randomInterval;
     MessageData lastMessageData;
     String characterName;
-    boolean bubblePolling = false;
+    boolean immediatePolling = false;
 
     public EventQueueData(String entityId, Entity entity) {
         this.entityId = entityId;
@@ -51,7 +51,7 @@ public class EventQueueData {
                 System.nanoTime() > lastTimePolled + randomInterval &&
                 lastMessageData.player.distanceTo(entity) < EventQueueManager.maxDistance &&
                 !EventQueueManager.shouldWaitBecauseOfError()
-                && !bubblePolling;
+                && !immediatePolling;
         if (!shouldPoll) {
             return false;
         }
@@ -156,10 +156,45 @@ public class EventQueueData {
         return false;
     }
 
+    public void immediateGreeting() {
+        LOGGER.info(String.format("EventQueueData/injectOnServerTick(entity %s) immediate greeting", entityId));
+
+        EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(entityId);
+        immediatePolling = true;
+        chatData.setStatus(ChatStatus.PENDING);
+        TalkPlayerGoal talkGoal = new TalkPlayerGoal(lastMessageData.player, (MobEntity) entity, 3.5F);
+        EntityBehaviorManager.addGoal((MobEntity) entity, talkGoal, GoalPriority.TALK_PLAYER);
+        MessageData greetingMsg = queue.poll();
+        chatData.generateCharacterMessage(greetingMsg, (name) -> {
+            // on characterName
+            setCharacterName(name);
+            LOGGER.info(
+                    String.format("EventQueueData/injectOnServerTick(entity %s) generated character with name (%s)",
+                            entityId, characterName));
+            // if generated character without greeting, then should poll if possible so that
+            // it talks
+            if (!queue.isEmpty()) {
+                messagePoll(chatData, false);
+            } else {
+                doneImmediatePolling();
+            }
+        }, (errMsg) -> {
+            onError(errMsg);
+            LOGGER.info(String.format(
+                    "EventQueueData/injectOnServerTick(entity %s) ERROR GENERATING MESSAGE: errMsg: (%s)",
+                    entityId, errMsg));
+            doneImmediatePolling();
+        }, (greetMsg) -> {
+            onGreetingGenerated(greetMsg);
+            doneImmediatePolling();
+        });
+        return;
+    }
+
     public void bubblePoll() {
         LOGGER.info(String.format("EventQueueData/injectOnServerTick(entity %s) Bubble poll", entityId));
         EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(entityId);
-        bubblePolling = true;
+        immediatePolling = true;
         chatData.setStatus(ChatStatus.PENDING);
         TalkPlayerGoal talkGoal = new TalkPlayerGoal(lastMessageData.player, (MobEntity) entity, 3.5F);
         EntityBehaviorManager.addGoal((MobEntity) entity, talkGoal, GoalPriority.TALK_PLAYER);
@@ -218,14 +253,14 @@ public class EventQueueData {
                     entityId, responseMsg));
             onMessageGenerated(responseMsg);
             if (isBubblePoll) {
-                doneBubblePolling();
+                doneImmediatePolling();
             } else {
                 donePolling();
             }
         }, (errMsg) -> {
             onError(errMsg);
             if (isBubblePoll) {
-                doneBubblePolling();
+                doneImmediatePolling();
             } else {
                 donePolling();
             }
@@ -239,16 +274,17 @@ public class EventQueueData {
 
     public void donePolling() {
         lastTimePolled = System.nanoTime();
-        // EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(entityId);
+        // EntityChatData chatData =
+        // ChatDataManager.getServerInstance().getOrCreateChatData(entityId);
         // chatData.setStatus(ChatStatus.DISPLAY); // do not set this here. Need to set
         // on client after message is generated.
         EventQueueManager.llmProcessing = false;
     }
 
-    public void doneBubblePolling() {
+    public void doneImmediatePolling() {
         lastTimePolled = System.nanoTime();
         EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(entityId);
-        bubblePolling = false;
+        immediatePolling = false;
     }
 
     // SIDE EFFECTS
