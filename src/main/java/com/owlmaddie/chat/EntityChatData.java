@@ -413,6 +413,7 @@ public class EntityChatData {
                         "Conversation-switching message: status=PENDING, sender={}, message={}, player={}, entity={}",
                         ChatDataManager.ChatStatus.PENDING, note, playerName, entityId);
             }
+            status = ChatDataManager.ChatStatus.PENDING;
         }
 
         // Add message to history

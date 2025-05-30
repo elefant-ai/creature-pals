@@ -269,6 +269,7 @@ public class EventQueueData {
 
     public void startPolling(EntityChatData chatData) {
         EventQueueManager.llmProcessing = true;
+        LOGGER.info("Start polling");
         chatData.setStatus(ChatStatus.PENDING);
     }
 
