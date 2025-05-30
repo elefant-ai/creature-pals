@@ -67,7 +67,7 @@ public class EventQueueManager {
     public static void addUserMessage(Entity entity, String userLanguage, ServerPlayerEntity player, String userMessage,
 
             boolean is_auto_message, boolean shouldImmediatlyPoll) {
-        EventQueueData q = getOrCreateQueueData(entity.getUuidAsString(), entity);
+        EventQueueData q = getOrCreateQueueData(entity.getUuid(), entity);
         q.addUserMessage(userLanguage, player, userMessage, is_auto_message);
         if (shouldImmediatlyPoll) {
             q.bubblePoll();
@@ -96,7 +96,7 @@ public class EventQueueManager {
                 (e) -> !e.isPlayer()).forEach((e) -> {
                     // adding user message.
 
-                    getOrCreateQueueData(e.getUuidAsString(), e);
+                    getOrCreateQueueData(e.getUuid(), e);
                     addUserMessage(e, userLanguage, player, userMessage, is_auto_message, false);
                 });
         addingEntityQueues = false;

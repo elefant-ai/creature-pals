@@ -63,13 +63,13 @@ public class ServerPackets {
         ServerPlayNetworking.registerGlobalReceiver(GreetingPayload.ID, (payload, context) -> {
 
             ServerPlayerEntity player = context.player();
-
+            String userLanguage =payload.userLanguage(); 
             // Ensure that the task is synced with the server thread
             context.server().execute(() -> {
                 MobEntity entity = (MobEntity)ServerEntityFinder.getEntityByUUID(player.getServerWorld(), payload.entityId());
                                        if (entity != null) {
                             EntityChatData chatData = ChatDataManager.getServerInstance()
-                                    .getOrCreateChatData(entity.getUuidAsString());
+                                    .getOrCreateChatData(entity.getUuid());
                             if (chatData.characterSheet.isEmpty()) {
                                 LOGGER.info("C2S_GREETING");
                                 EventQueueManager.addGreeting(entity, userLanguage, player);
@@ -175,10 +175,10 @@ public class ServerPackets {
             // Ensure that the task is synced with the server thread
             server.execute(() -> {
                         MobEntity entity = (MobEntity) ServerEntityFinder.getEntityByUUID(player.getServerWorld(),
-                                entityId);
+                                payload.entityId());
                         if (entity != null) {
-                            EntityChatData chatData = ChatDataManager.getServerInstance()
-                                    .getOrCreateChatData(entity.getUuidAsString());
+                            // EntityChatData chatData = ChatDataManager.getServerInstance()
+                            //         .getOrCreateChatData(payload.entityId());
                             EventQueueManager.addUserMessage(entity, userLanguage, player, message, false, true);
                         }
                     });

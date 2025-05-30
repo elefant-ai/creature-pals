@@ -151,7 +151,7 @@ public class EventQueueData {
     public boolean shouldDelete() {
         if (lastMessageData != null && lastMessageData.player != null) {
             return ServerEntityFinder.getEntityByUUID(lastMessageData.player.getServerWorld(),
-                    UUID.fromString(entityId)) == null || !entity.isAlive();
+                    entityId) == null || !entity.isAlive();
         }
         return false;
     }
