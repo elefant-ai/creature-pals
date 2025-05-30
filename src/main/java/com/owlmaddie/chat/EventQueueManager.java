@@ -65,15 +65,20 @@ public class EventQueueManager {
     }
 
     public static void addUserMessage(Entity entity, String userLanguage, ServerPlayerEntity player, String userMessage,
-            boolean is_auto_message) {
-        EventQueueData q = getOrCreateQueueData(entity.getUuid(), entity);
+
+            boolean is_auto_message, boolean shouldImmediatlyPoll) {
+        EventQueueData q = getOrCreateQueueData(entity.getUuidAsString(), entity);
         q.addUserMessage(userLanguage, player, userMessage, is_auto_message);
+        if (shouldImmediatlyPoll) {
+            q.bubblePoll();
+        }
     }
 
     public static void addGreeting(Entity entity, String userLangauge, ServerPlayerEntity player) {
         LOGGER.info("EventQueueManager: callign addGreeting");
         EventQueueData q = getOrCreateQueueData(entity.getUuid(), entity);
         q.addGreeting(userLangauge, player);
+        q.immediateGreeting();
     }
 
     public static void addUserMessageToAllClose(String userLanguage, ServerPlayerEntity player, String userMessage,
@@ -90,8 +95,9 @@ public class EventQueueManager {
         ServerEntityFinder.getCloseEntities(player.getServerWorld(), player, 6).stream().filter(
                 (e) -> !e.isPlayer()).forEach((e) -> {
                     // adding user message.
-                    getOrCreateQueueData(e.getUuid(), e);
-                    addUserMessage(e, userLanguage, player, userMessage, is_auto_message);
+
+                    getOrCreateQueueData(e.getUuidAsString(), e);
+                    addUserMessage(e, userLanguage, player, userMessage, is_auto_message, false);
                 });
         addingEntityQueues = false;
     }

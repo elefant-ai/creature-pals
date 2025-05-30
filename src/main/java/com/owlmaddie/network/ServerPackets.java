@@ -45,7 +45,8 @@ import java.util.concurrent.TimeUnit;
 import static com.owlmaddie.network.NetworkingConstants.PACKET_C2S_READ_NEXT;
 
 /**
- * The {@code ServerPackets} class provides methods to send packets to/from the client for generating greetings,
+ * The {@code ServerPackets} class provides methods to send packets to/from the
+ * client for generating greetings,
  * updating message details, and sending user messages.
  */
 public class ServerPackets {
@@ -53,8 +54,8 @@ public class ServerPackets {
     public static MinecraftServer serverInstance;
     public static ChatDataSaverScheduler scheduler = null;
 
-
     public static void register() {
+
 
 
         PayloadTypeRegistry.playC2S().register(GreetingPayload.ID, GreetingPayload.CODEC);
@@ -66,13 +67,14 @@ public class ServerPackets {
             // Ensure that the task is synced with the server thread
             context.server().execute(() -> {
                 MobEntity entity = (MobEntity)ServerEntityFinder.getEntityByUUID(player.getServerWorld(), payload.entityId());
-                if (entity != null) {
-                    EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(entity.getUuid());
-                    if (chatData.characterSheet.isEmpty()) {
-                        LOGGER.info("C2S_GREETING");
-                       EventQueueManager.addGreeting(entity, payload.userLanguage(), player);
-                    }
-                }
+                                       if (entity != null) {
+                            EntityChatData chatData = ChatDataManager.getServerInstance()
+                                    .getOrCreateChatData(entity.getUuidAsString());
+                            if (chatData.characterSheet.isEmpty()) {
+                                LOGGER.info("C2S_GREETING");
+                                EventQueueManager.addGreeting(entity, userLanguage, player);
+                            }
+                        }
             });
         });
 
@@ -97,6 +99,7 @@ public class ServerPackets {
             });
         });
 
+
         PayloadTypeRegistry.playC2S().register(SetStatusPayload.ID, SetStatusPayload.CODEC);
 
         // Handle packet for setting status of chat bubbles
@@ -117,6 +120,7 @@ public class ServerPackets {
                 }
             });
         });
+
 
         PayloadTypeRegistry.playC2S().register(OpenChatPayload.ID, OpenChatPayload.CODEC);
 
@@ -139,6 +143,7 @@ public class ServerPackets {
             });
         });
 
+
         PayloadTypeRegistry.playC2S().register(CloseChatPayload.ID, CloseChatPayload.CODEC);
 
         // Handle packet for Close Chat
@@ -153,6 +158,7 @@ public class ServerPackets {
         PayloadTypeRegistry.playC2S().register(SendChatPayload.ID, SendChatPayload.CODEC);
 
         // Handle packet for new chat message
+
         ServerPlayNetworking.registerGlobalReceiver(SendChatPayload.ID, (payload, context) -> {
 
             MinecraftServer server = context.server();
@@ -168,13 +174,16 @@ public class ServerPackets {
 
             // Ensure that the task is synced with the server thread
             server.execute(() -> {
-                MobEntity entity = (MobEntity)ServerEntityFinder.getEntityByUUID(player.getServerWorld(), payload.entityId());
-                if (entity != null) {
-                    EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(entity.getUuid());
-                    EventQueueManager.addUserMessage(entity, userLanguage, player, message, false );
-                }
-            });
+                        MobEntity entity = (MobEntity) ServerEntityFinder.getEntityByUUID(player.getServerWorld(),
+                                entityId);
+                        if (entity != null) {
+                            EntityChatData chatData = ChatDataManager.getServerInstance()
+                                    .getOrCreateChatData(entity.getUuidAsString());
+                            EventQueueManager.addUserMessage(entity, userLanguage, player, message, false, true);
+                        }
+                    });
         });
+
 
         PayloadTypeRegistry.playS2C().register(LoginPayload.ID, LoginPayload.CODEC);
 
@@ -188,9 +197,11 @@ public class ServerPackets {
             // Send entire whitelist / blacklist to logged in player
             send_whitelist_blacklist(player);
 
-            LOGGER.info("Server send compressed, chunked login message packets to player: " + player.getName().getString());
+            LOGGER.info(
+                    "Server send compressed, chunked login message packets to player: " + player.getName().getString());
             // Get lite JSON data & compress to byte array
             String chatDataJSON = ChatDataManager.getServerInstance().GetLightChatData(player.getUuid());
+
             byte[] compressedData = Compression.compressString(chatDataJSON);
             if (compressedData == null) {
                 LOGGER.error("Failed to compress chat data.");
@@ -241,9 +252,11 @@ public class ServerPackets {
         });
         ServerEntityEvents.ENTITY_UNLOAD.register((entity, world) -> {
             String entityUUID = entity.getUuidAsString();
-            if (entity.getRemovalReason() == Entity.RemovalReason.KILLED && ChatDataManager.getServerInstance().entityChatDataMap.containsKey(entityUUID)) {
+            if (entity.getRemovalReason() == Entity.RemovalReason.KILLED
+                    && ChatDataManager.getServerInstance().entityChatDataMap.containsKey(entityUUID)) {
                 LOGGER.debug("Entity killed (" + entityUUID + "), updating death time stamp.");
-                ChatDataManager.getServerInstance().entityChatDataMap.get(entityUUID).death = System.currentTimeMillis();
+                ChatDataManager.getServerInstance().entityChatDataMap.get(entityUUID).death = System
+                        .currentTimeMillis();
             }
         });
 
@@ -270,16 +283,17 @@ public class ServerPackets {
         }
     }
 
-
     // Writing a Map<String, PlayerData> to the buffer
 
 
     // Send new message to all connected players
     public static void BroadcastEntityMessage(EntityChatData chatData) {
         // Log useful information before looping through all players
-        LOGGER.info("Broadcasting entity message: entityId={}, status={}, currentMessage={}, currentLineNumber={}, senderType={}",
+        LOGGER.info(
+                "Broadcasting entity message: entityId={}, status={}, currentMessage={}, currentLineNumber={}, senderType={}",
                 chatData.entityId, chatData.status,
-                chatData.currentMessage.length() > 24 ? chatData.currentMessage.substring(0, 24) + "..." : chatData.currentMessage,
+                chatData.currentMessage.length() > 24 ? chatData.currentMessage.substring(0, 24) + "..."
+                        : chatData.currentMessage,
                 chatData.currentLineNumber, chatData.sender);
 
         for (ServerWorld world : serverInstance.getWorlds()) {
@@ -296,7 +310,8 @@ public class ServerPackets {
                 }
             }
 
-            // Make auto-generated message appear as a pending icon (attack, show/give, arrival)
+            // Make auto-generated message appear as a pending icon (attack, show/give,
+            // arrival)
             if (chatData.sender == ChatDataManager.ChatSender.USER && chatData.auto_generated > 0) {
                 chatData.status = ChatDataManager.ChatStatus.PENDING;
             }
@@ -311,7 +326,8 @@ public class ServerPackets {
     }
 
     // Send new message to all connected players
-    public static void BroadcastPlayerMessage(EntityChatData chatData, ServerPlayerEntity sender, boolean fromMinecraftChat) {
+    public static void BroadcastPlayerMessage(EntityChatData chatData, ServerPlayerEntity sender,
+            boolean fromMinecraftChat) {
         // Log the specific data being sent
         LOGGER.info("Broadcasting player message: senderUUID={}, message={}", sender.getUuidAsString(),
                 chatData.currentMessage);
@@ -330,6 +346,7 @@ public class ServerPackets {
         for (ServerPlayerEntity serverPlayer : serverInstance.getPlayerManager().getPlayerList()) {
             LOGGER.debug("Server broadcast " + player.getName().getString() + " player status to client: " + serverPlayer.getName().getString() + " | isChatOpen: " + isChatOpen);
             ServerPlayNetworking.send(serverPlayer, packet);
+
         }
     }
 
@@ -337,10 +354,12 @@ public class ServerPackets {
     public static void BroadcastMessage(Text message) {
         for (ServerPlayerEntity serverPlayer : serverInstance.getPlayerManager().getPlayerList()) {
             serverPlayer.sendMessage(message, false);
-        };
+        }
+        ;
     }
 
-    // Send a chat message to a player which is clickable (for error messages with a link for help)
+    // Send a chat message to a player which is clickable (for error messages with a
+    // link for help)
     public static void SendClickableError(PlayerEntity player, String message, String url) {
         MutableText text = Text.literal(message)
                 .formatted(Formatting.RED)
