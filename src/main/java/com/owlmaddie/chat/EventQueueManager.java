@@ -1,113 +1,100 @@
 package com.owlmaddie.chat;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.owlmaddie.utils.ServerEntityFinder;
 
+import net.minecraft.block.entity.VaultBlockEntity.Client;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 public class EventQueueManager {
-    public static ConcurrentHashMap<String, EventQueueData> queueData = new ConcurrentHashMap<>();
     public static final Logger LOGGER = LoggerFactory.getLogger("creaturechat");
-    public static final long maxDistance = 12;
-    public static boolean llmProcessing = false;
-    public static boolean addingEntityQueues = false;
-    public static UUID blacklistedEntityId = null;
 
-    private static long lastErrorTime = 0L;
-    private static long waitTimeAfterError = 10_000_000_000L; // wait 3 sec after err before doing any polling
+    private static class LLMCompleter {
+        private boolean isProcessing = false;
 
-    public static long entityToEntityCutoffDistance = 12;
-    public static long playerToEntityCutoffDistance = 12;
+        public boolean isAvailable() {
+            return isProcessing;
+        }
+
+        public void process(UUID entityId, Consumer<String> onUncleanResponse, Consumer<String> onError) {
+            isProcessing = true;
+            queueData.get(entityId).process((resp) -> {
+                onUncleanResponse.accept(resp);
+                isProcessing = false;
+            }, onError);
+        }
+    }
+
+    private static List<LLMCompleter> completers = List.of(new LLMCompleter()); // TODO: add another completer, more if premium
+
+    private static ConcurrentHashMap<UUID, EventQueueData> queueData = new ConcurrentHashMap<>();
+    // entitys to add next tick. EventQueueData only has entityId, so need to loop
+    // through all players to find entity object
     private static Set<UUID> entityIdsToAdd = new HashSet<>();
-
-    public static void onError() {
-        lastErrorTime = System.nanoTime();
-    }
-
-    public static boolean shouldWaitBecauseOfError() {
-        return System.nanoTime() <= lastErrorTime + waitTimeAfterError;
-    }
-
 
     public static void addEntityIdToCreate(UUID entityId) {
         entityIdsToAdd.add(entityId);
     }
 
+    private static Optional<UUID> getEntityIdToProcess(MinecraftServer server) {
+        return queueData.values().stream().filter((queueData) -> queueData.shouldProcess()).findFirst()
+                .map((q) -> q.getId());
+    }
+    
+    private static void errorCooldown(UUID entityId){
+        queueData.get(entityId).errorCooldown();
+    }
+
+    public static void injectOnServerTick(MinecraftServer server) {
+        // first make sure queueData is up to date (as much as possible, 
+        // because maybe no players have tracked entity)
+        tryAddAllNewEntities(server);
+        completers.forEach((completer) -> {
+            if (!completer.isAvailable()) {
+                return;
+            }
+            // find entityId and player somehow
+            Optional<UUID> entityIdOption = getEntityIdToProcess(server);
+            entityIdOption.ifPresent(
+                    (entityId) -> {
+                        ClientSideEffects.setPending(entityId);
+                        completer.process(entityId, (uncleanMsg) -> {
+                            ClientSideEffects.onEntityGeneratedMessage(entityId, uncleanMsg);
+                        }, (errMsg) -> {
+                            ClientSideEffects.onLLMGenerateError(entityId, errMsg);
+                            // make entity on cooldown
+                            errorCooldown(entityId);
+                        });
+                    });
+        });
+    }
+
     public static EventQueueData getOrCreateQueueData(UUID entityId, Entity entity) {
-        return queueData.computeIfAbsent(entityId.toString(), k -> {
+        return queueData.computeIfAbsent(entityId, k -> {
             LOGGER.info(String.format("EventQueueManager/creating new queue data for ent id (%s)", entityId));
             return new EventQueueData(entityId, entity);
         });
     }
 
-    public static void addUserMessage(Entity entity, String userLanguage, ServerPlayerEntity player, String userMessage,
-            boolean is_auto_message, boolean shouldImmediatlyPoll) {
-        EventQueueData q = getOrCreateQueueData(entity.getUuid(), entity);
-        q.addUserMessage(userLanguage, player, userMessage, is_auto_message);
-        if (shouldImmediatlyPoll) {
-            q.bubblePoll();
-        }
-    }
-
-    public static void addGreeting(Entity entity, String userLangauge, ServerPlayerEntity player) {
-        LOGGER.info("EventQueueManager: callign addGreeting");
-        EventQueueData q = getOrCreateQueueData(entity.getUuid(), entity);
-        q.addGreeting(userLangauge, player);
-        q.immediateGreeting();
-    }
-
-    public static void addUserMessageToAllClose(String userLanguage, ServerPlayerEntity player, String userMessage,
-            boolean is_auto_message) {
-        // for (EventQueueData curQueue : queueData.values()) {
-        // Entity entity = curQueue.entity;
-        // if (entity.distanceTo(player) > playerToEntityCutoffDistance) {
-        // continue;
-        // }
-        // addUserMessage(curQueue.entity, userLanguage, player, userMessage,
-        // is_auto_message);
-        // }
-        addingEntityQueues = true; // if dont have this, then will first create queue data and poll before
-        ServerEntityFinder.getCloseEntities(player.getServerWorld(), player, 6).stream().filter(
-                (e) -> !e.isPlayer()).forEach((e) -> {
-                    // adding user message.
-
-                    getOrCreateQueueData(e.getUuid(), e);
-                    addUserMessage(e, userLanguage, player, userMessage, is_auto_message, false);
-                });
-        addingEntityQueues = false;
-    }
-
-    public static void addEntityMessageToAllClose(Entity fromEntity, String userLanguage, ServerPlayerEntity player,
-            String entityMessage,
-            String entityCustomName, String entityTypeName) {
-        for (EventQueueData curQueue : queueData.values()) {
-            if (curQueue.entityId.equals(fromEntity.getUuidAsString())) {
-                continue;
-            }
-            Entity entity = curQueue.entity;
-            if (entity.distanceTo(fromEntity) > entityToEntityCutoffDistance) {
-                continue;
-            }
-            curQueue.addExternalEntityMessage(userLanguage, player, entityMessage, entityCustomName, entityTypeName);
-        }
-    }
-
-    public static void injectOnServerTick(MinecraftServer server) {
+    private static void tryAddAllNewEntities(MinecraftServer server) {
         Iterator<UUID> iterator = entityIdsToAdd.iterator();
         while (iterator.hasNext()) {
             UUID entityId = iterator.next();
             boolean added = false;
-
             for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
                 Entity cur = ServerEntityFinder.getEntityByUUID(player.getServerWorld(), entityId);
                 if (cur != null) {
@@ -118,23 +105,6 @@ public class EventQueueManager {
             }
             if (added) {
                 iterator.remove();
-            }
-        }
-        if (llmProcessing || addingEntityQueues)
-            return;
-
-        // TODO: Figure out a smarter way to figure out which to poll?
-        for (EventQueueData curQueue : queueData.values()) {
-            // remove entity if despawn/died so dont poll and err:
-            if (curQueue.shouldDelete()) { // if entity died, etc.
-                queueData.remove(curQueue.entityId);
-                continue;
-            }
-            if (curQueue.shouldPoll()) {
-                llmProcessing = true;
-                curQueue.poll();
-                // only process one at a time:
-                break;
             }
         }
     }

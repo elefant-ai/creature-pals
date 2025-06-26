@@ -2,7 +2,9 @@ package com.owlmaddie.network;
 
 import com.owlmaddie.chat.ChatDataManager;
 import com.owlmaddie.chat.ChatDataSaverScheduler;
+import com.owlmaddie.chat.ClientSideEffects;
 import com.owlmaddie.chat.EntityChatData;
+import com.owlmaddie.chat.EntityChatDataLight;
 import com.owlmaddie.chat.EventQueueManager;
 import com.owlmaddie.chat.MessageData;
 import com.owlmaddie.chat.PlayerData;
@@ -94,7 +96,7 @@ public class ServerPackets {
 
                     EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(entity.getUuid());
                     LOGGER.debug("Update read lines to " + lineNumber + " for: " + entity.getType().toString());
-                    chatData.setLineNumber(lineNumber);
+                    ClientSideEffects.setLineNumberUsingParamsFromChatData(entity.getUuid(), lineNumber);
                 }
             });
         });
@@ -113,10 +115,7 @@ public class ServerPackets {
                     // Set talk to player goal (prevent entity from walking off)
                     TalkPlayerGoal talkGoal = new TalkPlayerGoal(player, entity, 3.5F);
                     EntityBehaviorManager.addGoal(entity, talkGoal, GoalPriority.TALK_PLAYER);
-
-                    EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(entity.getUuid());
-                    LOGGER.debug("Hiding chat bubble for: " + entity.getType().toString());
-                    chatData.setStatus(ChatDataManager.ChatStatus.valueOf(payload.statusName()));
+                    ClientSideEffects.setStatusUsingParamsFromChatData(entity.getUuid(), ChatDataManager.ChatStatus.valueOf(payload.statusName()));
                 }
             });
         });
@@ -283,11 +282,14 @@ public class ServerPackets {
         }
     }
 
+    
+
+
     // Writing a Map<String, PlayerData> to the buffer
 
 
     // Send new message to all connected players
-    public static void BroadcastEntityMessage(EntityChatData chatData) {
+    public static void BroadcastEntityMessage(EntityChatDataLight chatData) {
         // Log useful information before looping through all players
         LOGGER.info(
                 "Broadcasting entity message: entityId={}, status={}, currentMessage={}, currentLineNumber={}, senderType={}",
@@ -300,21 +302,12 @@ public class ServerPackets {
             // Find Entity by UUID and update custom name
             UUID entityId = chatData.entityId;
             MobEntity entity = (MobEntity)ServerEntityFinder.getEntityByUUID(world, entityId);
-            if (entity != null) {
-                String characterName = chatData.getCharacterProp("name");
-                if (!characterName.isEmpty() && !characterName.equals("N/A") && entity.getCustomName() == null) {
-                    LOGGER.debug("Setting entity name to " + characterName + " for " + chatData.entityId);
-                    entity.setCustomName(Text.literal(characterName));
-                    entity.setCustomNameVisible(true);
-                    entity.setPersistent();
-                }
-            }
 
             // Make auto-generated message appear as a pending icon (attack, show/give,
             // arrival)
-            if (chatData.sender == ChatDataManager.ChatSender.USER && chatData.auto_generated > 0) {
-                chatData.status = ChatDataManager.ChatStatus.PENDING;
-            }
+            // if (chatData.sender == ChatDataManager.ChatSender.USER && chatData.auto_generated > 0) {
+            //     chatData.status = ChatDataManager.ChatStatus.PENDING;
+            // }
 
             // Iterate over all players and send the packet
             for (ServerPlayerEntity player : serverInstance.getPlayerManager().getPlayerList()) {

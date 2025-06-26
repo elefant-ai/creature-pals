@@ -130,7 +130,7 @@ public class ClientPackets {
                 chatData.currentLineNumber = line;
                 chatData.status = ChatDataManager.ChatStatus.valueOf(payload.status());
                 chatData.sender = ChatDataManager.ChatSender.valueOf(payload.sender());
-                chatData.players = players;
+                chatData.players = players == null? chatData.players : players;
 
                 // Play sound with volume based on distance (from player or entity)
                 MobEntity entity = ClientEntityFinder.getEntityByUUID(client.world, entityId);
