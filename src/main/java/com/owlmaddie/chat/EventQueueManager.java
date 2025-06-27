@@ -31,7 +31,8 @@ public class EventQueueManager {
             return !isProcessing;
         }
 
-        public void process(UUID entityId, BiConsumer<String, ServerPlayerEntity> onUncleanResponse, BiConsumer<String, ServerPlayerEntity> onError,
+        public void process(UUID entityId, BiConsumer<String, ServerPlayerEntity> onUncleanResponse,
+                BiConsumer<String, ServerPlayerEntity> onError,
                 TriConsumer<String, Boolean, ServerPlayerEntity> onCharacterSheetAndShouldGreet) {
             isProcessing = true;
             queueData.get(entityId).process((resp, player) -> {
@@ -42,7 +43,7 @@ public class EventQueueManager {
                 isProcessing = false;
             }, (characterSheet, shouldGreet, player) -> {
                 onCharacterSheetAndShouldGreet.accept(characterSheet, shouldGreet, player);
-                isProcessing = false;
+                isProcessing = !shouldGreet; // if we do not greet, then we continue processing.
             });
         }
     }
@@ -61,6 +62,8 @@ public class EventQueueManager {
     }
 
     public static void addGreeting(Entity entity, String userLangauge, ServerPlayerEntity player) {
+        ClientSideEffects.setPending(entity.getUuid());
+
         getOrCreateQueueData(entity.getUuid(), entity).requestGreeting(userLangauge, player);
     }
 
