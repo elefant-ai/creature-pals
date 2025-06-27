@@ -95,7 +95,7 @@ public class ServerPackets {
                     EntityBehaviorManager.addGoal(entity, talkGoal, GoalPriority.TALK_PLAYER);
 
                     EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(entity.getUuid());
-                    LOGGER.debug("Update read lines to " + lineNumber + " for: " + entity.getType().toString());
+                    LOGGER.info("Update read lines to " + lineNumber + " for: " + entity.getType().toString());
                     ClientSideEffects.setLineNumberUsingParamsFromChatData(entity.getUuid(), lineNumber);
                 }
             });

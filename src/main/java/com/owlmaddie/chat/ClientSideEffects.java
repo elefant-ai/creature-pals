@@ -96,7 +96,15 @@ public class ClientSideEffects {
         String errorMessage = "Error: ";
         errorMessage += EntityChatData.truncateString(errMsg, 55) + "\n";
         errorMessage += "Help is available at elefant.gg/discord";
+         LOGGER.error("BEFORE DATA ");
+        EntityChatData data = getChatData(entityId);
+        LOGGER.error("After DATA ");
+        data.setError(errorMessage);
+        LOGGER.error("After set erro ");
         sendChatAsEntity(entityId, errorMessage, player);
+        LOGGER.error("After chat as ent ");
+        getChatData(entityId).status = ChatStatus.DISPLAY;
+        LOGGER.info("Sending clickable error");
         ServerPackets.SendClickableError(player, errorMessage, "https://elefant.gg/discord");
     }
 
@@ -104,11 +112,17 @@ public class ClientSideEffects {
         LOGGER.info("SIDEEFFECT/sendChatAsEntity entityId={} message={} ", entityId.toString(), message);
         ServerPackets.BroadcastEntityMessage(new EntityChatDataLight(entityId, message, 0, ChatStatus.DISPLAY,
                 ChatSender.ASSISTANT, getChatData(entityId).characterSheet, getChatData(entityId).players));
+        LOGGER.info("Finding entity ");
         Entity entity= ServerEntityFinder.getEntityByUUID(player.getServerWorld(),
                     entityId);
+        LOGGER.info("Custom name");
+        if(entity.getCustomName() == null){
+            return;
+        }
         String entityCustomName = entity.getCustomName().getString();
-
+        LOGGER.info("Find entity Type");
         String entityType = entity.getType().getName().getString();
+        LOGGER.info("player broadcast");
         player.server.getPlayerManager().broadcast(Text.of("<" + entityCustomName
                 + " the " + entityType + "> " + message), false);
     }
@@ -128,8 +142,7 @@ public class ClientSideEffects {
         if (getChatData(entityId).previousMessages.size() == 0) {
             throw new RuntimeException("Only call setStatusUsingParamsFromChatData when msgs > 0");
         }
-        ChatMessage topMessage = getChatData(entityId).previousMessages
-                .get(getChatData(entityId).previousMessages.size() - 1);
+        ChatMessage topMessage = getChatData(entityId).getTopMessage();
 
         // update chat data
         getChatData(entityId).status = status;
@@ -146,18 +159,16 @@ public class ClientSideEffects {
     }
 
     public static void setLineNumberUsingParamsFromChatData(UUID entityId, int lineNumber) {
-        LOGGER.info("SET LINE NUMBER USING PARAMS FOR CHAT DATA: " + entityId + " # " + lineNumber);
+        ChatMessage topMessage = getChatData(entityId).getTopMessage();
+        LOGGER.info("sideEffect/setLineNumber entityId={} lineNumber={} topMessage.message={}", entityId, lineNumber, topMessage.message);
         // // Ensure the lineNumber is within the valid range
         int totalLines = getChatData(entityId).getWrappedLines().size();
 
         // update chat data
         getChatData(entityId).currentLineNumber = Math.min(Math.max(lineNumber, 0), totalLines);
 
-        // broadcast
-        ChatMessage topMessage = getChatData(entityId).previousMessages
-                .get(getChatData(entityId).previousMessages.size() - 1);
         ServerPackets.BroadcastEntityMessage(new EntityChatDataLight(entityId, topMessage.message,
-                getChatData(entityId).currentLineNumber, getChatData(entityId).status, topMessage.sender,
+                getChatData(entityId).currentLineNumber, ChatStatus.DISPLAY, topMessage.sender,
                 getChatData(entityId).characterSheet, getChatData(entityId).players));
     }
 }

@@ -63,6 +63,9 @@ public class EventQueueManager {
     }
 
     public static void addGreeting(Entity entity, String userLangauge, ServerPlayerEntity player) {
+        if(player == null){
+            throw new RuntimeException("Null player for addGreeting");
+        }
         ClientSideEffects.setPending(entity.getUuid());
 
         getOrCreateQueueData(entity.getUuid(), entity).requestGreeting(userLangauge, player);

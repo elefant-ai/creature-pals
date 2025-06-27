@@ -122,6 +122,9 @@ public class EventQueueData {
             TriConsumer<String, Boolean, ServerPlayerEntity> onCharacterSheetAndShouldGreet) {
         lastProcessTime = System.nanoTime();
         isProcessing = true;
+        if(player == null){
+            throw new RuntimeException("Player is null!!!");
+        }
         switch (getAction()) {
             case Greeting:
                 generateCharacterSheet((characterSheet) -> {

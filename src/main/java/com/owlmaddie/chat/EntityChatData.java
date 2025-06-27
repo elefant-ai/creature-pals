@@ -60,6 +60,7 @@ public class EntityChatData {
     public Long born;
     public Long death;
     public ServerPlayerEntity lastPlayer;
+    public ChatMessage errorMessage = null;
 
     @SerializedName("playerId")
     @Expose(serialize = false)
@@ -301,9 +302,19 @@ public class EntityChatData {
     public static String truncateString(String input, int maxLength) {
         return input.length() > maxLength ? input.substring(0, maxLength - 3) + "..." : input;
     }
+    public void setError(String errorMSg){
+        errorMessage = new ChatMessage(errorMSg, ChatDataManager.ChatSender.ASSISTANT, lastPlayer != null? lastPlayer.getName().getString() : "");
+    }
+    public ChatMessage getTopMessage(){
+        if(errorMessage!=null){
+            return errorMessage;
+        }
+        return previousMessages.get(previousMessages.size() -1);
+    }
 
     // Add a message to the history and update the current message
     public void addMessage(String message, ChatDataManager.ChatSender sender, ServerPlayerEntity player) {
+        this.errorMessage = null;
         this.lastPlayer = player;
         // Truncate message (prevent crazy long messages... just in case)
         String truncatedMessage = message.substring(0,
