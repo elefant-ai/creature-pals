@@ -127,6 +127,7 @@ public class EventQueueData {
                 generateCharacterSheet((characterSheet) -> {
                     generatedCharacter = true;
                     onCharacterSheetAndShouldGreet.accept(characterSheet, true, player);
+                    greetingRequested = false;
                     isProcessing = false;
                 }, (errMsg) -> {
                     onError.accept(errMsg, player);
@@ -138,6 +139,7 @@ public class EventQueueData {
                     generatedCharacter = true;
                     onCharacterSheetAndShouldGreet.accept(characterSheet, false, player);
                     processResponse(onUncleanResponse, onError);
+                    greetingRequested = false;
                     isProcessing = false;
                 }, (errMsg) -> {
                     onError.accept(errMsg, player);
@@ -147,6 +149,7 @@ public class EventQueueData {
             case Response:
                 processResponse((uncleanRes, player) -> {
                     onUncleanResponse.accept(uncleanRes, player);
+                    greetingRequested = false;
                     isProcessing = false;
                 }, (errMsg, player) -> {
                     onError.accept(errMsg, player);
@@ -164,6 +167,9 @@ public class EventQueueData {
         llmQueue = new ArrayDeque<>();
     }
 
+    public int getPriority(){
+        return greetingRequested ? 1 : 0;
+    }
     private void generateCharacterSheet(Consumer<String> onCharacterSheet, Consumer<String> onError) {
         MessageData greetingMessage = MessageData.genCharacterAndOrGreetingMessage(userLanguage, this.player, entity);
         String systemPrompt = "system-character";
@@ -180,7 +186,7 @@ public class EventQueueData {
                     try {
                         if (char_sheet == null) {
                             throw new RuntimeException(
-                                    "Generated null character sheet: " + ChatGPTRequest.lastErrorMessage);
+                                   ChatGPTRequest.lastErrorMessage + "(gen character sheet)");
                         }
                         LOGGER.info("Generated Character sheet:" + char_sheet);
                         onCharacterSheet.accept(char_sheet);

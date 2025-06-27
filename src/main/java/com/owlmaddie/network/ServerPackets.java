@@ -176,9 +176,10 @@ public class ServerPackets {
                         MobEntity entity = (MobEntity) ServerEntityFinder.getEntityByUUID(player.getServerWorld(),
                                 payload.entityId());
                         if (entity != null) {
-                            EntityChatData chatData = ChatDataManager.getServerInstance()
+                            ChatDataManager.getServerInstance()
                                      .getOrCreateChatData(entity.getUuid());
                             EventQueueManager.addUserMessage(entity, userLanguage, player, message, false);
+                            ClientSideEffects.setPending(entity.getUuid());
                         }
                     });
         });

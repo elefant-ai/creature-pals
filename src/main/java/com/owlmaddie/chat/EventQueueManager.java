@@ -1,5 +1,6 @@
 package com.owlmaddie.chat;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -68,8 +69,10 @@ public class EventQueueManager {
     }
 
     private static Optional<UUID> getEntityIdToProcess(MinecraftServer server) {
-        return queueData.values().stream().filter((queueData) -> queueData.shouldProcess()).findFirst()
-                .map((q) -> q.getId());
+        return queueData.values().stream()
+                .filter(EventQueueData::shouldProcess)
+                .max(Comparator.comparingInt(EventQueueData::getPriority))
+                .map(EventQueueData::getId);
     }
 
     private static void errorCooldown(UUID entityId) {
