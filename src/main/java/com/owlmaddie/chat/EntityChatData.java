@@ -309,7 +309,9 @@ public class EntityChatData {
         if(errorMessage!=null){
             return errorMessage;
         }
-        return previousMessages.get(previousMessages.size() -1);
+        ChatMessage top =  previousMessages.get(previousMessages.size() -1);
+        String newMessage = MessageParser.parseMessage(top.message.replace("\n", " ")).getCleanedMessage();
+        return new ChatMessage(newMessage, top.sender, top.name);
     }
 
     // Add a message to the history and update the current message
