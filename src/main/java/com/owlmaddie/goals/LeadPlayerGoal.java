@@ -82,7 +82,7 @@ public class LeadPlayerGoal extends PlayerBaseGoal {
                     // EventQueueManager.addUserMessage(entity, arrivedMessage, null,
                     // arrivedMessage, foundWaypoint);
                     EventQueueManager.addUserMessage(entity, "N/A", (ServerPlayerEntity) this.targetEntity,
-                            arrivedMessage, true, false);
+                            arrivedMessage, true);
                     // ServerPackets.generate_chat("N/A", chatData, (ServerPlayerEntity)
                     // this.targetEntity, this.entity, arrivedMessage, true);
                 }

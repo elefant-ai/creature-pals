@@ -178,7 +178,7 @@ public class ServerPackets {
                         if (entity != null) {
                             EntityChatData chatData = ChatDataManager.getServerInstance()
                                      .getOrCreateChatData(entity.getUuid());
-                            EventQueueManager.addUserMessage(entity, userLanguage, player, message, false, true);
+                            EventQueueManager.addUserMessage(entity, userLanguage, player, message, false);
                         }
                     });
         });

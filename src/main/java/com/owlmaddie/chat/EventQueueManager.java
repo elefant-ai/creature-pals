@@ -1,6 +1,5 @@
 package com.owlmaddie.chat;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -8,6 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -15,13 +15,13 @@ import org.slf4j.LoggerFactory;
 
 import com.owlmaddie.utils.ServerEntityFinder;
 
-import net.minecraft.block.entity.VaultBlockEntity.Client;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 public class EventQueueManager {
     public static final Logger LOGGER = LoggerFactory.getLogger("creaturechat");
+    private static boolean addingEntityQueues = false;
 
     private static class LLMCompleter {
         private boolean isProcessing = false;
@@ -30,18 +30,27 @@ public class EventQueueManager {
             return isProcessing;
         }
 
-        public void process(UUID entityId, Consumer<String> onUncleanResponse, Consumer<String> onError) {
+        public void process(UUID entityId, Consumer<String> onUncleanResponse, Consumer<String> onError,
+                BiConsumer<String, Boolean> onCharacterSheetAndShouldGreet) {
             isProcessing = true;
             queueData.get(entityId).process((resp) -> {
                 onUncleanResponse.accept(resp);
                 isProcessing = false;
-            }, onError);
+            }, (errMsg) -> {
+                onError.accept(errMsg);
+                isProcessing = false;
+            }, (characterSheet, shouldGreet) -> {
+                onCharacterSheetAndShouldGreet.accept(characterSheet, shouldGreet);
+                isProcessing = false;
+            });
         }
     }
 
-    private static List<LLMCompleter> completers = List.of(new LLMCompleter()); // TODO: add another completer, more if premium
+    private static List<LLMCompleter> completers = List.of(new LLMCompleter()); // TODO: add another completer, more if
+                                                                                // premium
 
     private static ConcurrentHashMap<UUID, EventQueueData> queueData = new ConcurrentHashMap<>();
+
     // entitys to add next tick. EventQueueData only has entityId, so need to loop
     // through all players to find entity object
     private static Set<UUID> entityIdsToAdd = new HashSet<>();
@@ -50,19 +59,27 @@ public class EventQueueManager {
         entityIdsToAdd.add(entityId);
     }
 
+    public static void addGreeting(Entity entity, String userLangauge, ServerPlayerEntity player) {
+        queueData.get(entity.getUuid()).requestGreeting(userLangauge, player);
+    }
+
     private static Optional<UUID> getEntityIdToProcess(MinecraftServer server) {
         return queueData.values().stream().filter((queueData) -> queueData.shouldProcess()).findFirst()
                 .map((q) -> q.getId());
     }
-    
-    private static void errorCooldown(UUID entityId){
+
+    private static void errorCooldown(UUID entityId) {
         queueData.get(entityId).errorCooldown();
     }
 
     public static void injectOnServerTick(MinecraftServer server) {
-        // first make sure queueData is up to date (as much as possible, 
+        // first make sure queueData is up to date (as much as possible,
         // because maybe no players have tracked entity)
         tryAddAllNewEntities(server);
+        removeDeadEntities();
+        if (addingEntityQueues) {
+            return;
+        }
         completers.forEach((completer) -> {
             if (!completer.isAvailable()) {
                 return;
@@ -78,6 +95,8 @@ public class EventQueueManager {
                             ClientSideEffects.onLLMGenerateError(entityId, errMsg);
                             // make entity on cooldown
                             errorCooldown(entityId);
+                        }, (characterSheet, shouldGreet) -> {
+                            ClientSideEffects.onCharacterSheetGenerated(entityId, characterSheet, shouldGreet);
                         });
                     });
         });
@@ -88,6 +107,16 @@ public class EventQueueManager {
             LOGGER.info(String.format("EventQueueManager/creating new queue data for ent id (%s)", entityId));
             return new EventQueueData(entityId, entity);
         });
+    }
+
+    private static void removeDeadEntities(){
+         for (EventQueueData curQueue : queueData.values()) {
+            // remove entity if despawn/died so dont poll and err:
+            if (curQueue.shouldDelete()) { // if entity died, etc.
+                queueData.remove(curQueue.getId());
+                continue;
+            }
+        }
     }
 
     private static void tryAddAllNewEntities(MinecraftServer server) {
@@ -108,4 +137,23 @@ public class EventQueueManager {
             }
         }
     }
+
+    public static void addUserMessage(Entity entity, String userLanguage, ServerPlayerEntity player,
+            String userMessage, boolean is_auto_message) {
+        EventQueueData q = getOrCreateQueueData(entity.getUuid(), entity);
+        q.addUserMessage(entity, userLanguage, player, userMessage, is_auto_message);
+    }
+
+    public static void addUserMessageToAllClose(String userLanguage, ServerPlayerEntity player, String userMessage,
+            boolean is_auto_message) {
+        addingEntityQueues = true; // if dont have this, then will first create queue data and poll before
+        ServerEntityFinder.getCloseEntities(player.getServerWorld(), player, 6).stream().filter(
+                (e) -> !e.isPlayer()).forEach((e) -> {
+                    // adding user message.
+                    getOrCreateQueueData(e.getUuid(), e);
+                    addUserMessage(e, userLanguage, player, userMessage, is_auto_message);
+                });
+        addingEntityQueues = false;
+    }
+
 }

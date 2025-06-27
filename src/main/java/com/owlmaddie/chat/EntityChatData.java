@@ -4,7 +4,6 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.owlmaddie.chat.ChatDataManager.ChatSender;
 import com.owlmaddie.chat.ChatDataManager.ChatStatus;
-import com.owlmaddie.chat.MessageData.MessageDataType;
 import com.owlmaddie.commands.ConfigurationHandler;
 import com.owlmaddie.controls.SpeedControls;
 import com.owlmaddie.goals.*;

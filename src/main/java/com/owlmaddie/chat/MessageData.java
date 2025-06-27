@@ -10,22 +10,17 @@ public class MessageData {
     public String userMessage;
     public boolean is_auto_message;
     public ServerPlayerEntity player;
-    public MessageDataType type;
 
-    public static enum MessageDataType {
-        GreetingAndCharacter, Character, Normal
-    }
 
     public MessageData(String userLanguage, ServerPlayerEntity player, String userMessage,
-            boolean is_auto_message, MessageDataType type) {
+            boolean is_auto_message) {
         this.is_auto_message = is_auto_message;
         this.userLanguage = userLanguage;
         this.player = player;
         this.userMessage = userMessage;
-        this.type = type;
     }
 
-    public static MessageData genCharacterAndOrGreetingMessage(String userLanguage, ServerPlayerEntity player, Entity entity, MessageDataType type){
+    public static MessageData genCharacterAndOrGreetingMessage(String userLanguage, ServerPlayerEntity player, Entity entity){
         // make sure greeting is first in queue:
         String randomAdjective = Randomizer.getRandomMessage(Randomizer.RandomType.ADJECTIVE);
         String randomClass = Randomizer.getRandomMessage(Randomizer.RandomType.CLASS);
@@ -49,6 +44,6 @@ public class MessageData {
         }
         userMessageBuilder.append("They speak in '").append(userLanguage).append("' with a ")
                 .append(randomSpeakingStyle).append(" style.");
-        return new MessageData(userLanguage, player, userMessageBuilder.toString(), false, type);
+        return new MessageData(userLanguage, player, userMessageBuilder.toString(), false);
     }
 }

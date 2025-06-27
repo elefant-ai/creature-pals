@@ -92,7 +92,7 @@ public class MixinMobEntity {
                         && entityData.auto_generated < chatDataManager.MAX_AUTOGENERATE_RESPONSES) {
                     // ServerPackets.generate_chat("N/A", entityData, serverPlayer, thisEntity, giveItemMessage, true);
                     EventQueueManager.addUserMessage(thisEntity, "N/A", serverPlayer,
-                            giveItemMessage, true, false);
+                            giveItemMessage, true);
                 }
 
             } else if (itemStack.isEmpty() && playerData.friendship == 3) {
