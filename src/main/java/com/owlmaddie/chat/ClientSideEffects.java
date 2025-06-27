@@ -34,27 +34,27 @@ public class ClientSideEffects {
 
     public static void onEntityGeneratedMessage(UUID entityId,
             String uncleanEntityMessageResponse, ServerPlayerEntity player) {
+                LOGGER.info("sideEffect/onEntityGeneratedMessage entityId={} uncleanEntityResponse={} player={}", entityId, uncleanEntityMessageResponse, player);
         ParsedMessage result = MessageParser.parseMessage(uncleanEntityMessageResponse.replace("\n", " "));
         PlayerData playerData = getChatData(entityId).getPlayerData(player.getUuid());
         BehaviorApplier.apply(result.getBehaviors(), player, entityId, playerData);
         String cleanedMessage = result.getCleanedMessage();
-
         if (cleanedMessage.isEmpty()) {
             getChatData(entityId).addMessage("...", ChatDataManager.ChatSender.ASSISTANT, player);
-            BroadcastEntityMessage(new EntityChatDataLight(entityId, "...", 0, ChatStatus.DISPLAY, ChatSender.USER,
+            BroadcastEntityMessage(new EntityChatDataLight(entityId, "...", 0, ChatStatus.DISPLAY, ChatSender.ASSISTANT,
                     getChatData(entityId).characterSheet, getChatData(entityId).players));
         } else {
             getChatData(entityId).addMessage(uncleanEntityMessageResponse, ChatDataManager.ChatSender.ASSISTANT,
                     player);
-            BroadcastEntityMessage(new EntityChatDataLight(entityId, cleanedMessage, 0, ChatStatus.DISPLAY,
-                    ChatSender.USER, getChatData(entityId).characterSheet, getChatData(entityId).players));
+            sendChatAsEntity(entityId, cleanedMessage, player);
         }
     }
 
     // note that this includes greeting, only sends if shouldGreet is true
     public static void onCharacterSheetGenerated(UUID entityId, String characterSheet,
             boolean shouldGreet, ServerPlayerEntity player) {
-
+        LOGGER.info("sideEffect/onCharacterSheetGen entityid={} characterSheet={} shouldGreet={} player={}", entityId,
+                characterSheet, shouldGreet, player);
         getChatData(entityId).characterSheet = characterSheet;
         String characterName = Optional.ofNullable(getChatData(entityId).getCharacterProp("name"))
                 .filter(s -> !s.isEmpty())
@@ -70,11 +70,12 @@ public class ClientSideEffects {
         setNameOfEntity(entityId, characterName);
         if (shouldGreet) {
             getChatData(entityId).addMessage(shortGreeting, ChatDataManager.ChatSender.ASSISTANT, player);
-            sendChatAsEntity(entityId, shortGreeting);
+            sendChatAsEntity(entityId, shortGreeting, player);
         }
     }
 
     private static void setNameOfEntity(UUID entityId, String characterName) {
+        LOGGER.info("SideEffect/setNameOfEntity entityId={} characterName={}", entityId, characterName);
         for (ServerWorld world : serverInstance.getWorlds()) {
             // Find Entity by UUID and update custom name.
             // Also sends to clients I think?
@@ -95,17 +96,25 @@ public class ClientSideEffects {
         String errorMessage = "Error: ";
         errorMessage += EntityChatData.truncateString(errMsg, 55) + "\n";
         errorMessage += "Help is available at elefant.gg/discord";
-        sendChatAsEntity(entityId, errorMessage);
+        sendChatAsEntity(entityId, errorMessage, player);
         ServerPackets.SendClickableError(player, errorMessage, "https://elefant.gg/discord");
     }
 
-    public static void sendChatAsEntity(UUID entityId, String message) {
+    public static void sendChatAsEntity(UUID entityId, String message, ServerPlayerEntity player) {
+        LOGGER.info("SIDEEFFECT/sendChatAsEntity entityId={} message={} ", entityId.toString(), message);
         ServerPackets.BroadcastEntityMessage(new EntityChatDataLight(entityId, message, 0, ChatStatus.DISPLAY,
                 ChatSender.ASSISTANT, getChatData(entityId).characterSheet, getChatData(entityId).players));
+        Entity entity= ServerEntityFinder.getEntityByUUID(player.getServerWorld(),
+                    entityId);
+        String entityCustomName = entity.getCustomName().getString();
+
+        String entityType = entity.getType().getName().getString();
+        player.server.getPlayerManager().broadcast(Text.of("<" + entityCustomName
+                + " the " + entityType + "> " + message), false);
     }
 
     public static void setPending(UUID entityId) {
-        LOGGER.info("Side effect: Set pending " + entityId.toString());
+        LOGGER.info("SIDEEFFECT/setPending entityId={} ", entityId.toString());
         if (getChatData(entityId).previousMessages.size() == 0) {
             ServerPackets.BroadcastEntityMessage(new EntityChatDataLight(entityId, "", 0, ChatStatus.PENDING,
                     ChatSender.USER, getChatData(entityId).characterSheet, getChatData(entityId).players));
@@ -115,6 +124,7 @@ public class ClientSideEffects {
     }
 
     public static void setStatusUsingParamsFromChatData(UUID entityId, ChatStatus status) {
+        LOGGER.info("SideEffect/setStatusUSingParamsFromChatData entityId={} status={}", entityId, status);
         if (getChatData(entityId).previousMessages.size() == 0) {
             throw new RuntimeException("Only call setStatusUsingParamsFromChatData when msgs > 0");
         }
@@ -128,6 +138,7 @@ public class ClientSideEffects {
         ServerPackets.BroadcastEntityMessage(
                 new EntityChatDataLight(entityId, topMessage.message, getChatData(entityId).currentLineNumber, status,
                         topMessage.sender, getChatData(entityId).characterSheet, getChatData(entityId).players));
+        
     }
 
     public static void updateUUID(UUID oldUUID, UUID newUUID) {
@@ -135,6 +146,7 @@ public class ClientSideEffects {
     }
 
     public static void setLineNumberUsingParamsFromChatData(UUID entityId, int lineNumber) {
+        LOGGER.info("SET LINE NUMBER USING PARAMS FOR CHAT DATA: " + entityId + " # " + lineNumber);
         // // Ensure the lineNumber is within the valid range
         int totalLines = getChatData(entityId).getWrappedLines().size();
 
