@@ -1,5 +1,7 @@
 package com.owlmaddie.chat;
 
+import static com.owlmaddie.network.ServerPackets.LOGGER;
+
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
@@ -9,6 +11,7 @@ import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import org.apache.commons.lang3.function.TriConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +54,8 @@ public class EventQueueData {
 
     private void updateUserLanguageAndPlayer(MessageData message) {
         this.userLanguage = message.userLanguage;
-        this.player = message.player;
+        if (message.player != null)
+            this.player = message.player;
     }
 
     public void addUserMessage(Entity entity, String userLanguage, ServerPlayerEntity player, String userMessage,
@@ -73,19 +77,25 @@ public class EventQueueData {
     }
 
     public boolean shouldProcess() {
-        return isProcessing &&
+        return !isProcessing &&
+                player != null &&
                 getAction() != ProcessAction.NOOP &&
                 System.nanoTime() >= lastErrorTime + waitTimeAfterError;
     }
 
-    private void processResponse(Consumer<String> onUncleanResponse, Consumer<String> onError) {
+    private void processResponse(BiConsumer<String, ServerPlayerEntity> onUncleanResponse,
+            BiConsumer<String, ServerPlayerEntity> onError) {
         moveFromLLMQueueToChatData();
         LOGGER.info("Moved from LLMQueue To Chat Data, now generating message.");
         if (!getChatData().lastMsgIsUserMsg()) {
             isProcessing = false;
             return;
         }
-        getChatData().generateEntityResponse(userLanguage, player, onUncleanResponse, onError);
+        getChatData().generateEntityResponse(userLanguage, player, (resp) -> {
+            onUncleanResponse.accept(resp, player);
+        }, (errMsg) -> {
+            onError.accept(errMsg, player);
+        });
     }
 
     private ProcessAction getAction() {
@@ -100,43 +110,46 @@ public class EventQueueData {
     }
 
     public void requestGreeting(String userLangauge, ServerPlayerEntity player) {
+        LOGGER.info("REQuesting greeting with " + player);
         this.userLanguage = userLangauge;
-        this.player = player;
+        if (player != null)
+            this.player = player;
         greetingRequested = true;
     }
 
-    public void process(Consumer<String> onUncleanResponse, Consumer<String> onError,
-            BiConsumer<String, Boolean> onCharacterSheetAndShouldGreet) {
+    public void process(BiConsumer<String, ServerPlayerEntity> onUncleanResponse,
+            BiConsumer<String, ServerPlayerEntity> onError,
+            TriConsumer<String, Boolean, ServerPlayerEntity> onCharacterSheetAndShouldGreet) {
         lastProcessTime = System.nanoTime();
         isProcessing = true;
         switch (getAction()) {
             case Greeting:
                 generateCharacterSheet((characterSheet) -> {
                     generatedCharacter = true;
-                    onCharacterSheetAndShouldGreet.accept(characterSheet, true);
+                    onCharacterSheetAndShouldGreet.accept(characterSheet, true, player);
                     isProcessing = false;
                 }, (errMsg) -> {
-                    onError.accept(errMsg);
+                    onError.accept(errMsg, player);
                     isProcessing = false;
                 });
                 break;
             case CharacterThenResponse:
                 generateCharacterSheet((characterSheet) -> {
                     generatedCharacter = true;
-                    onCharacterSheetAndShouldGreet.accept(characterSheet, false);
+                    onCharacterSheetAndShouldGreet.accept(characterSheet, false, player);
                     processResponse(onUncleanResponse, onError);
                     isProcessing = false;
                 }, (errMsg) -> {
-                    onError.accept(errMsg);
+                    onError.accept(errMsg, player);
                     isProcessing = false;
                 });
                 break;
             case Response:
-                processResponse((uncleanRes) -> {
-                    onUncleanResponse.accept(uncleanRes);
+                processResponse((uncleanRes, player) -> {
+                    onUncleanResponse.accept(uncleanRes, player);
                     isProcessing = false;
-                }, (errMsg) -> {
-                    onError.accept(errMsg);
+                }, (errMsg, player) -> {
+                    onError.accept(errMsg, player);
                     isProcessing = false;
                 });
                 break;
@@ -152,7 +165,7 @@ public class EventQueueData {
     }
 
     private void generateCharacterSheet(Consumer<String> onCharacterSheet, Consumer<String> onError) {
-        MessageData greetingMessage = MessageData.genCharacterAndOrGreetingMessage(userLanguage, player, entity);
+        MessageData greetingMessage = MessageData.genCharacterAndOrGreetingMessage(userLanguage, this.player, entity);
         String systemPrompt = "system-character";
         ConfigurationHandler.Config config = new ConfigurationHandler(ServerPackets.serverInstance).loadConfig();
         String promptText = ChatPrompt.loadPromptFromResource(ServerPackets.serverInstance.getResourceManager(),
@@ -160,19 +173,16 @@ public class EventQueueData {
         Map<String, String> contextData = getChatData().getPlayerContext(greetingMessage.player,
                 greetingMessage.userLanguage, config);
         ChatGPTRequest.fetchMessageFromChatGPT(config, promptText, contextData,
-                List.of(new ChatMessage(greetingMessage.userMessage, ChatSender.USER, player.getName().getString())),
+                List.of(new ChatMessage(greetingMessage.userMessage, ChatSender.USER,
+                        this.player.getName().getString())),
                 false, "")
                 .thenAccept(char_sheet -> {
                     try {
                         if (char_sheet == null) {
-                            throw new RuntimeException(ChatGPTRequest.lastErrorMessage);
+                            throw new RuntimeException(
+                                    "Generated null character sheet: " + ChatGPTRequest.lastErrorMessage);
                         }
-                        String characterName = Optional.ofNullable(getChatData().getCharacterProp("name"))
-                                .filter(s -> !s.isEmpty())
-                                .orElse("N/A");
-                        if (characterName.equals("N/A")) {
-                            throw new RuntimeException("Generated N/A or empty character name");
-                        }
+                        LOGGER.info("Generated Character sheet:" + char_sheet);
                         onCharacterSheet.accept(char_sheet);
                     } catch (Exception e) {
                         onError.accept(e.getMessage() != null ? e.getMessage() : "");

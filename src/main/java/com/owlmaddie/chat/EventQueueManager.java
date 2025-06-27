@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import org.apache.commons.lang3.function.TriConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,20 +28,20 @@ public class EventQueueManager {
         private boolean isProcessing = false;
 
         public boolean isAvailable() {
-            return isProcessing;
+            return !isProcessing;
         }
 
-        public void process(UUID entityId, Consumer<String> onUncleanResponse, Consumer<String> onError,
-                BiConsumer<String, Boolean> onCharacterSheetAndShouldGreet) {
+        public void process(UUID entityId, BiConsumer<String, ServerPlayerEntity> onUncleanResponse, BiConsumer<String, ServerPlayerEntity> onError,
+                TriConsumer<String, Boolean, ServerPlayerEntity> onCharacterSheetAndShouldGreet) {
             isProcessing = true;
-            queueData.get(entityId).process((resp) -> {
-                onUncleanResponse.accept(resp);
+            queueData.get(entityId).process((resp, player) -> {
+                onUncleanResponse.accept(resp, player);
                 isProcessing = false;
-            }, (errMsg) -> {
-                onError.accept(errMsg);
+            }, (errMsg, player) -> {
+                onError.accept(errMsg, player);
                 isProcessing = false;
-            }, (characterSheet, shouldGreet) -> {
-                onCharacterSheetAndShouldGreet.accept(characterSheet, shouldGreet);
+            }, (characterSheet, shouldGreet, player) -> {
+                onCharacterSheetAndShouldGreet.accept(characterSheet, shouldGreet, player);
                 isProcessing = false;
             });
         }
@@ -60,7 +61,7 @@ public class EventQueueManager {
     }
 
     public static void addGreeting(Entity entity, String userLangauge, ServerPlayerEntity player) {
-        queueData.get(entity.getUuid()).requestGreeting(userLangauge, player);
+        getOrCreateQueueData(entity.getUuid(), entity).requestGreeting(userLangauge, player);
     }
 
     private static Optional<UUID> getEntityIdToProcess(MinecraftServer server) {
@@ -80,7 +81,8 @@ public class EventQueueManager {
         if (addingEntityQueues) {
             return;
         }
-        completers.forEach((completer) -> {
+        for (LLMCompleter completer : completers) {
+            // completers.forEach((completer) -> {
             if (!completer.isAvailable()) {
                 return;
             }
@@ -88,18 +90,20 @@ public class EventQueueManager {
             Optional<UUID> entityIdOption = getEntityIdToProcess(server);
             entityIdOption.ifPresent(
                     (entityId) -> {
+                        LOGGER.info("PRESENT " + entityId);
                         ClientSideEffects.setPending(entityId);
-                        completer.process(entityId, (uncleanMsg) -> {
-                            ClientSideEffects.onEntityGeneratedMessage(entityId, uncleanMsg);
-                        }, (errMsg) -> {
-                            ClientSideEffects.onLLMGenerateError(entityId, errMsg);
+                        completer.process(entityId, (uncleanMsg, player) -> {
+                            ClientSideEffects.onEntityGeneratedMessage(entityId, uncleanMsg, player);
+                        }, (errMsg, player) -> {
+                            ClientSideEffects.onLLMGenerateError(entityId, errMsg, player);
                             // make entity on cooldown
                             errorCooldown(entityId);
-                        }, (characterSheet, shouldGreet) -> {
-                            ClientSideEffects.onCharacterSheetGenerated(entityId, characterSheet, shouldGreet);
+                        }, (characterSheet, shouldGreet, player) -> {
+                            ClientSideEffects.onCharacterSheetGenerated(entityId, characterSheet, shouldGreet, player);
                         });
                     });
-        });
+            // });
+        }
     }
 
     public static EventQueueData getOrCreateQueueData(UUID entityId, Entity entity) {
@@ -109,8 +113,8 @@ public class EventQueueManager {
         });
     }
 
-    private static void removeDeadEntities(){
-         for (EventQueueData curQueue : queueData.values()) {
+    private static void removeDeadEntities() {
+        for (EventQueueData curQueue : queueData.values()) {
             // remove entity if despawn/died so dont poll and err:
             if (curQueue.shouldDelete()) { // if entity died, etc.
                 queueData.remove(curQueue.getId());

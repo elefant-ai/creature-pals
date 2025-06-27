@@ -18,7 +18,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
 /**
- * The {@code ChatGPTRequest} class is used to send HTTP requests to our LLM to generate
+ * The {@code ChatGPTRequest} class is used to send HTTP requests to our LLM to
+ * generate
  * messages.
  */
 public class ChatGPTRequest {
@@ -43,7 +44,8 @@ public class ChatGPTRequest {
         int max_tokens;
         boolean stream;
 
-        public ChatGPTRequestPayload(String model, List<ChatGPTRequestMessage> messages, Boolean jsonMode, float temperature, int maxTokens) {
+        public ChatGPTRequestPayload(String model, List<ChatGPTRequestMessage> messages, Boolean jsonMode,
+                float temperature, int maxTokens) {
             this.model = model;
             this.messages = messages;
             this.temperature = temperature;
@@ -112,7 +114,7 @@ public class ChatGPTRequest {
         for (Map.Entry<String, String> entry : replacements.entrySet()) {
             result = result.replaceAll(Pattern.quote("{{" + entry.getKey() + "}}"), entry.getValue());
         }
-        return result.replace("\"", "") ;
+        return result.replace("\"", "");
     }
 
     // Function to roughly estimate # of OpenAI tokens in String
@@ -161,7 +163,7 @@ public class ChatGPTRequest {
                     ChatMessage chatMessage = messageHistory.get(i);
                     String senderName = chatMessage.sender.toString().toLowerCase(Locale.ENGLISH);
                     String messageText = replacePlaceholders(chatMessage.message, contextData);
-                    if(messageText.equals("...")){ // replace ... with "" so that it makes more sense to LLM
+                    if (messageText.equals("...")) { // replace ... with "" so that it makes more sense to LLM
                         messageText = "";
                     }
                     messageText.replace("said ...", "said ");
@@ -206,12 +208,11 @@ public class ChatGPTRequest {
                     byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
                     os.write(input, 0, input.length);
                 }
-
                 // Check for error message in response
                 if (connection.getResponseCode() >= HttpURLConnection.HTTP_BAD_REQUEST) {
                     LOGGER.error(String.format("BAD RESPONSE CODE %d", connection.getResponseCode()));
                     LOGGER.error(String.format(connection.getResponseMessage()));
-                    if(connection.getErrorStream() == null){
+                    if (connection.getErrorStream() == null) {
                         lastErrorMessage = "Internal server error, Try restarting player2";
                         return null;
                     }
@@ -233,7 +234,6 @@ public class ChatGPTRequest {
                     }
                     return null;
                 } else {
-                    // lastErrorMessage = null;
                 }
 
                 try (BufferedReader br = new BufferedReader(
@@ -248,12 +248,16 @@ public class ChatGPTRequest {
                     ChatGPTResponse chatGPTResponse = gsonOutput.fromJson(response.toString(), ChatGPTResponse.class);
                     if (chatGPTResponse != null && chatGPTResponse.choices != null
                             && !chatGPTResponse.choices.isEmpty()) {
-                                String content = chatGPTResponse.choices.get(0).message.content;
-                            if(content == null){
-                                return "";
-                            }
+                        String content = chatGPTResponse.choices.get(0).message.content;
+                        if (content == null) {
+
+                        LOGGER.info("CHATGPT RETURN NULL");
+                            return "";
+                        }
+                        LOGGER.info("CHATGPT RETURN "+ content);
                         return content;
                     } else {
+                        LOGGER.info("CHATGPT RETURN NULL ERR");
                         lastErrorMessage = "Failed to parse response from LLM";
                         return null;
                     }
@@ -266,4 +270,3 @@ public class ChatGPTRequest {
         });
     }
 }
-
