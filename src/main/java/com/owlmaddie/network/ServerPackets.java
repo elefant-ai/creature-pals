@@ -220,6 +220,7 @@ public class ServerPackets {
                             EntityChatData chatData = ChatDataManager.getServerInstance()
                                     .getOrCreateChatData(entityId);
                             EventQueueManager.addUserMessage(entity, userLanguage, player, message, false);
+                            ClientSideEffects.setPending(entity.getUuid());
                         }
                     });
                 });
