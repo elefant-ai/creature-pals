@@ -119,7 +119,7 @@ public class ChatDataManager {
         } catch (Exception e) {
             String errorMessage = "Error saving `chatdata.json`. No CreatureChat chat history was saved! " + e.getMessage();
             LOGGER.error(errorMessage, e);
-            ServerPackets.sendErrorToAllOps(server, errorMessage);
+            // ServerPackets.sendErrorToAllOps(server, errorMessage);
         }
     }
 
