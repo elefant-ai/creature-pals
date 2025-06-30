@@ -45,9 +45,9 @@ import net.minecraft.village.VillageGossipType;
 import net.minecraft.world.GameRules;
 
 public class BehaviorApplier {
-    public static void apply(List<Behavior> behaviors, ServerPlayerEntity player, String entityId, PlayerData playerData) {
+    public static void apply(List<Behavior> behaviors, ServerPlayerEntity player, UUID entityId, PlayerData playerData) {
         MobEntity entity = (MobEntity) ServerEntityFinder.getEntityByUUID(player.getServerWorld(),
-                UUID.fromString(entityId));
+                entityId);
         // Determine entity's default speed
         // Some Entities (i.e. Axolotl) set this incorrectly... so adjusting in the
         // SpeedControls class

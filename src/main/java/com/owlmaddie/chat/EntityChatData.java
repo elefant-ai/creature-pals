@@ -169,7 +169,8 @@ public class EntityChatData {
 
         return "N/A";
     }
-        // Generate context object
+
+    // Generate context object
     public Map<String, String> getPlayerContext(ServerPlayerEntity player, String userLanguage,
             ConfigurationHandler.Config config) {
         // Add PLAYER context information
@@ -195,13 +196,9 @@ public class EntityChatData {
         contextData.put("player_armor_feet", feetArmor.getItem().toString());
 
         // Get active player effects
-        if(0 ==0){
-            throw new RuntimeException("TODO: uncomment and fix");
-        }
-        String effectsString = "";
-        // String effectsString = player.getActiveStatusEffects().entrySet().stream()
-                // .map(entry -> entry.getKey().getKey().get() + " x" + (entry.getValue().getAmplifier() + 1))
-                // .collect(Collectors.joining(", "));
+        String effectsString = player.getActiveStatusEffects().entrySet().stream()
+                .map(entry -> entry.getKey().getTranslationKey() + " x" + (entry.getValue().getAmplifier() + 1))
+                .collect(Collectors.joining(", "));
         contextData.put("player_active_effects", effectsString);
 
         // Add custom story section (if any)
@@ -286,9 +283,9 @@ public class EntityChatData {
         Map<String, String> contextData = getPlayerContext(player, userLanguage, config);
 
         ChatGPTRequest.fetchMessageFromChatGPT(config, promptText, contextData, previousMessages, false,
-                // "Reminder: Respond with a empty message only when \\\"\\\" you detect a lot of repetitive content in conversations (multiple byes, etc.)."
-                ""
-        )
+                // "Reminder: Respond with a empty message only when \\\"\\\" you detect a lot
+                // of repetitive content in conversations (multiple byes, etc.)."
+                "")
                 .thenAccept(ent_msg -> {
                     try {
                         if (ent_msg == null) {
@@ -304,14 +301,17 @@ public class EntityChatData {
     public static String truncateString(String input, int maxLength) {
         return input.length() > maxLength ? input.substring(0, maxLength - 3) + "..." : input;
     }
-    public void setError(String errorMSg){
-        errorMessage = new ChatMessage(errorMSg, ChatDataManager.ChatSender.ASSISTANT, lastPlayer != null? lastPlayer.getName().getString() : "");
+
+    public void setError(String errorMSg) {
+        errorMessage = new ChatMessage(errorMSg, ChatDataManager.ChatSender.ASSISTANT,
+                lastPlayer != null ? lastPlayer.getName().getString() : "");
     }
-    public ChatMessage getTopMessage(){
-        if(errorMessage!=null){
+
+    public ChatMessage getTopMessage() {
+        if (errorMessage != null) {
             return errorMessage;
         }
-        ChatMessage top =  previousMessages.get(previousMessages.size() -1);
+        ChatMessage top = previousMessages.get(previousMessages.size() - 1);
         String newMessage = MessageParser.parseMessage(top.message.replace("\n", " ")).getCleanedMessage();
         return new ChatMessage(newMessage, top.sender, top.name);
     }
@@ -387,7 +387,6 @@ public class EntityChatData {
         return lastPlayer;
     }
 
-    
     // // Broadcast to all players
     // ServerPackets.BroadcastEntityMessage(this);
     // }
