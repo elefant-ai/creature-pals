@@ -50,7 +50,7 @@ public class FollowPlayerGoal extends PlayerBaseGoal {
             if (this.entity.squaredDistanceTo(this.targetEntity) > 256) {
                 Vec3d targetPos = findTeleportPosition(12);
                 if (targetPos != null) {
-                    this.entity.teleport(targetPos.x, targetPos.y, targetPos.z, false);
+                    this.entity.teleport(targetPos.x, targetPos.y, targetPos.z);
                 }
             }
         } else {

@@ -76,7 +76,7 @@ public class LeadPlayerGoal extends PlayerBaseGoal {
                 String arrivedMessage = "<You have arrived at your destination>";
 
                 ChatDataManager chatDataManager = ChatDataManager.getServerInstance();
-                EntityChatData chatData = chatDataManager.getOrCreateChatData(this.entity.getUuid());
+                EntityChatData chatData = chatDataManager.getOrCreateChatData(this.entity.getUuidAsString());
                 if (!chatData.characterSheet.isEmpty()
                         && chatData.auto_generated < chatDataManager.MAX_AUTOGENERATE_RESPONSES) {
                     // EventQueueManager.addUserMessage(entity, arrivedMessage, null,
@@ -158,7 +158,7 @@ public class LeadPlayerGoal extends PlayerBaseGoal {
 
             // Pass the angle using the "speed" argument, with deltaX, deltaY, deltaZ set to
             // 0
-            LeadParticleEffect effect = new LeadParticleEffect((float) angle);
+            LeadParticleEffect effect = new LeadParticleEffect(angle);
             serverWorld.spawnParticles(effect, position.x, position.y + 0.05, position.z, 1, 0, 0, 0, 0);
         }
     }

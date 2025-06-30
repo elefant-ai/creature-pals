@@ -3,13 +3,13 @@ package com.owlmaddie.particle;
 import net.minecraft.client.particle.ParticleFactory;
 import net.minecraft.client.particle.SpriteProvider;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particle.SimpleParticleType;
+import net.minecraft.particle.DefaultParticleType;
 
 /**
  * The {@code CreatureParticleFactory} class is responsible for creating instances of
  * {@link BehaviorParticle} with the specified parameters.
  */
-public class CreatureParticleFactory implements ParticleFactory<SimpleParticleType> {
+public class CreatureParticleFactory implements ParticleFactory<DefaultParticleType> {
     private final SpriteProvider spriteProvider;
 
     public CreatureParticleFactory(SpriteProvider spriteProvider) {
@@ -17,7 +17,7 @@ public class CreatureParticleFactory implements ParticleFactory<SimpleParticleTy
     }
 
     @Override
-    public BehaviorParticle createParticle(SimpleParticleType type, ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ) {
+    public BehaviorParticle createParticle(DefaultParticleType type, ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ) {
         BehaviorParticle particle = new BehaviorParticle(world, x, y, z, velocityX, velocityY, velocityZ);
         particle.setSprite(this.spriteProvider);
         return particle;

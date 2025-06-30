@@ -1,16 +1,16 @@
 package com.owlmaddie.chat;
 
-import static com.owlmaddie.particle.Particles.FIRE_BIG_PARTICLE;
-import static com.owlmaddie.particle.Particles.FIRE_SMALL_PARTICLE;
-import static com.owlmaddie.particle.Particles.FLEE_PARTICLE;
-import static com.owlmaddie.particle.Particles.FOLLOW_ENEMY_PARTICLE;
-import static com.owlmaddie.particle.Particles.FOLLOW_FRIEND_PARTICLE;
-import static com.owlmaddie.particle.Particles.HEART_BIG_PARTICLE;
-import static com.owlmaddie.particle.Particles.HEART_SMALL_PARTICLE;
-import static com.owlmaddie.particle.Particles.LEAD_ENEMY_PARTICLE;
-import static com.owlmaddie.particle.Particles.LEAD_FRIEND_PARTICLE;
+import static com.owlmaddie.network.ServerPackets.FIRE_BIG_PARTICLE;
+import static com.owlmaddie.network.ServerPackets.FIRE_SMALL_PARTICLE;
+import static com.owlmaddie.network.ServerPackets.FLEE_PARTICLE;
+import static com.owlmaddie.network.ServerPackets.FOLLOW_ENEMY_PARTICLE;
+import static com.owlmaddie.network.ServerPackets.FOLLOW_FRIEND_PARTICLE;
+import static com.owlmaddie.network.ServerPackets.HEART_BIG_PARTICLE;
+import static com.owlmaddie.network.ServerPackets.HEART_SMALL_PARTICLE;
+import static com.owlmaddie.network.ServerPackets.LEAD_ENEMY_PARTICLE;
+import static com.owlmaddie.network.ServerPackets.LEAD_FRIEND_PARTICLE;
 import static com.owlmaddie.network.ServerPackets.LOGGER;
-import static com.owlmaddie.particle.Particles.PROTECT_PARTICLE;
+import static com.owlmaddie.network.ServerPackets.PROTECT_PARTICLE;
 
 import java.util.List;
 import java.util.UUID;
@@ -45,9 +45,9 @@ import net.minecraft.village.VillageGossipType;
 import net.minecraft.world.GameRules;
 
 public class BehaviorApplier {
-    public static void apply(List<Behavior> behaviors, ServerPlayerEntity player, UUID entityId, PlayerData playerData) {
+    public static void apply(List<Behavior> behaviors, ServerPlayerEntity player, String entityId, PlayerData playerData) {
         MobEntity entity = (MobEntity) ServerEntityFinder.getEntityByUUID(player.getServerWorld(),
-                entityId);
+                UUID.fromString(entityId));
         // Determine entity's default speed
         // Some Entities (i.e. Axolotl) set this incorrectly... so adjusting in the
         // SpeedControls class
@@ -147,7 +147,7 @@ public class BehaviorApplier {
                         // Best friend a Nether and get a NETHER_STAR
                         WitherEntity wither = (WitherEntity) entity;
                         ((WitherEntityAccessor) wither)
-                                .callDropEquipment(((ServerWorld) entity.getWorld()),entity.getWorld().getDamageSources().generic(),true);
+                                .callDropEquipment(entity.getWorld().getDamageSources().generic(), 1, true);
                         entity.getWorld().playSound(entity, entity.getBlockPos(), SoundEvents.ENTITY_WITHER_DEATH,
                                 SoundCategory.PLAYERS, 0.3F, 1.0F);
                     }
@@ -221,7 +221,7 @@ public class BehaviorApplier {
                     if (new_friendship == 3 && !tamableEntity.isTamed()) {
                         tamableEntity.setOwner(player);
                     } else if (new_friendship == -3 && tamableEntity.isTamed()) {
-                        tamableEntity.setTamed(false,true);
+                        tamableEntity.setTamed(false);
                         tamableEntity.setOwnerUuid(null);
                     }
                 }

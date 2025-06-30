@@ -58,7 +58,7 @@ public class EventQueueManager {
     // through all players to find entity object
     private static Set<UUID> entityIdsToAdd = new HashSet<>();
 
-    public static void addEntityIdToCreate(UUID entityId) {
+    public static void addEntityIdToCreate(String entityId) {
         entityIdsToAdd.add(entityId);
     }
 
@@ -135,10 +135,10 @@ public class EventQueueManager {
     private static void tryAddAllNewEntities(MinecraftServer server) {
         Iterator<UUID> iterator = entityIdsToAdd.iterator();
         while (iterator.hasNext()) {
-            UUID entityId = iterator.next();
+            String entityId = iterator.next();
             boolean added = false;
             for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-                Entity cur = ServerEntityFinder.getEntityByUUID(player.getServerWorld(), entityId);
+                Entity cur = ServerEntityFinder.getEntityByUUID(player.getServerWorld(), UUID.fromString(entityId));
                 if (cur != null) {
                     getOrCreateQueueData(entityId, cur);
                     added = true;

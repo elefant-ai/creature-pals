@@ -65,6 +65,8 @@ public class BubbleRenderer {
         RenderSystem.depthMask(true);
 
         // Prepare the tessellator and buffer
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder buffer = tessellator.getBuffer();
         float z = 0.01F;
 
         // Draw UI text background (based on friendship)
@@ -76,38 +78,38 @@ public class BubbleRenderer {
         } else {
             RenderSystem.setShaderTexture(0, textures.GetUI(base_name));
         }
-        drawTexturePart(matrices, x - 50, y, z, 228, 40);
+        drawTexturePart(matrices, buffer, x - 50, y, z, 228, 40);
 
         // Draw MIDDLE
         RenderSystem.setShaderTexture(0, textures.GetUI("text-middle"));
-        drawTexturePart(matrices, x, y + 40, z, width, height);
+        drawTexturePart(matrices, buffer, x, y + 40, z, width, height);
 
         // Draw BOTTOM
         RenderSystem.setShaderTexture(0, textures.GetUI("text-bottom"));
-        drawTexturePart(matrices, x, y + 40 + height, z, width, 5);
+        drawTexturePart(matrices, buffer, x, y + 40 + height, z, width, 5);
 
         // Disable blending and depth test
         RenderSystem.disableBlend();
         RenderSystem.disableDepthTest();
     }
 
-    private static void drawTexturePart(MatrixStack matrices, float x, float y, float z,
+    private static void drawTexturePart(MatrixStack matrices, BufferBuilder buffer, float x, float y, float z,
             float width, float height) {
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT);
-
         // Define the vertices with color, texture, light, and overlay
         Matrix4f matrix4f = matrices.peek().getPositionMatrix();
 
         // Begin drawing quads with the correct vertex format
+        buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT);
 
-        buffer.vertex(matrix4f, x, y + height, z).color(255, 255, 255, 255).texture(0, 1).light(light).overlay(overlay); // bottom left
+        buffer.vertex(matrix4f, x, y + height, z).color(255, 255, 255, 255).texture(0, 1).light(light).overlay(overlay)
+                .next(); // bottom left
         buffer.vertex(matrix4f, x + width, y + height, z).color(255, 255, 255, 255).texture(1, 1).light(light)
-                .overlay(overlay); // bottom right
-        buffer.vertex(matrix4f, x + width, y, z).color(255, 255, 255, 255).texture(1, 0).light(light).overlay(overlay); // top right
-        buffer.vertex(matrix4f, x, y, z).color(255, 255, 255, 255).texture(0, 0).light(light).overlay(overlay); // top
-        // left
-        BufferRenderer.drawWithGlobalProgram(buffer.end());
+                .overlay(overlay).next(); // bottom right
+        buffer.vertex(matrix4f, x + width, y, z).color(255, 255, 255, 255).texture(1, 0).light(light).overlay(overlay)
+                .next(); // top right
+        buffer.vertex(matrix4f, x, y, z).color(255, 255, 255, 255).texture(0, 0).light(light).overlay(overlay).next(); // top
+                                                                                                                       // left
+        Tessellator.getInstance().draw();
     }
 
     private static void drawIcon(String ui_icon_name, MatrixStack matrices, float x, float y, float width,
@@ -127,22 +129,24 @@ public class BubbleRenderer {
 
         // Prepare the tessellator and buffer
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT);
+        BufferBuilder buffer = tessellator.getBuffer();
 
         // Get the current matrix position
         Matrix4f matrix4f = matrices.peek().getPositionMatrix();
 
         // Begin drawing quads with the correct vertex format
+        buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT);
 
         buffer.vertex(matrix4f, x, y + height, 0.0F).color(255, 255, 255, 255).texture(0, 1).light(light)
-                .overlay(overlay); // bottom left
+                .overlay(overlay).next(); // bottom left
         buffer.vertex(matrix4f, x + width, y + height, 0.0F).color(255, 255, 255, 255).texture(1, 1).light(light)
-                .overlay(overlay); // bottom right
+                .overlay(overlay).next(); // bottom right
         buffer.vertex(matrix4f, x + width, y, 0.0F).color(255, 255, 255, 255).texture(1, 0).light(light)
-                .overlay(overlay); // top right
-        buffer.vertex(matrix4f, x, y, 0.0F).color(255, 255, 255, 255).texture(0, 0).light(light).overlay(overlay); // top left
+                .overlay(overlay).next(); // top right
+        buffer.vertex(matrix4f, x, y, 0.0F).color(255, 255, 255, 255).texture(0, 0).light(light).overlay(overlay)
+                .next(); // top left
+        tessellator.draw();
 
-        BufferRenderer.drawWithGlobalProgram(buffer.end());
         // Disable blending and depth test
         RenderSystem.disableBlend();
         RenderSystem.disableDepthTest();
@@ -168,26 +172,28 @@ public class BubbleRenderer {
 
         // Prepare the tessellator and buffer
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferBuilder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT);
+        BufferBuilder bufferBuilder = tessellator.getBuffer();
 
         // Get the current matrix position
         Matrix4f matrix4f = matrices.peek().getPositionMatrix();
 
         // Begin drawing quads with the correct vertex format
+        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT);
 
         float z = -0.01F;
         bufferBuilder.vertex(matrix4f, x, y + height, z).color(255, 255, 255, 255).texture(0, 1).light(light)
-                .overlay(overlay); // bottom left
+                .overlay(overlay).next(); // bottom left
         bufferBuilder.vertex(matrix4f, x + width, y + height, z).color(255, 255, 255, 255).texture(1, 1).light(light)
-                .overlay(overlay); // bottom right
+                .overlay(overlay).next(); // bottom right
         bufferBuilder.vertex(matrix4f, x + width, y, z).color(255, 255, 255, 255).texture(1, 0).light(light)
-                .overlay(overlay); // top right
-        bufferBuilder.vertex(matrix4f, x, y, z).color(255, 255, 255, 255).texture(0, 0).light(light).overlay(overlay); // top left
+                .overlay(overlay).next(); // top right
+        bufferBuilder.vertex(matrix4f, x, y, z).color(255, 255, 255, 255).texture(0, 0).light(light).overlay(overlay)
+                .next(); // top left
+        tessellator.draw();
 
         // Disable blending and depth test
         RenderSystem.disableBlend();
         RenderSystem.disableDepthTest();
-        BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
     }
 
     private static void drawEntityIcon(MatrixStack matrices, Entity entity, float x, float y, float width,
@@ -214,26 +220,28 @@ public class BubbleRenderer {
 
         // Prepare the tessellator and buffer
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferBuilder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT);
+        BufferBuilder bufferBuilder = tessellator.getBuffer();
 
         // Get the current matrix position
         Matrix4f matrix4f = matrices.peek().getPositionMatrix();
 
         // Begin drawing quads with the correct vertex format
+        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT);
 
         float z = -0.01F;
         bufferBuilder.vertex(matrix4f, x, y + height, z).color(255, 255, 255, 255).texture(0, 1).light(light)
-                .overlay(overlay); // bottom left
+                .overlay(overlay).next(); // bottom left
         bufferBuilder.vertex(matrix4f, x + width, y + height, z).color(255, 255, 255, 255).texture(1, 1).light(light)
-                .overlay(overlay); // bottom right
+                .overlay(overlay).next(); // bottom right
         bufferBuilder.vertex(matrix4f, x + width, y, z).color(255, 255, 255, 255).texture(1, 0).light(light)
-                .overlay(overlay); // top right
-        bufferBuilder.vertex(matrix4f, x, y, z).color(255, 255, 255, 255).texture(0, 0).light(light).overlay(overlay); // top left
+                .overlay(overlay).next(); // top right
+        bufferBuilder.vertex(matrix4f, x, y, z).color(255, 255, 255, 255).texture(0, 0).light(light).overlay(overlay)
+                .next(); // top left
+        tessellator.draw();
 
         // Disable blending and depth test
         RenderSystem.disableBlend();
         RenderSystem.disableDepthTest();
-        BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
     }
 
     private static void drawPlayerIcon(MatrixStack matrices, Entity entity, float x, float y, float width,
@@ -257,7 +265,8 @@ public class BubbleRenderer {
 
         // Prepare the tessellator and buffer
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferBuilder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT);
+        BufferBuilder bufferBuilder = tessellator.getBuffer();
+        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT);
 
         Matrix4f matrix4f = matrices.peek().getPositionMatrix();
         float z = -0.01F;
@@ -293,13 +302,13 @@ public class BubbleRenderer {
                 float scaledHeight = (coords[3] - coords[1]) * scaleFactor;
 
                 bufferBuilder.vertex(matrix4f, scaledX, scaledY + scaledHeight, z)
-                        .color(255, 255, 255, 255).texture(newU1, newV2).light(light).overlay(overlay);
+                        .color(255, 255, 255, 255).texture(newU1, newV2).light(light).overlay(overlay).next();
                 bufferBuilder.vertex(matrix4f, scaledX + scaledWidth, scaledY + scaledHeight, z)
-                        .color(255, 255, 255, 255).texture(newU2, newV2).light(light).overlay(overlay);
+                        .color(255, 255, 255, 255).texture(newU2, newV2).light(light).overlay(overlay).next();
                 bufferBuilder.vertex(matrix4f, scaledX + scaledWidth, scaledY, z)
-                        .color(255, 255, 255, 255).texture(newU2, newV1).light(light).overlay(overlay);
+                        .color(255, 255, 255, 255).texture(newU2, newV1).light(light).overlay(overlay).next();
                 bufferBuilder.vertex(matrix4f, scaledX, scaledY, z)
-                        .color(255, 255, 255, 255).texture(newU1, newV1).light(light).overlay(overlay);
+                        .color(255, 255, 255, 255).texture(newU1, newV1).light(light).overlay(overlay).next();
             }
         } else {
             // make skin appear smaller and centered
@@ -315,13 +324,13 @@ public class BubbleRenderer {
             float v2 = 16.0F / 64.0F;
 
             bufferBuilder.vertex(matrix4f, x, y + height, z)
-                    .color(255, 255, 255, 255).texture(u1, v2).light(light).overlay(overlay);
+                    .color(255, 255, 255, 255).texture(u1, v2).light(light).overlay(overlay).next();
             bufferBuilder.vertex(matrix4f, x + width, y + height, z)
-                    .color(255, 255, 255, 255).texture(u2, v2).light(light).overlay(overlay);
+                    .color(255, 255, 255, 255).texture(u2, v2).light(light).overlay(overlay).next();
             bufferBuilder.vertex(matrix4f, x + width, y, z)
-                    .color(255, 255, 255, 255).texture(u2, v1).light(light).overlay(overlay);
+                    .color(255, 255, 255, 255).texture(u2, v1).light(light).overlay(overlay).next();
             bufferBuilder.vertex(matrix4f, x, y, z)
-                    .color(255, 255, 255, 255).texture(u1, v1).light(light).overlay(overlay);
+                    .color(255, 255, 255, 255).texture(u1, v1).light(light).overlay(overlay).next();
 
             // Hat layer
             float hatU1 = 40.0F / 64.0F;
@@ -332,16 +341,16 @@ public class BubbleRenderer {
             z -= 0.01F;
 
             bufferBuilder.vertex(matrix4f, x, y + height, z)
-                    .color(255, 255, 255, 255).texture(hatU1, hatV2).light(light).overlay(overlay);
+                    .color(255, 255, 255, 255).texture(hatU1, hatV2).light(light).overlay(overlay).next();
             bufferBuilder.vertex(matrix4f, x + width, y + height, z)
-                    .color(255, 255, 255, 255).texture(hatU2, hatV2).light(light).overlay(overlay);
+                    .color(255, 255, 255, 255).texture(hatU2, hatV2).light(light).overlay(overlay).next();
             bufferBuilder.vertex(matrix4f, x + width, y, z)
-                    .color(255, 255, 255, 255).texture(hatU2, hatV1).light(light).overlay(overlay);
+                    .color(255, 255, 255, 255).texture(hatU2, hatV1).light(light).overlay(overlay).next();
             bufferBuilder.vertex(matrix4f, x, y, z)
-                    .color(255, 255, 255, 255).texture(hatU1, hatV1).light(light).overlay(overlay);
+                    .color(255, 255, 255, 255).texture(hatU1, hatV1).light(light).overlay(overlay).next();
         }
 
-        BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
+        tessellator.draw();
 
         // Disable blending and depth test
         RenderSystem.disableBlend();
@@ -547,9 +556,9 @@ public class BubbleRenderer {
             EntityChatData chatData = null;
             PlayerData playerData = null;
             if (entity instanceof MobEntity) {
-                chatData = ChatDataManager.getClientInstance().getOrCreateChatData(entity.getUuid());
+                chatData = ChatDataManager.getClientInstance().getOrCreateChatData(entity.getUuidAsString());
                 if (chatData != null) {
-                    playerData = chatData.getPlayerData(player.getUuid());
+                    playerData = chatData.getPlayerData(player.getDisplayName().getString());
                 }
             } else if (entity instanceof PlayerEntity) {
                 chatData = PlayerMessageManager.getMessage(entity.getUuid());

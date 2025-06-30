@@ -13,8 +13,7 @@ import net.minecraft.util.math.Vec3d;
 
 import java.util.EnumSet;
 
-import static com.owlmaddie.particle.Particles.ATTACK_PARTICLE;
-
+import static com.owlmaddie.network.ServerPackets.ATTACK_PARTICLE;
 
 /**
  * The {@code AttackPlayerGoal} class instructs a Mob Entity to show aggression towards a target Entity.

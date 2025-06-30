@@ -15,7 +15,7 @@ import com.owlmaddie.chat.ChatDataManager.ChatStatus;
  * currently displayed messages to players as they connect to the server.
  */
 public class EntityChatDataLight {
-    public UUID entityId;
+    public String entityId;
     public String currentMessage;
     public int currentLineNumber;
     public ChatDataManager.ChatStatus status;
@@ -23,7 +23,7 @@ public class EntityChatDataLight {
     public Map<UUID, PlayerData> players;
     public String characterSheet;
     // Constructor to initialize the light version from the full version
-    public EntityChatDataLight(EntityChatData fullData, UUID playerId) {
+    public EntityChatDataLight(EntityChatData fullData, String playerName) {
         this.entityId = fullData.entityId;
         this.currentMessage = fullData.currentMessage;
         this.currentLineNumber = fullData.currentLineNumber;

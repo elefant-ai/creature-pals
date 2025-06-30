@@ -1,14 +1,12 @@
 package com.owlmaddie.particle;
 
-import net.minecraft.client.particle.*;
+import net.minecraft.client.particle.ParticleTextureSheet;
+import net.minecraft.client.particle.SpriteBillboardParticle;
+import net.minecraft.client.particle.SpriteProvider;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particle.ParticleEffect;
-import net.minecraft.particle.ParticleType;
-import net.minecraft.particle.SimpleParticleType;
 import net.minecraft.util.math.MathHelper;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import net.minecraft.util.math.Vec3d;
 
@@ -79,9 +77,9 @@ public class LeadParticle extends SpriteBillboardParticle {
         int light = this.getBrightness(tickDelta);
 
         // Render each vertex of the particle (flat on the XY plane)
-        vertexConsumer.vertex(vertices[0].x(), vertices[0].y(), vertices[0].z()).texture(maxU, maxV).color(this.red, this.green, this.blue, this.alpha).light(light);
-        vertexConsumer.vertex(vertices[1].x(), vertices[1].y(), vertices[1].z()).texture(maxU, minV).color(this.red, this.green, this.blue, this.alpha).light(light);
-        vertexConsumer.vertex(vertices[2].x(), vertices[2].y(), vertices[2].z()).texture(minU, minV).color(this.red, this.green, this.blue, this.alpha).light(light);
-        vertexConsumer.vertex(vertices[3].x(), vertices[3].y(), vertices[3].z()).texture(minU, maxV).color(this.red, this.green, this.blue, this.alpha).light(light);
+        vertexConsumer.vertex(vertices[0].x(), vertices[0].y(), vertices[0].z()).texture(maxU, maxV).color(this.red, this.green, this.blue, this.alpha).light(light).next();
+        vertexConsumer.vertex(vertices[1].x(), vertices[1].y(), vertices[1].z()).texture(maxU, minV).color(this.red, this.green, this.blue, this.alpha).light(light).next();
+        vertexConsumer.vertex(vertices[2].x(), vertices[2].y(), vertices[2].z()).texture(minU, minV).color(this.red, this.green, this.blue, this.alpha).light(light).next();
+        vertexConsumer.vertex(vertices[3].x(), vertices[3].y(), vertices[3].z()).texture(minU, maxV).color(this.red, this.green, this.blue, this.alpha).light(light).next();
     }
 }

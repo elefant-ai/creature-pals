@@ -3,7 +3,6 @@ package com.owlmaddie;
 import com.owlmaddie.chat.EventQueueManager;
 import com.owlmaddie.commands.CreatureChatCommands;
 import com.owlmaddie.network.ServerPackets;
-import com.owlmaddie.particle.Particles;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 
@@ -27,7 +26,6 @@ public class ModInit implements ModInitializer {
 		// Register server commands
 		CreatureChatCommands.register();
 
-		Particles.register();
 		// Register events
 		ServerPackets.register();
 

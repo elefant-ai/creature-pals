@@ -26,7 +26,7 @@ public abstract class MixinEntityChatData {
         UUID currentUUID = this.getUuid();
 
         // Retrieve or create the chat data for this entity.
-        EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(currentUUID);
+        EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(currentUUID.toString());
         // If the entity actually has chat data (for example, if its character sheet is non-empty), add CCUUID.
         if (!chatData.characterSheet.isEmpty()) {
             // Note: cir.getReturnValue() returns the NBT compound the method is about to return.
@@ -44,7 +44,7 @@ public abstract class MixinEntityChatData {
         if (nbt.contains("CCUUID")) {
             UUID originalUUID = nbt.getUuid("CCUUID");
             if (!originalUUID.equals(currentUUID)) {
-                ChatDataManager.getServerInstance().updateUUID(originalUUID, currentUUID);
+                ChatDataManager.getServerInstance().updateUUID(originalUUID.toString(), currentUUID.toString());
             }
         }
     }

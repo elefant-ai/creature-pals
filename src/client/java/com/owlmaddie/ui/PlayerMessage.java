@@ -3,7 +3,6 @@ package com.owlmaddie.ui;
 import com.owlmaddie.chat.ChatDataManager;
 import com.owlmaddie.chat.EntityChatData;
 
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -14,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class PlayerMessage extends EntityChatData {
     public AtomicInteger tickCountdown;
 
-    public PlayerMessage(UUID playerId, String messageText, int ticks) {
+    public PlayerMessage(String playerId, String messageText, int ticks) {
         super(playerId);
         this.currentMessage = messageText;
         this.currentLineNumber = 0;

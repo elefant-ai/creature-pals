@@ -1,12 +1,9 @@
 package com.owlmaddie;
 
 import com.owlmaddie.chat.ChatDataManager;
-import com.owlmaddie.commands.CreatureChatCommands;
 import com.owlmaddie.network.ClientPackets;
-import com.owlmaddie.network.ServerPackets;
-import com.owlmaddie.particle.ClientParticle;
 import com.owlmaddie.particle.CreatureParticleFactory;
-import com.owlmaddie.particle.Particles;
+import com.owlmaddie.particle.LeadParticleFactory;
 import com.owlmaddie.player2.HeartbeatManager;
 import com.owlmaddie.player2.TTS;
 import com.owlmaddie.ui.BubbleRenderer;
@@ -21,13 +18,6 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
-import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
-import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.ParticleFactory;
-import net.minecraft.client.particle.SpriteProvider;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particle.SimpleParticleType;
-import org.jetbrains.annotations.Nullable;
 
 import static com.owlmaddie.network.ServerPackets.*;
 
@@ -41,11 +31,19 @@ public class ClientInit implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-
         // Register particle factories
-        Particles.register();
-
-        ClientParticle.register();
+        ParticleFactoryRegistry.getInstance().register(HEART_SMALL_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(HEART_BIG_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(FIRE_SMALL_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(FIRE_BIG_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(ATTACK_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(FLEE_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(FOLLOW_FRIEND_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(FOLLOW_ENEMY_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(PROTECT_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(LEAD_FRIEND_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(LEAD_ENEMY_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(LEAD_PARTICLE, LeadParticleFactory::new);
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             tickCounter++;
@@ -65,7 +63,7 @@ public class ClientInit implements ClientModInitializer {
 
         // Register an event callback to render text bubbles
         WorldRenderEvents.BEFORE_DEBUG_RENDER.register((context) -> {
-            BubbleRenderer.drawTextAboveEntities(context, tickCounter, context.tickCounter().getTickDelta(false));
+            BubbleRenderer.drawTextAboveEntities(context, tickCounter, context.tickDelta());
         });
         
         
