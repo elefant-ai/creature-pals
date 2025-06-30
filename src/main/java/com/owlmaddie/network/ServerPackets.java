@@ -115,7 +115,7 @@ public class ServerPackets {
                                 entityId);
                         if (entity != null) {
                             EntityChatData chatData = ChatDataManager.getServerInstance()
-                                    .getOrCreateChatData(entity.getUuidAsString());
+                                    .getOrCreateChatData(entity.getUuid());
                             if (chatData.characterSheet.isEmpty()) {
                                 LOGGER.info("C2S_GREETING");
                                 EventQueueManager.addGreeting(entity, userLanguage, player);
@@ -139,12 +139,13 @@ public class ServerPackets {
                             TalkPlayerGoal talkGoal = new TalkPlayerGoal(player, entity, 3.5F);
                             EntityBehaviorManager.addGoal(entity, talkGoal, GoalPriority.TALK_PLAYER);
 
-                    EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(entity.getUuid());
-                    LOGGER.info("Update read lines to " + lineNumber + " for: " + entity.getType().toString());
-                    ClientSideEffects.setLineNumberUsingParamsFromChatData(entity.getUuid(), lineNumber);
-                }
-            });
-        });
+                            EntityChatData chatData = ChatDataManager.getServerInstance()
+                                    .getOrCreateChatData(entity.getUuid());
+                            LOGGER.info("Update read lines to " + lineNumber + " for: " + entity.getType().toString());
+                            ClientSideEffects.setLineNumberUsingParamsFromChatData(entity.getUuid(), lineNumber);
+                        }
+                    });
+                });
 
         // Handle packet for setting status of chat bubbles
         ServerPlayNetworking.registerGlobalReceiver(PACKET_C2S_SET_STATUS,
@@ -152,18 +153,19 @@ public class ServerPackets {
                     UUID entityId = UUID.fromString(buf.readString());
                     String status_name = buf.readString(32767);
 
-            ServerPlayerEntity player = context.player();
-            // Ensure that the task is synced with the server thread
-            context.server().execute(() -> {
-                MobEntity entity = (MobEntity)ServerEntityFinder.getEntityByUUID(player.getServerWorld(), payload.entityId());
-                if (entity != null) {
-                    // Set talk to player goal (prevent entity from walking off)
-                    TalkPlayerGoal talkGoal = new TalkPlayerGoal(player, entity, 3.5F);
-                    EntityBehaviorManager.addGoal(entity, talkGoal, GoalPriority.TALK_PLAYER);
-                    ClientSideEffects.setStatusUsingParamsFromChatData(entity.getUuid(), ChatDataManager.ChatStatus.valueOf(payload.statusName()));
-                }
-            });
-        });
+                    // Ensure that the task is synced with the server thread
+                    server.execute(() -> {
+                        MobEntity entity = (MobEntity) ServerEntityFinder.getEntityByUUID(player.getServerWorld(),
+                                entityId);
+                        if (entity != null) {
+                            // Set talk to player goal (prevent entity from walking off)
+                            TalkPlayerGoal talkGoal = new TalkPlayerGoal(player, entity, 3.5F);
+                            EntityBehaviorManager.addGoal(entity, talkGoal, GoalPriority.TALK_PLAYER);
+                            ClientSideEffects.setStatusUsingParamsFromChatData(entity.getUuid(),
+                                    ChatDataManager.ChatStatus.valueOf(status_name));
+                        }
+                    });
+                });
 
         // Handle packet for Open Chat
         ServerPlayNetworking.registerGlobalReceiver(PACKET_C2S_OPEN_CHAT,
@@ -215,10 +217,9 @@ public class ServerPackets {
                         MobEntity entity = (MobEntity) ServerEntityFinder.getEntityByUUID(player.getServerWorld(),
                                 entityId);
                         if (entity != null) {
-                            ChatDataManager.getServerInstance()
-                                     .getOrCreateChatData(entity.getUuid());
+                            EntityChatData chatData = ChatDataManager.getServerInstance()
+                                    .getOrCreateChatData(entityId);
                             EventQueueManager.addUserMessage(entity, userLanguage, player, message, false);
-                            ClientSideEffects.setPending(entity.getUuid());
                         }
                     });
                 });
@@ -235,7 +236,7 @@ public class ServerPackets {
                     "Server send compressed, chunked login message packets to player: " + player.getName().getString());
             // Get lite JSON data & compress to byte array
             String chatDataJSON = ChatDataManager.getServerInstance()
-                    .GetLightChatData(player.getDisplayName().getString());
+                    .GetLightChatData(player.getUuid());
             byte[] compressedData = Compression.compressString(chatDataJSON);
             if (compressedData == null) {
                 LOGGER.error("Failed to compress chat data.");
@@ -324,16 +325,12 @@ public class ServerPackets {
         }
     }
 
-    
-
-
-    // Writing a Map<String, PlayerData> to the buffer
-    public static void writePlayerDataMap(PacketByteBuf buffer, Map<String, PlayerData> map) {
+    public static void writePlayerDataMap(PacketByteBuf buffer, Map<UUID, PlayerData> map) {
         buffer.writeInt(map.size()); // Write the size of the map
-        for (Map.Entry<String, PlayerData> entry : map.entrySet()) {
-            buffer.writeString(entry.getKey()); // Write the key (playerName)
+        for (Map.Entry<UUID, PlayerData> entry : map.entrySet()) {
+            buffer.writeUuid(entry.getKey()); // Write the UUID key
             PlayerData data = entry.getValue();
-            buffer.writeInt(data.friendship); // Write PlayerData field(s)
+            buffer.writeInt(data.friendship); // Write PlayerData fields
         }
     }
 
@@ -350,18 +347,21 @@ public class ServerPackets {
         for (ServerWorld world : serverInstance.getWorlds()) {
             // Find Entity by UUID and update custom name
             UUID entityId = chatData.entityId;
-            MobEntity entity = (MobEntity)ServerEntityFinder.getEntityByUUID(world, entityId);
-
-            // Make auto-generated message appear as a pending icon (attack, show/give,
-            // arrival)
-            // if (chatData.sender == ChatDataManager.ChatSender.USER && chatData.auto_generated > 0) {
-            //     chatData.status = ChatDataManager.ChatStatus.PENDING;
-            // }
+            MobEntity entity = (MobEntity) ServerEntityFinder.getEntityByUUID(world, entityId);
+            if (entity != null) {
+                String characterName = chatData.getCharacterProp("name");
+                if (!characterName.isEmpty() && !characterName.equals("N/A") && entity.getCustomName() == null) {
+                    LOGGER.debug("Setting entity name to " + characterName + " for " + chatData.entityId);
+                    entity.setCustomName(Text.literal(characterName));
+                    entity.setCustomNameVisible(true);
+                    entity.setPersistent();
+                }
+            }
 
             // Iterate over all players and send the packet
             for (ServerPlayerEntity player : serverInstance.getPlayerManager().getPlayerList()) {
                 PacketByteBuf buffer = new PacketByteBuf(Unpooled.buffer());
-                buffer.writeString(chatData.entityId);
+                buffer.writeString(chatData.entityId.toString());
                 buffer.writeString(chatData.currentMessage);
                 buffer.writeInt(chatData.currentLineNumber);
                 buffer.writeString(chatData.status.toString());

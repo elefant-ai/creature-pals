@@ -35,7 +35,7 @@ public abstract class MixinOnChat {
 
         if (config.getChatBubbles()) {
             // Example: Call your broadcast function
-            EntityChatData chatData = new EntityChatData(player.getUuidAsString());
+            EntityChatData chatData = new EntityChatData(player.getUuid());
             chatData.currentMessage = chatMessage;
             BroadcastPlayerMessage(chatData, player, true);
             // Optionally, cancel the event to prevent the default behavior

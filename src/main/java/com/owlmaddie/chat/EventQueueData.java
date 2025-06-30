@@ -11,7 +11,6 @@ import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import org.apache.commons.lang3.function.TriConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +18,7 @@ import com.owlmaddie.chat.ChatDataManager.ChatSender;
 import com.owlmaddie.commands.ConfigurationHandler;
 import com.owlmaddie.network.ServerPackets;
 import com.owlmaddie.utils.ServerEntityFinder;
+import com.owlmaddie.utils.TriConsumer;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;

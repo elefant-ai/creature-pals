@@ -22,7 +22,7 @@ public abstract class MixinWanderingTrader {
         WanderingTraderEntity trader = (WanderingTraderEntity) (Object) this;
 
         // Get chat data for this trader
-        EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(trader.getUuidAsString());
+        EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(trader.getUuid());
 
         // If the character sheet is not empty, cancel the function to prevent despawning
         if (!chatData.characterSheet.isEmpty()) {

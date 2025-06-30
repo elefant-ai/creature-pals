@@ -22,7 +22,7 @@ public abstract class MixinVexEntity {
         VexEntity vex = (VexEntity) (Object) this;
 
         // Get chat data for this Vex
-        EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(vex.getUuidAsString());
+        EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(vex.getUuid());
         if (this.alive && !chatData.characterSheet.isEmpty()) {
             this.alive = false; // Prevents the Vex from ticking and taking damage
         }

@@ -48,7 +48,7 @@ import static com.owlmaddie.network.ServerPackets.*;
  */
 public class EntityChatData {
     public static final Logger LOGGER = LoggerFactory.getLogger("creaturechat");
-    public String entityId;
+    public UUID entityId;
     public String currentMessage;
     public int currentLineNumber;
     public ChatDataManager.ChatStatus status;
@@ -70,9 +70,9 @@ public class EntityChatData {
     public Integer legacyFriendship;
 
     // The map to store data for each player interacting with this entity
-    public Map<String, PlayerData> players;
+    public Map<UUID, PlayerData> players;
 
-    public EntityChatData(String entityId) {
+    public EntityChatData(UUID entityId) {
         this.entityId = entityId;
         this.players = new HashMap<>();
         this.currentMessage = "";
@@ -104,7 +104,7 @@ public class EntityChatData {
     // Migrate old data into the new structure
     private void migrateData() {
         // Ensure the blank player data entry exists
-        PlayerData blankPlayerData = this.players.computeIfAbsent("", k -> new PlayerData());
+        PlayerData blankPlayerData = this.players.computeIfAbsent(UUID.fromString(""), k -> new PlayerData());
 
         // Update the previousMessages arraylist and add timestamps if missing
         if (this.previousMessages != null) {
@@ -128,7 +128,7 @@ public class EntityChatData {
     }
 
     // Get the player data (or fallback to the blank player)
-    public PlayerData getPlayerData(String playerName) {
+    public PlayerData getPlayerData(UUID playerId) {
         if (this.players == null) {
             return new PlayerData();
         }
@@ -138,21 +138,21 @@ public class EntityChatData {
             // If a blank migrated legacy entity is found, always return this
             return this.players.get("");
 
-        } else if (this.players.containsKey(playerName)) {
+        } else if (this.players.containsKey(playerId)) {
             // Return a specific player's data
-            return this.players.get(playerName);
+            return this.players.get(playerId);
 
         } else {
             // Return a blank player data
             PlayerData newPlayerData = new PlayerData();
-            this.players.put(playerName, newPlayerData);
+            this.players.put(playerId, newPlayerData);
             return newPlayerData;
         }
     }
 
     // Generate light version of chat data (no previous messages)
-    public EntityChatDataLight toLightVersion(String playerName) {
-        return new EntityChatDataLight(this, playerName);
+    public EntityChatDataLight toLightVersion(UUID playerId) {
+        return new EntityChatDataLight(this, playerId);
     }
 
     public String getCharacterProp(String propertyName) {
@@ -169,8 +169,7 @@ public class EntityChatData {
 
         return "N/A";
     }
-
-    // Generate context object
+        // Generate context object
     public Map<String, String> getPlayerContext(ServerPlayerEntity player, String userLanguage,
             ConfigurationHandler.Config config) {
         // Add PLAYER context information
@@ -196,9 +195,13 @@ public class EntityChatData {
         contextData.put("player_armor_feet", feetArmor.getItem().toString());
 
         // Get active player effects
-        String effectsString = player.getActiveStatusEffects().entrySet().stream()
-                .map(entry -> entry.getKey().getTranslationKey() + " x" + (entry.getValue().getAmplifier() + 1))
-                .collect(Collectors.joining(", "));
+        if(0 ==0){
+            throw new RuntimeException("TODO: uncomment and fix");
+        }
+        String effectsString = "";
+        // String effectsString = player.getActiveStatusEffects().entrySet().stream()
+                // .map(entry -> entry.getKey().getKey().get() + " x" + (entry.getValue().getAmplifier() + 1))
+                // .collect(Collectors.joining(", "));
         contextData.put("player_active_effects", effectsString);
 
         // Add custom story section (if any)
@@ -233,7 +236,7 @@ public class EntityChatData {
 
         // Get Entity details
         MobEntity entity = (MobEntity) ServerEntityFinder.getEntityByUUID(player.getServerWorld(),
-                UUID.fromString(entityId));
+                entityId);
         if (entity.getCustomName() == null) {
             contextData.put("entity_name", "");
         } else {
@@ -256,7 +259,7 @@ public class EntityChatData {
             contextData.put("entity_maturity", "Adult");
         }
 
-        PlayerData playerData = this.getPlayerData(player.getDisplayName().getString());
+        PlayerData playerData = this.getPlayerData(player.getUuid());
         if (playerData != null) {
             contextData.put("entity_friendship", String.valueOf(playerData.friendship));
         } else {

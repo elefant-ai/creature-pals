@@ -40,7 +40,7 @@ public interface MixinBucketable {
         if (nbt.contains("CCUUID")) {
             UUID originalUUID = nbt.getUuid("CCUUID");
             LOGGER.info("Duplicating bucketed chat data for original UUID (" + originalUUID + ") to cloned entity: (" + newUUID + ")");
-            ChatDataManager.getServerInstance().updateUUID(originalUUID.toString(), newUUID.toString());
+            ChatDataManager.getServerInstance().updateUUID(originalUUID, newUUID);
         }
     }
 }

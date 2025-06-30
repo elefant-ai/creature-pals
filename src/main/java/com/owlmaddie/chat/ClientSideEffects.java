@@ -37,7 +37,10 @@ public class ClientSideEffects {
                 LOGGER.info("sideEffect/onEntityGeneratedMessage entityId={} uncleanEntityResponse={} player={}", entityId, uncleanEntityMessageResponse, player);
         ParsedMessage result = MessageParser.parseMessage(uncleanEntityMessageResponse.replace("\n", " "));
         PlayerData playerData = getChatData(entityId).getPlayerData(player.getUuid());
-        BehaviorApplier.apply(result.getBehaviors(), player, entityId, playerData);
+         if(0 ==0){
+            throw new RuntimeException("TODO: uncomment and fix");
+        }
+        // BehaviorApplier.apply(result.getBehaviors(), player, entityId, playerData);
         String cleanedMessage = result.getCleanedMessage();
         if (cleanedMessage.isEmpty()) {
             getChatData(entityId).addMessage("...", ChatDataManager.ChatSender.ASSISTANT, player);

@@ -9,13 +9,12 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
-import org.apache.commons.lang3.function.TriConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.owlmaddie.utils.ServerEntityFinder;
+import com.owlmaddie.utils.TriConsumer;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.server.MinecraftServer;
@@ -58,7 +57,7 @@ public class EventQueueManager {
     // through all players to find entity object
     private static Set<UUID> entityIdsToAdd = new HashSet<>();
 
-    public static void addEntityIdToCreate(String entityId) {
+    public static void addEntityIdToCreate(UUID entityId) {
         entityIdsToAdd.add(entityId);
     }
 
@@ -135,10 +134,10 @@ public class EventQueueManager {
     private static void tryAddAllNewEntities(MinecraftServer server) {
         Iterator<UUID> iterator = entityIdsToAdd.iterator();
         while (iterator.hasNext()) {
-            String entityId = iterator.next();
+            UUID entityId = iterator.next();
             boolean added = false;
             for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-                Entity cur = ServerEntityFinder.getEntityByUUID(player.getServerWorld(), UUID.fromString(entityId));
+                Entity cur = ServerEntityFinder.getEntityByUUID(player.getServerWorld(), entityId);
                 if (cur != null) {
                     getOrCreateQueueData(entityId, cur);
                     added = true;

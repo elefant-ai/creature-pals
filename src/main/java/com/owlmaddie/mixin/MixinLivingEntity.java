@@ -31,7 +31,7 @@ public class MixinLivingEntity {
 
     private EntityChatData getChatData(LivingEntity entity) {
         ChatDataManager chatDataManager = ChatDataManager.getServerInstance();
-        return chatDataManager.getOrCreateChatData(entity.getUuidAsString());
+        return chatDataManager.getOrCreateChatData(entity.getUuid());
     }
 
     @Inject(method = "canTarget(Lnet/minecraft/entity/LivingEntity;)Z", at = @At("HEAD"), cancellable = true)
@@ -39,7 +39,7 @@ public class MixinLivingEntity {
         if (target instanceof PlayerEntity) {
             LivingEntity thisEntity = (LivingEntity) (Object) this;
             EntityChatData entityData = getChatData(thisEntity);
-            PlayerData playerData = entityData.getPlayerData(target.getDisplayName().getString());
+            PlayerData playerData = entityData.getPlayerData(target.getUuid());
             if (playerData.friendship > 0) {
                 // Friendly creatures can't target a player
                 cir.setReturnValue(false);
