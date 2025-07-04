@@ -465,7 +465,7 @@ public class BubbleRenderer {
             float entityHeight = EntityHeights.getAdjustedEntityHeight(entity);
 
             // Interpolate entity position (smooth motion)
-            double paddingAboveEntity = 0.4D;
+            double paddingAboveEntity = 0.8D;
             Vec3d interpolatedEntityPos = new Vec3d(
                     MathHelper.lerp(partialTicks, entity.prevX, entity.getPos().x),
                     MathHelper.lerp(partialTicks, entity.prevY, entity.getPos().y),
