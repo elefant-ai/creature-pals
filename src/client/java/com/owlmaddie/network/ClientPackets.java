@@ -138,6 +138,10 @@ public class ClientPackets {
                     playNearbyUISound(client, entity, 0.2f);
                 }
                 if(status == ChatStatus.DISPLAY && chatData.sender == ChatSender.ASSISTANT){
+                    if(message.contains("Error:")){
+                        // for now skip error
+                        return;
+                    }
                     TTS.speak(message, entityId);
                 }
             });

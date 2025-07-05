@@ -34,7 +34,8 @@ public class ClientSideEffects {
 
     public static void onEntityGeneratedMessage(UUID entityId,
             String uncleanEntityMessageResponse, ServerPlayerEntity player) {
-                LOGGER.info("sideEffect/onEntityGeneratedMessage entityId={} uncleanEntityResponse={} player={}", entityId, uncleanEntityMessageResponse, player);
+        LOGGER.info("sideEffect/onEntityGeneratedMessage entityId={} uncleanEntityResponse={} player={}", entityId,
+                uncleanEntityMessageResponse, player);
         ParsedMessage result = MessageParser.parseMessage(uncleanEntityMessageResponse.replace("\n", " "));
         PlayerData playerData = getChatData(entityId).getPlayerData(player.getUuid());
         BehaviorApplier.apply(result.getBehaviors(), player, entityId, playerData);
@@ -46,7 +47,7 @@ public class ClientSideEffects {
         } else {
             getChatData(entityId).addMessage(uncleanEntityMessageResponse, ChatDataManager.ChatSender.ASSISTANT,
                     player);
-            sendChatAsEntity(entityId, cleanedMessage, player);
+            sendChatAsEntity(entityId, cleanedMessage, player, true);
         }
     }
 
@@ -70,7 +71,7 @@ public class ClientSideEffects {
         setNameOfEntity(entityId, characterName);
         if (shouldGreet) {
             getChatData(entityId).addMessage(shortGreeting, ChatDataManager.ChatSender.ASSISTANT, player);
-            sendChatAsEntity(entityId, shortGreeting, player);
+            sendChatAsEntity(entityId, shortGreeting, player, true);
         }
     }
 
@@ -92,39 +93,50 @@ public class ClientSideEffects {
     }
 
     public static void onLLMGenerateError(UUID entityId, String errMsg, ServerPlayerEntity player) {
-        LOGGER.error("Side effect: onLLMGenerateError, clearing msg. Error:", errMsg);
+        LOGGER.error("Side effect: onLLMGenerateError, clearing msg. errMsg={}", errMsg);
         String errorMessage = "Error: ";
         errorMessage += EntityChatData.truncateString(errMsg, 55) + "\n";
         errorMessage += "Help is available at elefant.gg/discord";
-         LOGGER.error("BEFORE DATA ");
         EntityChatData data = getChatData(entityId);
-        LOGGER.error("After DATA ");
         data.setError(errorMessage);
-        LOGGER.error("After set erro ");
-        sendChatAsEntity(entityId, errorMessage, player);
+
+        if (errMsg.contains("Connection refused")) {
+            LOGGER.info("Connection refused error! handling case");
+            String displayedErrorMessage = "Error: Player2 must be running. Download and run Player2.\nhttps://player2.gg\n";
+            sendChatAsEntity(entityId, displayedErrorMessage, player, false);
+            ServerPackets.SendClickableError(player, displayedErrorMessage, "https://player2.gg");
+            ServerPackets.SendClickableError(player,
+                    "If Player2 is running and it still doesn't work, make a ticket on discord.\nhttps://elefant.gg/discord",
+                    "https://elefant.gg/discord");
+            return;
+        }
+        sendChatAsEntity(entityId, errorMessage, player, false);
         LOGGER.error("After chat as ent ");
         getChatData(entityId).status = ChatStatus.DISPLAY;
         LOGGER.info("Sending clickable error");
         ServerPackets.SendClickableError(player, errorMessage, "https://elefant.gg/discord");
     }
 
-    public static void sendChatAsEntity(UUID entityId, String message, ServerPlayerEntity player) {
+    public static void sendChatAsEntity(UUID entityId, String message, ServerPlayerEntity player,
+            boolean shouldBroadcast) {
         LOGGER.info("SIDEEFFECT/sendChatAsEntity entityId={} message={} ", entityId.toString(), message);
         ServerPackets.BroadcastEntityMessage(new EntityChatDataLight(entityId, message, 0, ChatStatus.DISPLAY,
                 ChatSender.ASSISTANT, getChatData(entityId).characterSheet, getChatData(entityId).players));
         LOGGER.info("Finding entity ");
-        Entity entity= ServerEntityFinder.getEntityByUUID(player.getServerWorld(),
-                    entityId);
+        Entity entity = ServerEntityFinder.getEntityByUUID(player.getServerWorld(),
+                entityId);
         LOGGER.info("Custom name");
-        if(entity.getCustomName() == null){
+        if (entity.getCustomName() == null) {
             return;
         }
         String entityCustomName = entity.getCustomName().getString();
         LOGGER.info("Find entity Type");
         String entityType = entity.getType().getName().getString();
         LOGGER.info("player broadcast");
-        player.server.getPlayerManager().broadcast(Text.of("<" + entityCustomName
-                + " the " + entityType + "> " + message), false);
+        if (shouldBroadcast) {
+            player.server.getPlayerManager().broadcast(Text.of("<" + entityCustomName
+                    + " the " + entityType + "> " + message), false);
+        }
     }
 
     public static void setPending(UUID entityId) {
@@ -151,7 +163,7 @@ public class ClientSideEffects {
         ServerPackets.BroadcastEntityMessage(
                 new EntityChatDataLight(entityId, topMessage.message, getChatData(entityId).currentLineNumber, status,
                         topMessage.sender, getChatData(entityId).characterSheet, getChatData(entityId).players));
-        
+
     }
 
     public static void updateUUID(UUID oldUUID, UUID newUUID) {
@@ -160,7 +172,8 @@ public class ClientSideEffects {
 
     public static void setLineNumberUsingParamsFromChatData(UUID entityId, int lineNumber) {
         ChatMessage topMessage = getChatData(entityId).getTopMessage();
-        LOGGER.info("sideEffect/setLineNumber entityId={} lineNumber={} topMessage.message={}", entityId, lineNumber, topMessage.message);
+        LOGGER.info("sideEffect/setLineNumber entityId={} lineNumber={} topMessage.message={}", entityId, lineNumber,
+                topMessage.message);
         // // Ensure the lineNumber is within the valid range
         int totalLines = getChatData(entityId).getWrappedLines().size();
 
