@@ -5,9 +5,10 @@
 	"client": [
 		"EntityRendererMixin",
 		"MixinPlayerCustomTexture",
-                "MixinPlayerSkinTexture",
-                "ClientUIMixin",
-                "SoundOptionsScreenMixin"
+		"MixinPlayerSkinTexture",
+		"ClientUIMixin",
+		"SoundOptionsScreenMixin",
+		"GameOptionsScreenAccessor"
 	],
 	"env": {
 		"client.MixinPlayerCustomTexture": {
