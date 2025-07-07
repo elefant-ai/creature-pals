@@ -126,7 +126,7 @@ public class ClientSideEffects {
         Entity entity = ServerEntityFinder.getEntityByUUID(player.getServerWorld(),
                 entityId);
         LOGGER.info("Custom name");
-        if (entity.getCustomName() == null) {
+        if (entity == null || entity.getCustomName() == null) {
             return;
         }
         String entityCustomName = entity.getCustomName().getString();
