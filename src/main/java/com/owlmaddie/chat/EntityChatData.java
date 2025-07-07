@@ -235,13 +235,33 @@ public class EntityChatData {
         // Get Entity details
         MobEntity entity = (MobEntity) ServerEntityFinder.getEntityByUUID(player.getServerWorld(),
                 entityId);
-        if (entity.getCustomName() == null) {
-            contextData.put("entity_name", "");
+        PlayerData playerData = this.getPlayerData(player.getUuid());
+        if (playerData != null) {
+            contextData.put("entity_friendship", String.valueOf(playerData.friendship));
         } else {
-            contextData.put("entity_name", entity.getCustomName().getString());
+            contextData.put("entity_friendship", String.valueOf(0));
         }
-        contextData.put("entity_type", entity.getType().getName().getString());
-        contextData.put("entity_health", Math.round(entity.getHealth()) + "/" + Math.round(entity.getMaxHealth()));
+        if (entity == null) {
+            contextData.put("entity_name", Optional.ofNullable(getCharacterProp("name"))
+                    .filter(s -> !s.isEmpty())
+                    .orElse("N/A"));
+
+            return contextData;
+        }
+        else{
+            if (entity.getCustomName() == null) {
+                contextData.put("entity_name", "");
+            } else {
+                contextData.put("entity_name", entity.getCustomName().getString());
+            }
+            contextData.put("entity_type", entity.getType().getName().getString());
+            contextData.put("entity_health", Math.round(entity.getHealth()) + "/" + Math.round(entity.getMaxHealth()));
+            if (entity.age < 0) {
+                contextData.put("entity_maturity", "Baby");
+            } else {
+                contextData.put("entity_maturity", "Adult");
+            }
+        }
         contextData.put("entity_personality", getCharacterProp("Personality"));
         contextData.put("entity_speaking_style", getCharacterProp("Speaking Style / Tone"));
         contextData.put("entity_likes", getCharacterProp("Likes"));
@@ -251,19 +271,6 @@ public class EntityChatData {
         contextData.put("entity_class", getCharacterProp("Class"));
         contextData.put("entity_skills", getCharacterProp("Skills"));
         contextData.put("entity_background", getCharacterProp("Background"));
-        if (entity.age < 0) {
-            contextData.put("entity_maturity", "Baby");
-        } else {
-            contextData.put("entity_maturity", "Adult");
-        }
-
-        PlayerData playerData = this.getPlayerData(player.getUuid());
-        if (playerData != null) {
-            contextData.put("entity_friendship", String.valueOf(playerData.friendship));
-        } else {
-            contextData.put("entity_friendship", String.valueOf(0));
-        }
-
         return contextData;
     }
 
@@ -284,9 +291,9 @@ public class EntityChatData {
         Map<String, String> contextData = getPlayerContext(player, userLanguage, config);
 
         ChatGPTRequest.fetchMessageFromChatGPT(config, promptText, contextData, previousMessages, false,
-                // "Reminder: Respond with a empty message only when \\\"\\\" you detect a lot of repetitive content in conversations (multiple byes, etc.)."
-                ""
-        )
+                // "Reminder: Respond with a empty message only when \\\"\\\" you detect a lot
+                // of repetitive content in conversations (multiple byes, etc.)."
+                "")
                 .thenAccept(ent_msg -> {
                     try {
                         if (ent_msg == null) {
@@ -302,14 +309,17 @@ public class EntityChatData {
     public static String truncateString(String input, int maxLength) {
         return input.length() > maxLength ? input.substring(0, maxLength - 3) + "..." : input;
     }
-    public void setError(String errorMSg){
-        errorMessage = new ChatMessage(errorMSg, ChatDataManager.ChatSender.ASSISTANT, lastPlayer != null? lastPlayer.getName().getString() : "");
+
+    public void setError(String errorMSg) {
+        errorMessage = new ChatMessage(errorMSg, ChatDataManager.ChatSender.ASSISTANT,
+                lastPlayer != null ? lastPlayer.getName().getString() : "");
     }
-    public ChatMessage getTopMessage(){
-        if(errorMessage!=null){
+
+    public ChatMessage getTopMessage() {
+        if (errorMessage != null) {
             return errorMessage;
         }
-        ChatMessage top =  previousMessages.get(previousMessages.size() -1);
+        ChatMessage top = previousMessages.get(previousMessages.size() - 1);
         String newMessage = MessageParser.parseMessage(top.message.replace("\n", " ")).getCleanedMessage();
         return new ChatMessage(newMessage, top.sender, top.name);
     }
@@ -385,7 +395,6 @@ public class EntityChatData {
         return lastPlayer;
     }
 
-    
     // // Broadcast to all players
     // ServerPackets.BroadcastEntityMessage(this);
     // }
