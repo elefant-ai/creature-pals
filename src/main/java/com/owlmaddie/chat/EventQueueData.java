@@ -20,8 +20,10 @@ import com.owlmaddie.commands.ConfigurationHandler;
 import com.owlmaddie.network.ServerPackets;
 import com.owlmaddie.utils.ServerEntityFinder;
 
+import net.minecraft.block.entity.VaultBlockEntity.Server;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 
 public class EventQueueData {
     public static final Logger LOGGER = LoggerFactory.getLogger("creaturechat");
@@ -47,6 +49,11 @@ public class EventQueueData {
         Response,
         NOOP
     };
+
+    public void updateUUID(UUID newId, Entity newEntity) {
+        entityId = newId;
+        entity = newEntity;
+    }
 
     private EntityChatData getChatData() {
         return ChatDataManager.getServerInstance().getOrCreateChatData(entityId);
@@ -122,7 +129,7 @@ public class EventQueueData {
             TriConsumer<String, Boolean, ServerPlayerEntity> onCharacterSheetAndShouldGreet) {
         lastProcessTime = System.nanoTime();
         isProcessing = true;
-        if(player == null){
+        if (player == null) {
             throw new RuntimeException("Player is null!!!");
         }
         switch (getAction()) {
@@ -170,9 +177,10 @@ public class EventQueueData {
         llmQueue = new ArrayDeque<>();
     }
 
-    public int getPriority(){
+    public int getPriority() {
         return greetingRequested ? 1 : 0;
     }
+
     private void generateCharacterSheet(Consumer<String> onCharacterSheet, Consumer<String> onError) {
         MessageData greetingMessage = MessageData.genCharacterAndOrGreetingMessage(userLanguage, this.player, entity);
         String systemPrompt = "system-character";
@@ -189,7 +197,7 @@ public class EventQueueData {
                     try {
                         if (char_sheet == null) {
                             throw new RuntimeException(
-                                   ChatGPTRequest.lastErrorMessage + "(gen character sheet)");
+                                    ChatGPTRequest.lastErrorMessage + "(gen character sheet)");
                         }
                         LOGGER.info("Generated Character sheet:" + char_sheet);
                         onCharacterSheet.accept(char_sheet);

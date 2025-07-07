@@ -1,6 +1,8 @@
 package com.owlmaddie.mixin;
 
 import com.owlmaddie.chat.ChatDataManager;
+import com.owlmaddie.chat.EventQueueData;
+import com.owlmaddie.chat.EventQueueManager;
 import com.owlmaddie.components.Components;
 import net.minecraft.entity.Bucketable;
 import net.minecraft.entity.mob.MobEntity;
@@ -45,6 +47,7 @@ public interface MixinBucketable {
             UUID originalUUID = UUID.fromString(originalUUIDString);
             LOGGER.info("Duplicating bucketed chat data for original UUID (" + originalUUID + ") to cloned entity: (" + newUUID + ")");
             ChatDataManager.getServerInstance().updateUUID(originalUUID, newUUID);
+            EventQueueManager.updateUUID(originalUUID, newUUID, entity);
         }
     }
 }
