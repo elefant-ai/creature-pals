@@ -19,7 +19,7 @@ public final class ClientUIMixin {
             at = @At("TAIL")
     )
     private void clientRender(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
-        TTSToggleButton.render(context);
+        // TTSToggleButton.render(context);
     }
 
 

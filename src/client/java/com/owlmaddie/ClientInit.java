@@ -53,9 +53,9 @@ public class ClientInit implements ClientModInitializer {
             // AAA add client ontick handlers here
             HeartbeatManager.injectIntoOnTick();
             // STT.handleTick();
-            if(TTSToggleButton.tick()){
-                TTS.enabled = !TTS.enabled;
-            }
+            // if(TTSToggleButton.tick()){
+            //     TTS.enabled = !TTS.enabled;
+            // }
 
         });
 

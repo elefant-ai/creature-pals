@@ -5,8 +5,9 @@
 	"client": [
 		"EntityRendererMixin",
 		"MixinPlayerCustomTexture",
-		"MixinPlayerSkinTexture",
-		"ClientUIMixin"
+                "MixinPlayerSkinTexture",
+                "ClientUIMixin",
+                "GameOptionsScreenMixin"
 	],
 	"env": {
 		"client.MixinPlayerCustomTexture": {
