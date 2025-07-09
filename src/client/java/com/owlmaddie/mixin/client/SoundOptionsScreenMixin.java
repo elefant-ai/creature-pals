@@ -3,10 +3,10 @@ package com.owlmaddie.mixin.client;
 import com.owlmaddie.player2.TTS;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.option.SoundOptionsScreen;
-import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.OptionListWidget;
+import net.minecraft.client.option.SimpleOption;
 import net.minecraft.text.Text;
-import com.owlmaddie.mixin.client.GameOptionsScreenAccessor;
+import com.owlmaddie.mixin.client.SoundOptionsScreenAccessor;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -15,14 +15,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(SoundOptionsScreen.class)
 public abstract class SoundOptionsScreenMixin extends Screen {
     private SoundOptionsScreenMixin(Text title) { super(title); }
-    @Inject(method = "addOptions", at = @At("TAIL"))
+    @Inject(method = "init", at = @At("TAIL"))
     private void creaturechat$addTTSOption(CallbackInfo ci) {
-        OptionListWidget list = ((GameOptionsScreenAccessor)this).creaturechat$getBody();
-        ButtonWidget ttsButton = ButtonWidget.builder(getTTSLabel(), button -> {
-            TTS.enabled = !TTS.enabled;
-            button.setMessage(getTTSLabel());
-        }).width(150).build();
-        list.addWidgetEntry(ttsButton, null);
+        OptionListWidget list = ((SoundOptionsScreenAccessor)this).creaturechat$getOptionButtons();
+        SimpleOption<Boolean> ttsOption = SimpleOption.ofBoolean("options.creaturechat.tts", TTS.enabled, value -> TTS.enabled = value);
+        list.addSingleOptionEntry(ttsOption);
     }
 
     private Text getTTSLabel() {

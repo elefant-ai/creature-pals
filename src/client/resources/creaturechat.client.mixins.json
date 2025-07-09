@@ -6,9 +6,9 @@
 		"EntityRendererMixin",
 		"MixinPlayerCustomTexture",
 		"MixinPlayerSkinTexture",
-		"ClientUIMixin",
-		"SoundOptionsScreenMixin",
-		"GameOptionsScreenAccessor"
+                "ClientUIMixin",
+                "SoundOptionsScreenMixin",
+                "SoundOptionsScreenAccessor"
 	],
 	"env": {
 		"client.MixinPlayerCustomTexture": {
@@ -20,5 +20,4 @@
 	},
 	"injectors": {
 		"defaultRequire": 1
-	}
-}
+	}}

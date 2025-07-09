@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
-import net.minecraft.client.render.RenderTickCounter;
 
 @Mixin(InGameHud.class)
 public final class ClientUIMixin {
@@ -18,8 +17,7 @@ public final class ClientUIMixin {
             method = "render",
             at = @At("TAIL")
     )
-    private void clientRender(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
+    private void clientRender(DrawContext context, float tickDelta, CallbackInfo ci) {
         // TTSToggleButton.render(context);
     }
-
 }
