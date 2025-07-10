@@ -18,7 +18,7 @@ public abstract class SoundOptionsScreenMixin extends Screen {
     @Inject(method = "init", at = @At("TAIL"))
     private void creaturechat$addTTSOption(CallbackInfo ci) {
         OptionListWidget list = ((SoundOptionsScreenAccessor)this).creaturechat$getOptionButtons();
-        SimpleOption<Boolean> ttsOption = SimpleOption.ofBoolean("options.creaturechat.tts", TTS.enabled, value -> TTS.enabled = value);
+        SimpleOption<Boolean> ttsOption = SimpleOption.ofBoolean("Creaturechat TTS", TTS.enabled, value -> TTS.enabled = value);
         list.addSingleOptionEntry(ttsOption);
     }
 
