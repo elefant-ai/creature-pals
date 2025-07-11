@@ -1,7 +1,7 @@
 package com.owlmaddie.components;
 
 import com.mojang.serialization.Codec;
-import com.owlmaddie.commands.Creature PalsCommands;
+import com.owlmaddie.commands.CreaturePalsCommands;
 import net.minecraft.component.ComponentType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -15,7 +15,7 @@ public class Components {
             ComponentType.<String>builder().codec(Codec.STRING).build()
     );
     protected static void initialize() {
-        Creature PalsCommands.LOGGER.info("Registering creaturepals components");
+        CreaturePalsCommands.LOGGER.info("Registering creaturepals components");
         // Technically this method can stay empty, but some developers like to notify
         // the console, that certain parts of the mod have been successfully initialized
 

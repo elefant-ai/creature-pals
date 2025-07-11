@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  * The {@code Creature PalsCommands} class registers custom commands to set new API key, model, and url.
  * Permission level set to 4 (server owner), since this deals with API keys and potential costs.
  */
-public class Creature PalsCommands {
+public class CreaturePalsCommands {
     public static final Logger LOGGER = LoggerFactory.getLogger("creaturepals");
 
     public static void register() {
