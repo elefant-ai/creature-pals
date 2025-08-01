@@ -68,7 +68,7 @@ public class ConfigurationHandler {
 
     public static class Config {
         private String apiKey = "";
-        private String url = "https://api.openai.com/v1/chat/completions";
+        private String url = "http://127.0.0.1:4315/v1/chat/completions";
         private String model = "gpt-3.5-turbo";
         private int maxContextTokens = 16385;
         private int maxOutputTokens = 200;
