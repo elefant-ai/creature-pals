@@ -41,14 +41,14 @@ public class ChatGPTRequest {
         List<ChatGPTRequestMessage> messages;
         ResponseFormat response_format;
         float temperature;
-        int max_tokens;
+        // int max_tokens;
         boolean stream;
 
         public ChatGPTRequestPayload(String model, List<ChatGPTRequestMessage> messages, Boolean jsonMode, float temperature, int maxTokens) {
             this.model = model;
             this.messages = messages;
             this.temperature = temperature;
-            this.max_tokens = maxTokens;
+            // this.max_tokens = maxTokens;
             this.stream = false;
             if (jsonMode) {
                 this.response_format = new ResponseFormat("json_object");
