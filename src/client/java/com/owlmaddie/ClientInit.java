@@ -8,6 +8,7 @@ import com.owlmaddie.network.ClientPackets;
 import com.owlmaddie.particle.CreatureParticleFactory;
 import com.owlmaddie.particle.LeadParticleFactory;
 import com.owlmaddie.particle.Particles;
+import com.owlmaddie.player2.HeartbeatManager;
 import com.owlmaddie.ui.BubbleRenderer;
 import com.owlmaddie.ui.ClickHandler;
 import com.owlmaddie.ui.InventoryKeyHandler;
@@ -48,6 +49,7 @@ public class ClientInit implements ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             tickCounter++;
             PlayerMessageManager.tickUpdate();
+            HeartbeatManager.injectIntoOnTick();
         });
 
         // Register events

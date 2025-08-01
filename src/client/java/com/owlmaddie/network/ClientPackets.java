@@ -6,6 +6,8 @@ package com.owlmaddie.network;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.owlmaddie.chat.ChatDataManager;
+import com.owlmaddie.chat.ChatDataManager.ChatSender;
+import com.owlmaddie.chat.ChatDataManager.ChatStatus;
 import com.owlmaddie.chat.EntityChatData;
 import com.owlmaddie.chat.PlayerData;
 import com.owlmaddie.ui.BubbleRenderer;
@@ -25,6 +27,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
+import com.owlmaddie.player2.TTS;
 
 /**
  * The {@code ClientPackets} class provides methods to send packets to/from the server for generating greetings,
@@ -145,6 +148,13 @@ public class ClientPackets {
                 Mob entity = ClientEntityFinder.getEntityByUUID(client.level, entityId);
                 if (entity != null) {
                     playNearbyUISound(client, entity, 0.2f);
+                }
+                if(status == ChatStatus.DISPLAY && chatData.sender == ChatSender.ASSISTANT){
+                    if(message.contains("Error:")){
+                        // for now skip error
+                        return;
+                    }
+                    TTS.speak(message, entityId);
                 }
             });
         });
