@@ -4,6 +4,7 @@
 package com.owlmaddie.mixin;
 
 import com.owlmaddie.chat.EntityChatData;
+import com.owlmaddie.chat.EventQueueManager;
 import com.owlmaddie.commands.ConfigurationHandler;
 import com.owlmaddie.network.ServerPackets;
 import net.minecraft.network.protocol.game.ServerboundChatPacket;
@@ -17,7 +18,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import static com.owlmaddie.network.ServerPackets.BroadcastPlayerMessage;
 
 /**
- * The {@code MixinOnChat} mixin class intercepts chat messages from players, and broadcasts them as chat bubbles
+ * The {@code MixinOnChat} mixin class intercepts chat messages from players,
+ * and broadcasts them as chat bubbles
  */
 @Mixin(ServerGamePacketListenerImpl.class)
 public abstract class MixinOnChat {
@@ -40,7 +42,10 @@ public abstract class MixinOnChat {
             BroadcastPlayerMessage(chatData, player);
 
             // Optionally, cancel the event to prevent the default behavior
-            //ci.cancel();
+            // ci.cancel();
+            String userLanguage = "english"; // TODO: Changeme
+            // String userLanguage = player.get
+            EventQueueManager.addUserMessageToAllClose(userLanguage, player, chatMessage, false);
         }
     }
 }

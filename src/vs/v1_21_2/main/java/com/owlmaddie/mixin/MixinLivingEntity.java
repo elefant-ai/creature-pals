@@ -5,6 +5,7 @@ package com.owlmaddie.mixin;
 
 import com.owlmaddie.chat.ChatDataManager;
 import com.owlmaddie.chat.EntityChatData;
+import com.owlmaddie.chat.EventQueueManager;
 import com.owlmaddie.chat.PlayerData;
 import com.owlmaddie.network.ServerPackets;
 import net.minecraft.network.chat.Component;
@@ -95,7 +96,8 @@ public class MixinLivingEntity {
                 String msg = "<" + player.getName().getString()
                         + " attacked you " + directness
                         + " " + weaponName + ">";
-                ServerPackets.generate_chat("N/A", data, serverPlayer, mob, msg, true);
+                EventQueueManager.addUserMessage(attacker, "N/A", (ServerPlayer) player,
+                            msg, true);
             }
         }
     }
