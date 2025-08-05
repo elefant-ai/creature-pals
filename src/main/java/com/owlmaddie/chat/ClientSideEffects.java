@@ -68,7 +68,7 @@ public class ClientSideEffects {
         }
         String shortGreeting = Optional.ofNullable(getChatData(UUID.fromString(entityId)).getCharacterProp("short greeting"))
                 .filter(s -> !s.isEmpty())
-                .orElse(Randomizer.getRandomMessage(Randomizer.RandomType.NO_RESPONSE))
+                .orElse(Randomizer.getRandomMessage(Randomizer.RandomType.ALIGNMENT))
                 .replace("\n", " ");
         setNameOfEntity(entityId, characterName);
         if (shouldGreet) {
@@ -134,7 +134,8 @@ public class ClientSideEffects {
         }
         String entityCustomName = entity.getCustomName().getString();
         LOGGER.info("Find entity Type");
-        String entityType = entity.getType().toString();
+        String entityType = entity.getType().toShortString();
+        
         LOGGER.info("player broadcast");
         if (shouldBroadcast) {
             ServerPackets.BroadcastMessage(Component.literal("<" + entityCustomName

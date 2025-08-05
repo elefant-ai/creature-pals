@@ -23,6 +23,7 @@ public class CCText {
     public static final TR CONFIG_CHATBUBBLE_UPDATE_FAILED = new TR("config.chatbubble.update_failed", "Failed to update player chat bubble setting.");
     public static final TR CONFIG_HELP = new TR("config.help",
             "Commands:\n" +
+            " /creaturechat tts set <on | off> - Sets text to speech (TTS)\n" +
             " /creaturechat key set <value> [--config default|server]\n" +
             " /creaturechat url set <value> [--config default|server]\n" +
             " /creaturechat model set <value> [--config default|server]\n" +

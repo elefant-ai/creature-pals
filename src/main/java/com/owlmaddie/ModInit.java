@@ -3,10 +3,13 @@
 // Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
 package com.owlmaddie;
 
+import com.owlmaddie.chat.EventQueueManager;
 import com.owlmaddie.commands.CreatureChatCommands;
 import com.owlmaddie.inventory.ModMenus;
 import com.owlmaddie.network.ServerPackets;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,5 +36,9 @@ public class ModInit implements ModInitializer {
                 ServerPackets.register();
 
 		LOGGER.info("CreatureChat MOD Initialized!");
+
+		ServerTickEvents.END_SERVER_TICK.register(server -> {
+			EventQueueManager.injectOnServerTick(server);
+		});
 	}
 }

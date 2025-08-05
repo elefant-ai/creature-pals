@@ -7,6 +7,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.owlmaddie.commands.ConfigurationHandler;
 import com.owlmaddie.network.ServerPackets;
+import com.owlmaddie.utils.SerializationGSON;
+
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.storage.LevelResource;
@@ -28,7 +30,7 @@ public class ChatDataManager {
     // Use a static instance to manage our data globally
     private static final ChatDataManager SERVER_INSTANCE = new ChatDataManager(true);
     private static final ChatDataManager CLIENT_INSTANCE = new ChatDataManager(false);
-    public static final Logger LOGGER = LoggerFactory.getLogger("creaturechat");
+    public static final Logger LOGGER = LoggerFactory.getLogger("creaturepals");
     public static int MAX_CHAR_PER_LINE = 20;
     public static int DISPLAY_NUM_LINES = 3;
     public static int MAX_CHAR_IN_USER_MESSAGE = 512;
@@ -140,7 +142,7 @@ public class ChatDataManager {
             // Create "light" version of entire chat data HashMap
             HashMap<String, EntityChatDataLight> lightVersionMap = new HashMap<>();
             this.entityChatDataMap.forEach((name, entityChatData) -> lightVersionMap.put(name, entityChatData.toLightVersion(playerId)));
-            return GSON.toJson(lightVersionMap);
+            return SerializationGSON.GSON.toJson(lightVersionMap);
         } catch (Exception e) {
             // Handle exceptions
             return "";
@@ -156,7 +158,7 @@ public class ChatDataManager {
         entityChatDataMap.values().removeIf(entityChatData -> entityChatData.status == ChatStatus.NONE);
 
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(saveFile), StandardCharsets.UTF_8)) {
-            GSON.toJson(this.entityChatDataMap, writer);
+            SerializationGSON.GSON.toJson(this.entityChatDataMap, writer);
         } catch (Exception e) {
             String errorMessage = "Error saving `chatdata.json`. No CreatureChat chat history was saved! " + e.getMessage();
             LOGGER.error(errorMessage, e);
@@ -172,7 +174,7 @@ public class ChatDataManager {
         if (loadFile.exists()) {
             try (InputStreamReader reader = new InputStreamReader(new FileInputStream(loadFile), StandardCharsets.UTF_8)) {
                 Type type = new TypeToken<ConcurrentHashMap<String, EntityChatData>>(){}.getType();
-                this.entityChatDataMap = GSON.fromJson(reader, type);
+                this.entityChatDataMap = SerializationGSON.GSON.fromJson(reader, type);
 
                 // Clean up blank, temp entities in data
                 entityChatDataMap.values().removeIf(entityChatData -> entityChatData.status == ChatStatus.NONE);
