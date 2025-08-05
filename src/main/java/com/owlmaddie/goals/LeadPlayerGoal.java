@@ -6,6 +6,7 @@ package com.owlmaddie.goals;
 import com.owlmaddie.chat.ChatDataManager;
 import com.owlmaddie.chat.EntityChatData;
 import com.owlmaddie.chat.AdvancementHelper;
+import com.owlmaddie.chat.EventQueueManager;
 import com.owlmaddie.controls.LookControls;
 import com.owlmaddie.network.ServerPackets;
 import com.owlmaddie.particle.LeadParticleEffect;
@@ -28,7 +29,7 @@ import net.minecraft.world.phys.Vec3;
  * of many random waypoints. It supports PathAware and NonPathAware entities.
  */
 public class LeadPlayerGoal extends PlayerBaseGoal {
-    public static final Logger LOGGER = LoggerFactory.getLogger("creaturechat");
+    public static final Logger LOGGER = LoggerFactory.getLogger("creaturepals");
     private final Mob entity;
     private final double speed;
     private final Random random = new Random();
@@ -83,7 +84,8 @@ public class LeadPlayerGoal extends PlayerBaseGoal {
                 ChatDataManager chatDataManager = ChatDataManager.getServerInstance();
                 EntityChatData chatData = chatDataManager.getOrCreateChatData(this.entity.getStringUUID());
                 if (!chatData.characterSheet.isEmpty()) {
-                    ServerPackets.generate_chat("N/A", chatData, (ServerPlayer) this.targetEntity, this.entity, arrivedMessage, true);
+                    EventQueueManager.addUserMessage(entity, "N/A", (ServerPlayer) this.targetEntity,
+                            arrivedMessage, true);
                 }
             });
 

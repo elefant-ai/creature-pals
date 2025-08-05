@@ -77,7 +77,7 @@ public class ChatGPTRequestErrorTests {
 
     private void executeRequest(ConfigurationHandler.Config config) {
         CompletableFuture<String> future = ChatGPTRequest.fetchMessageFromChatGPT(
-                config, "", new HashMap<>(), new ArrayList<>(), false);
+                config, "", new HashMap<>(), new ArrayList<>(), false, "");
         future.join();
     }
 

@@ -12,6 +12,7 @@ import com.owlmaddie.message.MessageParser;
 import com.owlmaddie.message.ParsedMessage;
 import com.owlmaddie.utils.EntityTestData;
 import com.owlmaddie.utils.RateLimiter;
+import net.minecraft.server.MinecraftServer;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +87,7 @@ public class BehaviorTests {
     static Path worldPath = Paths.get(RESOURCE_PATH, "worlds", "world.json");
     static Map<String, Map<String, String>> outputData;
 
-    static Logger LOGGER = LoggerFactory.getLogger("creaturechat");
+    static Logger LOGGER = LoggerFactory.getLogger("creaturepals");
     static Gson gson = new GsonBuilder().create();
 
     @AfterAll
@@ -101,22 +102,7 @@ public class BehaviorTests {
     @BeforeAll
     public static void setup() {
         // Get API key from env var
-        API_KEY = System.getenv("API_KEY");
-        API_URL = System.getenv("API_URL");
-        API_MODEL = System.getenv("API_MODEL");
-
-        // Config
-        config = new ConfigurationHandler.Config();
-        config.setTimeout(0);
-        if (API_KEY != null && !API_KEY.isEmpty()) {
-            config.setApiKey(API_KEY);
-        }
-        if (API_URL != null && !API_URL.isEmpty()) {
-            config.setUrl(API_URL);
-        }
-        if (API_MODEL != null && !API_MODEL.isEmpty()) {
-            config.setModel(API_MODEL);
-        }
+        config = new ConfigurationHandler().loadConfig();
         // Verify API key is set correctly
         assertNotNull(API_KEY, NO_API_KEY);
 
@@ -243,7 +229,7 @@ public class BehaviorTests {
 
                 // Fetch HTTP response from ChatGPT
                 CompletableFuture<String> future = ChatGPTRequest.fetchMessageFromChatGPT(
-                        config, promptText, contextData, entityTestData.previousMessages, false);
+                        config, promptText, contextData, entityTestData.previousMessages, false, "");
 
                 try {
                     String outputMessage = future.get(60 * 60, TimeUnit.SECONDS);

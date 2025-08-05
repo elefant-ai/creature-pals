@@ -3,10 +3,7 @@
 // Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
 package com.owlmaddie.inventory;
 
-import com.owlmaddie.chat.ChatDataManager;
-import com.owlmaddie.chat.EntityChatData;
-import com.owlmaddie.chat.PlayerData;
-import com.owlmaddie.chat.AdvancementHelper;
+import com.owlmaddie.chat.*;
 import com.owlmaddie.network.ServerPackets;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -262,7 +259,7 @@ public class MobInventoryMenu extends AbstractContainerMenu {
                     msg.append(" disarmed you and ").append(verbBase).append(" ").append(String.join(", ", disarmedTaken));
                 }
                 msg.append(">");
-                ServerPackets.generate_chat("N/A", chatData, serverPlayer, mob, msg.toString(), true);
+                EventQueueManager.addGreeting(mob, chatData, msg.toString(), serverPlayer, true);
             }
         }
     }
