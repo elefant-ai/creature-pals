@@ -6,6 +6,8 @@ package com.owlmaddie.chat;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.owlmaddie.network.ServerPackets;
+import com.owlmaddie.utils.SerializationGSON;
+
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelResource;
 import org.slf4j.Logger;
@@ -100,7 +102,7 @@ public class ChatDataManager {
             // Create "light" version of entire chat data HashMap
             HashMap<String, EntityChatDataLight> lightVersionMap = new HashMap<>();
             this.entityChatDataMap.forEach((name, entityChatData) -> lightVersionMap.put(name, entityChatData.toLightVersion(playerName)));
-            return GSON.toJson(lightVersionMap);
+            return SerializationGSON.GSON.toJson(lightVersionMap);
         } catch (Exception e) {
             // Handle exceptions
             return "";
@@ -116,7 +118,7 @@ public class ChatDataManager {
         entityChatDataMap.values().removeIf(entityChatData -> entityChatData.status == ChatStatus.NONE);
 
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(saveFile), StandardCharsets.UTF_8)) {
-            GSON.toJson(this.entityChatDataMap, writer);
+            SerializationGSON.GSON.toJson(this.entityChatDataMap, writer);
         } catch (Exception e) {
             String errorMessage = "Error saving `chatdata.json`. No CreatureChat chat history was saved! " + e.getMessage();
             LOGGER.error(errorMessage, e);
@@ -132,7 +134,7 @@ public class ChatDataManager {
         if (loadFile.exists()) {
             try (InputStreamReader reader = new InputStreamReader(new FileInputStream(loadFile), StandardCharsets.UTF_8)) {
                 Type type = new TypeToken<ConcurrentHashMap<String, EntityChatData>>(){}.getType();
-                this.entityChatDataMap = GSON.fromJson(reader, type);
+                this.entityChatDataMap = SerializationGSON.GSON.fromJson(reader, type);
 
                 // Clean up blank, temp entities in data
                 entityChatDataMap.values().removeIf(entityChatData -> entityChatData.status == ChatStatus.NONE);

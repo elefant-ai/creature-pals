@@ -134,7 +134,8 @@ public class ClientSideEffects {
         }
         String entityCustomName = entity.getCustomName().getString();
         LOGGER.info("Find entity Type");
-        String entityType = entity.getType().toString();
+        String entityType = entity.getType().toShortString();
+        
         LOGGER.info("player broadcast");
         if (shouldBroadcast) {
             ServerPackets.BroadcastMessage(Component.literal("<" + entityCustomName

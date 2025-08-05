@@ -180,6 +180,7 @@ public class EventQueueManager {
         addingEntityQueues = true; // if dont have this, then will first create queue data and poll before
         ServerEntityFinder.getCloseEntities(player.level(), player, 6).stream().filter(
                 (e) -> !(e instanceof Player)).forEach((e) -> {
+                    LOGGER.info("Sending user msg={} to ent_id={}", userMessage, e.getStringUUID());
                     // adding user message.
                     getOrCreateQueueData(e.getStringUUID(), e);
                     addUserMessage(e, userLanguage, player, userMessage, is_auto_message);
