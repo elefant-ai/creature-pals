@@ -11,6 +11,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.owlmaddie.Player2.TTS;
 import com.owlmaddie.chat.ChatDataManager.ChatSender;
 import com.owlmaddie.chat.ChatDataManager.ChatStatus;
 import com.owlmaddie.message.MessageParser;
@@ -141,6 +142,7 @@ public class ClientSideEffects {
             ServerPackets.BroadcastMessage(Component.literal("<" + entityCustomName
                     + " the " + entityType + "> " + message));
         }
+        TTS.speak(message, UUID.fromString(entityId));
     }
 
     public static void setPending(String entityId) {

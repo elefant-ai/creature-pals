@@ -1,4 +1,4 @@
-package com.owlmaddie.player2;
+package com.owlmaddie.Player2;
 
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -13,7 +13,6 @@ import com.google.gson.*;
 import java.io.*;
 import java.net.URL;
 import java.util.Map;
-import java.util.UUID;
 
 public class Player2APIService {
 

@@ -48,6 +48,7 @@ import static com.owlmaddie.particle.Particles.*;
  * and the status of the current displayed message.
  */
 public class EntityChatData {
+    @Expose(serialize = false, deserialize = false)
     public static final Logger LOGGER = LoggerFactory.getLogger("creaturepals");
 
     @Expose
