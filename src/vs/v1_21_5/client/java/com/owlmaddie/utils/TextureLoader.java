@@ -25,7 +25,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
  * Modified for 1.21.5.
  */
 public class TextureLoader {
-    private static final Logger LOGGER = LoggerFactory.getLogger("creaturechat");
+    private static final Logger LOGGER = LoggerFactory.getLogger("creaturepals");
     private static final Set<String> missing = new HashSet<>();
     public static GpuTexture lastTexture = null;
     public static ResourceLocation lastTextureId = null;
@@ -33,19 +33,19 @@ public class TextureLoader {
     public TextureLoader() {}
 
     /**
-     * Load and bind a UI texture (assets/creaturechat/textures/ui/{name}.png).
+     * Load and bind a UI texture (assets/creaturepals/textures/ui/{name}.png).
      * Returns the Identifier if found, or null if missing.
      */
     public ResourceLocation GetUI(String name) {
-        return load(new ResourceLocation("creaturechat", "textures/ui/" + name + ".png"));
+        return load(new ResourceLocation("creaturepals", "textures/ui/" + name + ".png"));
     }
 
     /**
-     * Load and bind an entity texture (assets/creaturechat/{texturePath}).
+     * Load and bind an entity texture (assets/creaturepals/{texturePath}).
      * Returns the Identifier if found, or falls back to not_found.png.
      */
     public ResourceLocation GetEntity(String texturePath) {
-        ResourceLocation id = new ResourceLocation("creaturechat", texturePath);
+        ResourceLocation id = new ResourceLocation("creaturepals", texturePath);
         ResourceManager rm = Minecraft.getInstance().getResourceManager();
         if (rm.getResource(id).isPresent()) {
             return load(id);
@@ -53,7 +53,7 @@ public class TextureLoader {
             if (missing.add(texturePath)) {
                 LOGGER.info("Missing texture: {}", texturePath);
             }
-            return load(new ResourceLocation("creaturechat", "textures/entity/not_found.png"));
+            return load(new ResourceLocation("creaturepals", "textures/entity/not_found.png"));
         }
     }
 

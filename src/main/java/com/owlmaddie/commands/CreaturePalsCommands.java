@@ -34,8 +34,8 @@ import java.util.stream.Collectors;
  * The {@code CreatureChatCommands} class registers custom commands to set new API key, model, and url.
  * Permission level set to 4 (server owner), since this deals with API keys and potential costs.
  */
-public class CreatureChatCommands {
-    public static final Logger LOGGER = LoggerFactory.getLogger("creaturechat");
+public class CreaturePalsCommands {
+    public static final Logger LOGGER = LoggerFactory.getLogger("creaturepals");
 
     public static void register() {
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
@@ -45,7 +45,7 @@ public class CreatureChatCommands {
     }
 
     public static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(Commands.literal("creaturechat")
+        dispatcher.register(Commands.literal("creaturepals")
                 .then(registerSetCommand("key", "API Key", StringArgumentType.string()))
                 .then(registerSetCommand("url", "URL", StringArgumentType.string()))
                 .then(registerSetCommand("model", "Model", StringArgumentType.string()))
@@ -179,16 +179,16 @@ public class CreatureChatCommands {
     private static LiteralArgumentBuilder<CommandSourceStack> registerHelpCommand() {
         return Commands.literal("help")
                 .executes(context -> {
-                    String helpMessage = "Usage of CreatureChat Commands:\n"
-                            + "/creaturechat tts set <on | off> - Sets text to speech (TTS)"
-                            + "/creaturechat key set <key> - Sets the API key\n"
-                            + "/creaturechat url set \"<url>\" - Sets the URL\n"
-                            + "/creaturechat model set <model> - Sets the model\n"
-                            + "/creaturechat timeout set <seconds> - Sets the API timeout\n"
-                            + "/creaturechat story set \"<story>\" - Sets a custom story\n"
-                            + "/creaturechat chatbubbles set <on | off> - Show player chat bubbles\n"
-                            + "/creaturechat whitelist <entityType | all | clear> - Show chat bubbles\n"
-                            + "/creaturechat blacklist <entityType | all | clear> - Hide chat bubbles\n"
+                    String helpMessage = "Usage of CreaturePals Commands:\n"
+                            + "/creaturepals tts set <on | off> - Sets text to speech (TTS)"
+                            + "/creaturepals key set <key> - Sets the API key\n"
+                            + "/creaturepals url set \"<url>\" - Sets the URL\n"
+                            + "/creaturepals model set <model> - Sets the model\n"
+                            + "/creaturepals timeout set <seconds> - Sets the API timeout\n"
+                            + "/creaturepals story set \"<story>\" - Sets a custom story\n"
+                            + "/creaturepals chatbubbles set <on | off> - Show player chat bubbles\n"
+                            + "/creaturepals whitelist <entityType | all | clear> - Show chat bubbles\n"
+                            + "/creaturepals blacklist <entityType | all | clear> - Hide chat bubbles\n"
                             + "\n"
                             + "Optional: Append [--config default | server] to any command to specify configuration scope.\n"
                             + "\n"

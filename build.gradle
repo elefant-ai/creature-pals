@@ -17,7 +17,7 @@ afterEvaluate {
 
 	/* ------------------------------------------------------------------ */
 	logger.lifecycle ''
-	logger.lifecycle '======= CreatureChat version-specific sources ======='
+	logger.lifecycle '======= CreaturePals version-specific sources ======='
 
 	def mcVer  = VersionNumber.parse(project.minecraft_version)
 	def vsRoot = file('src/vs')
@@ -123,11 +123,11 @@ repositories {
 }
 
 loom {
-	accessWidenerPath = file("src/main/resources/creaturechat.accesswidener")
+	accessWidenerPath = file("src/main/resources/creaturepals.accesswidener")
 	splitEnvironmentSourceSets()
 
 	mods {
-		"creaturechat" {
+		"creaturepals" {
 			sourceSet sourceSets.main
 			sourceSet sourceSets.client
 		}

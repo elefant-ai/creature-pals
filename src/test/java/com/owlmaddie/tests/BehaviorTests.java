@@ -35,8 +35,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * and personality types. For example, an aggressive character will attack, a nervous character will flee, etc...
  */
 public class BehaviorTests {
-    static String PROMPT_PATH = "src/main/resources/data/creaturechat/prompts/";
-    static String RESOURCE_PATH = "src/test/resources/data/creaturechat/";
+    static String PROMPT_PATH = "src/main/resources/data/creaturepals/prompts/";
+    static String RESOURCE_PATH = "src/test/resources/data/creaturepals/";
     static String API_KEY = "";
     static String API_URL = "";
     static String API_MODEL = "";
@@ -86,7 +86,7 @@ public class BehaviorTests {
     static Path worldPath = Paths.get(RESOURCE_PATH, "worlds", "world.json");
     static Map<String, Map<String, String>> outputData;
 
-    static Logger LOGGER = LoggerFactory.getLogger("creaturechat");
+    static Logger LOGGER = LoggerFactory.getLogger("creaturepals");
     static Gson gson = new GsonBuilder().create();
 
     @AfterAll

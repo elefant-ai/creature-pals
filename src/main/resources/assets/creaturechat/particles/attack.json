@@ -1,8 +1,8 @@
 {
   "textures": [
-    "creaturechat:attack",
-    "creaturechat:attack1",
-    "creaturechat:attack2",
-    "creaturechat:attack3"
+    "creaturepals:attack",
+    "creaturepals:attack1",
+    "creaturepals:attack2",
+    "creaturepals:attack3"
   ]
 }

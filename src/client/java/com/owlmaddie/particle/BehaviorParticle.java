@@ -8,7 +8,7 @@ import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.TextureSheetParticle;
 
 /**
- * The {@code BehaviorParticle} class defines a custom CreatureChat behavior particle with an initial upward velocity
+ * The {@code BehaviorParticle} class defines a custom CreaturePals behavior particle with an initial upward velocity
  * that gradually decreases, ensuring it never moves downward.
  */
 public class BehaviorParticle extends TextureSheetParticle {

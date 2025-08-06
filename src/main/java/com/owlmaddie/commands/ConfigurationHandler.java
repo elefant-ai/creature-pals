@@ -27,14 +27,14 @@ import java.util.List;
  */
 
 public class ConfigurationHandler {
-    public static final Logger LOGGER = LoggerFactory.getLogger("creaturechat");
+    public static final Logger LOGGER = LoggerFactory.getLogger("creaturepals");
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private final Path serverConfigPath;
     private final Path defaultConfigPath;
 
     public ConfigurationHandler(MinecraftServer server) {
-        this.serverConfigPath = server.getWorldPath(LevelResource.ROOT).resolve("creaturechat.json");
-        this.defaultConfigPath = Paths.get(".", "creaturechat.json"); // Assumes the default location is the server root or a similar logical default
+        this.serverConfigPath = server.getWorldPath(LevelResource.ROOT).resolve("creaturepals.json");
+        this.defaultConfigPath = Paths.get(".", "creaturepals.json"); // Assumes the default location is the server root or a similar logical default
     }
 
     public Config loadConfig() {
@@ -51,7 +51,7 @@ public class ConfigurationHandler {
             gson.toJson(config, writer);
             return true;
         } catch (IOException e) {
-            String errorMessage = "Error saving `creaturechat.json`. CreatureChat config was not saved. " + e.getMessage();
+            String errorMessage = "Error saving `creaturepals.json`. CreaturePals config was not saved. " + e.getMessage();
             LOGGER.error(errorMessage, e);
             ServerPackets.sendErrorToAllOps(ServerPackets.serverInstance, errorMessage);
             return false;
