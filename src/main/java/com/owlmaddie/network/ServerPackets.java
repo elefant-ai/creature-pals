@@ -438,7 +438,7 @@ public class ServerPackets {
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             // Check if the player is an operator
             if (server.getPlayerList().isOp(player.getGameProfile())) {
-                ServerPackets.SendClickableError(player, message, "http://discord.creaturechat.com");
+                ServerPackets.SendClickableError(player, message, "https://player2.game/discord");
             }
         }
     }

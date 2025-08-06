@@ -23,17 +23,19 @@ public class CCText {
     public static final TR CONFIG_CHATBUBBLE_UPDATE_FAILED = new TR("config.chatbubble.update_failed", "Failed to update player chat bubble setting.");
     public static final TR CONFIG_HELP = new TR("config.help",
             "Commands:\n" +
-            " /creaturechat tts set <on | off> - Sets text to speech (TTS)\n" +
-            " /creaturechat key set <value> [--config default|server]\n" +
-            " /creaturechat url set <value> [--config default|server]\n" +
-            " /creaturechat model set <value> [--config default|server]\n" +
-            " /creaturechat timeout set <value> [--config default|server]\n" +
-            " /creaturechat story set <value> [--config default|server]\n" +
-            " /creaturechat story clear [--config default|server]\n" +
-            " /creaturechat story show\n" +
-            " /creaturechat whitelist <entity|all|clear> [--config default|server]\n" +
-            " /creaturechat blacklist <entity|all|clear> [--config default|server]\n" +
-            " /creaturechat chatbubble set <on|off> [--config default|server]\n" +
+            " /creaturepals tts set <on | off> - Sets text to speech (TTS)\n" +
+            " /creaturepals key set <key> - Sets the API key\n" +
+            " /creaturepals tts set <on | off> - Sets text to speech (TTS)\n" +
+            " /creaturepals key set <value> [--config default|server]\n" +
+            " /creaturepals url set <value> [--config default|server]\n" +
+            " /creaturepals model set <value> [--config default|server]\n" +
+            " /creaturepals timeout set <value> [--config default|server]\n" +
+            " /creaturepals story set <value> [--config default|server]\n" +
+            " /creaturepals story clear [--config default|server]\n" +
+            " /creaturepals story show\n" +
+            " /creaturepals whitelist <entity|all|clear> [--config default|server]\n" +
+            " /creaturepals blacklist <entity|all|clear> [--config default|server]\n" +
+            " /creaturepals chatbubble set <on|off> [--config default|server]\n" +
             "Optional: Append [--config default | server] to any command to specify configuration scope.\n\n" +
             "Security: Level 4 permission required.");
     public static final TR CONFIG_STORY_SET_SUCCESS = new TR("config.story.set_success", "Story set successfully: %s");

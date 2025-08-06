@@ -4,7 +4,7 @@
 package com.owlmaddie;
 
 import com.owlmaddie.chat.EventQueueManager;
-import com.owlmaddie.commands.CreatureChatCommands;
+import com.owlmaddie.commands.CreaturePalsCommands;
 import com.owlmaddie.inventory.ModMenus;
 import com.owlmaddie.network.ServerPackets;
 import net.fabricmc.api.ModInitializer;
@@ -19,8 +19,8 @@ import org.slf4j.LoggerFactory;
  * messages to the client.
  */
 public class ModInit implements ModInitializer {
-        public static final String MODID = "creaturechat";
-        public static final Logger LOGGER = LoggerFactory.getLogger(MODID);
+    public static final String MODID = "creaturepals";
+    public static final Logger LOGGER = LoggerFactory.getLogger(MODID);
 
 	@Override
 	public void onInitialize() {
@@ -28,14 +28,14 @@ public class ModInit implements ModInitializer {
 		// However, some things (like resources) may still be uninitialized.
 		// Proceed with mild caution.
 
-                // Register server commands
-                CreatureChatCommands.register();
+        // Register server commands
+		CreaturePalsCommands.register();
 
-                // Register menus and events
-                ModMenus.register();
-                ServerPackets.register();
+		// Register events
+        ModMenus.register();
+		ServerPackets.register();
 
-		LOGGER.info("CreatureChat MOD Initialized!");
+		LOGGER.info("CreaturePals MOD Initialized!");
 
 		ServerTickEvents.END_SERVER_TICK.register(server -> {
 			EventQueueManager.injectOnServerTick(server);

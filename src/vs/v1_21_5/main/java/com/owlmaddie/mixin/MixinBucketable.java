@@ -41,7 +41,7 @@ public interface MixinBucketable {
                 tag -> NbtCompoundHelper.putUuid(tag, "CCUUID", oldId)
         );
 
-        LoggerFactory.getLogger("creaturechat")
+        LoggerFactory.getLogger("creaturepals")
                 .info("[Bucket-Capture] stored {}", oldId);
     }
 
@@ -59,7 +59,7 @@ public interface MixinBucketable {
         ChatDataManager.getServerInstance()
                 .updateUUID(oldId.toString(), newId.toString());
 
-        LoggerFactory.getLogger("creaturechat")
+        LoggerFactory.getLogger("creaturepals")
                 .info("[Bucket-Release] chat {} → {}", oldId, newId);
     }
 }

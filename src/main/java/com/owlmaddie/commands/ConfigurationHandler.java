@@ -83,10 +83,6 @@ public class ConfigurationHandler {
         private List<String> whitelist = new ArrayList<>();
         private List<String> blacklist = new ArrayList<>();
         private String story = "";
-        private int maxPlayerAutoResponses = 10;
-        private int playerAutoCooldownSeconds = 3;
-        private int maxEntityAutoResponses = 3;
-        private int entityAutoCooldownSeconds = 3;
 
         // Getters and setters for existing fields
         public String getApiKey() { return apiKey; }
@@ -131,17 +127,5 @@ public class ConfigurationHandler {
         // Add getter and setter
         public boolean getChatBubbles() { return chatBubbles; }
         public void setChatBubbles(boolean chatBubblesEnabled) { this.chatBubbles = chatBubblesEnabled; }
-
-        public int getMaxPlayerAutoResponses() { return maxPlayerAutoResponses; }
-        public void setMaxPlayerAutoResponses(int maxPlayerAutoResponses) { this.maxPlayerAutoResponses = maxPlayerAutoResponses; }
-
-        public int getPlayerAutoCooldownSeconds() { return playerAutoCooldownSeconds; }
-        public void setPlayerAutoCooldownSeconds(int playerAutoCooldownSeconds) { this.playerAutoCooldownSeconds = playerAutoCooldownSeconds; }
-
-        public int getMaxEntityAutoResponses() { return maxEntityAutoResponses; }
-        public void setMaxEntityAutoResponses(int maxEntityAutoResponses) { this.maxEntityAutoResponses = maxEntityAutoResponses; }
-
-        public int getEntityAutoCooldownSeconds() { return entityAutoCooldownSeconds; }
-        public void setEntityAutoCooldownSeconds(int entityAutoCooldownSeconds) { this.entityAutoCooldownSeconds = entityAutoCooldownSeconds; }
     }
 }

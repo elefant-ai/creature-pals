@@ -5,7 +5,7 @@ set -e
 MODRINTH_API_KEY=${MODRINTH_API_KEY}
 CHANGELOG_FILE="./CHANGELOG.md"
 API_URL="https://api.modrinth.com/v2"
-USER_AGENT="CreatureChat-Minecraft-Mod:modrinth@owlmaddie.com"
+USER_AGENT="creaturepals-Minecraft-Mod:modrinth@owlmaddie.com"
 PROJECT_ID="rvR0de1E"
 AUTHOR_ID="k6RiShdd"
 SLEEP_DURATION=5
@@ -29,11 +29,11 @@ echo "$VERSION"
 echo ""
 
 # Iterate over each jar file in the artifacts
-for FILE in creaturechat*.jar; do
+for FILE in creaturepals*.jar; do
   if [ -f "$FILE" ]; then
     echo "--------------$FILE----------------"
     FILE_BASENAME=$(basename "$FILE")
-    OUR_VERSION=$(echo "$FILE_BASENAME" | sed -n 's/creaturechat-\(.*\)+.*\.jar/\1/p')
+    OUR_VERSION=$(echo "$FILE_BASENAME" | sed -n 's/creaturepals-\(.*\)+.*\.jar/\1/p')
     MINECRAFT_VERSION=$(echo "$FILE_BASENAME" | sed -n 's/.*+\([0-9.]*\)\(-forge\|-neoforge\)*\.jar/\1/p')
     VERSION_NUMBER="$OUR_VERSION+$MINECRAFT_VERSION"
 
@@ -67,7 +67,7 @@ for FILE in creaturechat*.jar; do
       --argjson game_versions '["'"$MINECRAFT_VERSION"'"]' \
       --argjson loaders "$LOADERS" \
       --arg project_id "$PROJECT_ID" \
-      --arg name "CreatureChat $VERSION_NUMBER" \
+      --arg name "creaturepals $VERSION_NUMBER" \
       --argjson file_parts '["file"]' \
       --arg requested_status "listed" \
       '{

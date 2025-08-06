@@ -8,7 +8,7 @@ import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 
 /**
- * Particle definitions for CreatureChat. Modified for Minecraft 1.20.5+ compatibility, and now
+ * Particle definitions for CreaturePals. Modified for Minecraft 1.20.5+ compatibility, and now
  * based on SimpleParticleType and not DefaultParticletype, etc...
  */
 public class Particles {

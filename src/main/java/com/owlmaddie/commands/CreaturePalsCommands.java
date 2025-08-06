@@ -35,8 +35,8 @@ import java.util.stream.Collectors;
  * The {@code CreatureChatCommands} class registers custom commands to set new API key, model, and url.
  * Permission level set to 4 (server owner), since this deals with API keys and potential costs.
  */
-public class CreatureChatCommands {
-    public static final Logger LOGGER = LoggerFactory.getLogger("creaturechat");
+public class CreaturePalsCommands {
+    public static final Logger LOGGER = LoggerFactory.getLogger("creaturepals");
 
     public static void register() {
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
@@ -46,7 +46,7 @@ public class CreatureChatCommands {
     }
 
     public static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(Commands.literal("creaturechat")
+        dispatcher.register(Commands.literal("creaturepals")
                 .then(registerSetCommand("key", "API Key", StringArgumentType.string()))
                 .then(registerSetCommand("url", "URL", StringArgumentType.string()))
                 .then(registerSetCommand("model", "Model", StringArgumentType.string()))

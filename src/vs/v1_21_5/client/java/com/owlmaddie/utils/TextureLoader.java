@@ -33,7 +33,7 @@ public class TextureLoader {
     public TextureLoader() {}
 
     /**
-     * Load and bind a UI texture (assets/creaturechat/textures/ui/{name}.png).
+     * Load and bind a UI texture (assets/creaturepals/textures/ui/{name}.png).
      * Returns the Identifier if found, or null if missing.
      */
     public ResourceLocation GetUI(String name) {
@@ -41,7 +41,7 @@ public class TextureLoader {
     }
 
     /**
-     * Load and bind an entity texture (assets/creaturechat/{texturePath}).
+     * Load and bind an entity texture (assets/creaturepals/{texturePath}).
      * Returns the Identifier if found, or falls back to not_found.png.
      */
     public ResourceLocation GetEntity(String texturePath) {
