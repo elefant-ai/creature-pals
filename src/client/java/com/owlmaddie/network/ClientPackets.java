@@ -5,6 +5,7 @@ package com.owlmaddie.network;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.owlmaddie.Player2.TTS;
 import com.owlmaddie.chat.ChatDataManager;
 import com.owlmaddie.chat.ChatDataManager.ChatSender;
 import com.owlmaddie.chat.ChatDataManager.ChatStatus;
@@ -27,7 +28,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
-import com.owlmaddie.player2.TTS;
 
 /**
  * The {@code ClientPackets} class provides methods to send packets to/from the server for generating greetings,
@@ -154,7 +154,7 @@ public class ClientPackets {
                         // for now skip error
                         return;
                     }
-                    TTS.speak(message, entityId);
+                    // TTS.speak(message, entityId);
                 }
             });
         });

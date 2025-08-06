@@ -1,4 +1,4 @@
-package com.owlmaddie.player2;
+package com.owlmaddie.Player2;
 
 import java.util.List;
 import java.util.Random;
@@ -25,6 +25,14 @@ public class TTS {
     public static boolean enabled = true;
     private static final Random random = new Random();
 
+    public static int disableTTS(){
+        enabled = false;
+        return 1;
+    }
+    public static int enableTTS(){
+        enabled = true;
+        return 1;
+    }
     public static void speak(String message, UUID entityId) {
         if(!enabled){
             return;

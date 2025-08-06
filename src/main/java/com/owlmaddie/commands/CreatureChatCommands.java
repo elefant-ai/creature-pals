@@ -10,6 +10,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.owlmaddie.Player2.TTS;
 import com.owlmaddie.network.ServerPackets;
 import com.owlmaddie.i18n.CCText;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -54,6 +55,7 @@ public class CreatureChatCommands {
                 .then(registerWhitelistCommand())
                 .then(registerBlacklistCommand())
                 .then(registerChatBubbleCommand())
+                .then(registerTTSCommand())
                 .then(registerHelpCommand()));
     }
 
@@ -104,6 +106,16 @@ public class CreatureChatCommands {
         return getLivingEntityIds().stream()
                 .map(ResourceLocation::toString)
                 .collect(Collectors.toList());
+    }
+    private static LiteralArgumentBuilder<CommandSourceStack> registerTTSCommand(){
+        return Commands.literal("tts")
+                .requires(source -> source.hasPermission(4))
+                .then(Commands.literal("set")
+                    .then(Commands.literal("on")
+                        .executes(context -> TTS.enableTTS())
+                    ).then(Commands.literal("off")
+                        .executes(context -> TTS.disableTTS()))
+                );
     }
     private static LiteralArgumentBuilder<CommandSourceStack> registerChatBubbleCommand() {
         return Commands.literal("chatbubble")

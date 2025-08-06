@@ -55,6 +55,7 @@ import static com.owlmaddie.particle.Particles.*;
  * and the status of the current displayed message.
  */
 public class EntityChatData {
+    @Expose(serialize = false, deserialize = false)
     public static final Logger LOGGER = LoggerFactory.getLogger("creaturepals");
     public static final TR INFO_HELP_LINK = new TR("info.help_link", "Help is available at %s");
     public static final TR ERROR_PREFIX = new TR("error.prefix", "Error: ");

@@ -3,6 +3,8 @@ package com.owlmaddie.player2;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.owlmaddie.Player2.Player2APIService;
+
 public class HeartbeatManager {
     public static final ExecutorService heartbeatManager = Executors.newSingleThreadExecutor();
     public static long lastHeartbeatTime = System.nanoTime();
