@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 import org.apache.commons.lang3.function.TriConsumer;
 import org.slf4j.Logger;
@@ -73,6 +72,7 @@ public class EventQueueManager {
         if (player == null) {
             throw new RuntimeException("Null player for addGreeting");
         }
+        LOGGER.info("AddGreeting, entityId={} playerID={}", entity.getUUID(), player.getUUID());
         ClientSideEffects.setPending(entity.getStringUUID());
 
         getOrCreateQueueData(entity.getStringUUID(), entity).requestGreeting(userLangauge, player);
@@ -147,6 +147,7 @@ public class EventQueueManager {
             for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                 Entity cur = ServerEntityFinder.getEntityByUUID(player.level(), UUID.fromString(entityId));
                 if (cur != null) {
+                    LOGGER.info("tryAddAllNewEntities entityId={}", entityId);
                     getOrCreateQueueData(entityId, cur);
                     added = true;
                     break;
@@ -171,6 +172,7 @@ public class EventQueueManager {
 
     public static void addUserMessage(Entity entity, String userLanguage, ServerPlayer player,
             String userMessage, boolean is_auto_message) {
+        LOGGER.info("Add user message entityID={}, playerID={}, message={} ", entity.getStringUUID(), player.getUUID(), userMessage);
         EventQueueData q = getOrCreateQueueData(entity.getStringUUID(), entity);
         q.addUserMessage(entity, userLanguage, player, userMessage, is_auto_message);
     }

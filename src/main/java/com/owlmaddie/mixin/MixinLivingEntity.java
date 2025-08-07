@@ -104,7 +104,7 @@ public class MixinLivingEntity {
                 // Get the original death message
                 Component deathMessage = entity.getCombatTracker().getDeathMessage();
                 // Broadcast the death message to all players in the world
-                ServerPackets.BroadcastMessage(deathMessage);
+                // ServerPackets.BroadcastMessage(deathMessage);
             }
         }
     }

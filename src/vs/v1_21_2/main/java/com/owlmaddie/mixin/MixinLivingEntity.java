@@ -96,7 +96,7 @@ public class MixinLivingEntity {
                 String msg = "<" + player.getName().getString()
                         + " attacked you " + directness
                         + " " + weaponName + ">";
-                EventQueueManager.addUserMessage(attacker, "N/A", (ServerPlayer) player,
+                EventQueueManager.addUserMessage(self, "N/A",serverPlayer,
                             msg, true);
             }
         }
@@ -128,7 +128,7 @@ public class MixinLivingEntity {
                 // Get the original death message
                 Component deathMessage = entity.getCombatTracker().getDeathMessage();
                 // Broadcast the death message to all players in the world
-                ServerPackets.BroadcastMessage(deathMessage);
+                // ServerPackets.BroadcastMessage(deathMessage);
             }
         }
     }
