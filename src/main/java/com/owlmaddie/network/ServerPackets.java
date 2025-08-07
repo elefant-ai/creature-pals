@@ -157,6 +157,7 @@ public class ServerPackets {
                     TalkPlayerGoal talkGoal = new TalkPlayerGoal(player, entity, 3.5F);
                     EntityBehaviorManager.addGoal(entity, talkGoal, GoalPriority.TALK_PLAYER);
 
+                    LOGGER.info("ServerPackets/read_Next entityID={} lineNumber={} playerID={}", entityId, lineNumber, player.getUUID());
                     EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(entity.getStringUUID());
                     LOGGER.info("Update read lines to " + lineNumber + " for: " + entity.getType().toString());
                     ClientSideEffects.setLineNumberUsingParamsFromChatData(entity.getStringUUID(), lineNumber);
@@ -166,9 +167,11 @@ public class ServerPackets {
 
         // Handle packet for setting status of chat bubbles
         PacketHelper.registerReceiver(PACKET_C2S_SET_STATUS, (server, player, buf) -> {
+
             UUID entityId = UUID.fromString(buf.readUtf());
             String status_name = buf.readUtf(32767);
 
+            LOGGER.info("ServerPackets/setStatus entityID={} status={} playerID={}", entityId, status_name, player.getUUID());
             // Ensure that the task is synced with the server thread
             server.execute(() -> {
                 Mob entity = (Mob) ServerEntityFinder.getEntityByUUID((ServerLevel) player.level(), entityId);
@@ -215,8 +218,9 @@ public class ServerPackets {
             String userLanguage = buf.readUtf(32767);
             Entity ent = ServerEntityFinder.getEntityByUUID(player.level(), entityId);
             String RHS = ent != null && ent.getCustomName() != null && !ent.getCustomName().equals("N/A")
-                    ? "> (to " + ent.getCustomName().getString() + ") "
-                    : "> ";
+            ? "> (to " + ent.getCustomName().getString() + ") "
+            : "> ";
+            LOGGER.info("ServerPackets/sendChat entityID={} message={} playerID={}", entityId, message, player.getUUID());
             BroadcastMessage(Component.literal("<" + player.getName().getString() + RHS + message));
 
             // Ensure that the task is synced with the server thread
@@ -356,10 +360,8 @@ public class ServerPackets {
                         : chatData.currentMessage,
                 chatData.currentLineNumber, chatData.sender);
 
-        for (ServerLevel world : serverInstance.getAllLevels()) {
+        // for (ServerLevel world : serverInstance.getAllLevels()) {
             // Find Entity by UUID and update custom name
-            UUID entityId = UUID.fromString(chatData.entityId);
-            Mob entity = (Mob) ServerEntityFinder.getEntityByUUID(world, entityId);
 
                 // Iterate over all players and send the packet
                 for (ServerPlayer player : serverInstance.getPlayerList().getPlayers()) {
@@ -374,8 +376,8 @@ public class ServerPackets {
                     // Send message to player
                     PacketHelper.send(player, PACKET_S2C_ENTITY_MESSAGE, buffer);
                 }
-                break;
-            }
+            // break;
+        // }
         }
 
 
