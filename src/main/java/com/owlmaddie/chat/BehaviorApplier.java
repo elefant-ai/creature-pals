@@ -42,6 +42,9 @@ import net.minecraft.world.level.GameRules;
 public class BehaviorApplier {
     public static void apply(List<Behavior> behaviors, ServerPlayer player, String entityId, PlayerData playerData ){
         Mob entity = (Mob) ServerEntityFinder.getEntityByUUID((ServerLevel)player.level(), UUID.fromString(entityId));
+        if(entity == null){
+            return;
+        }
         float entitySpeed = SpeedControls.getMaxSpeed(entity);
         float entitySpeedMedium = Mth.clamp(entitySpeed * 1.15F, 0.5f, 1.15f);
         float entitySpeedFast = Mth.clamp(entitySpeed * 1.3F, 0.5f, 1.3f);
