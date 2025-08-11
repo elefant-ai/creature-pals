@@ -33,8 +33,8 @@ public class ButtonHelper {
 
                 // choose the correct texture
                 ResourceLocation tex = isHovered() ? hoverTex : normalTex;
-
-                // draw from the GUI atlas, sampling just this sprite’s region
+                
+                 // draw from the GUI atlas, sampling just this sprite’s region
                 ctx.blit(
                         RenderPipelines.GUI_TEXTURED,  // supplies the atlas layer for this sprite
                         tex,                          // your sprite ID
@@ -48,5 +48,15 @@ public class ButtonHelper {
                 BlendHelper.disableBlend();
             }
         };
+    }
+
+    public static Button createTextButton(
+        String text,
+        int x, int y,
+        int width, int height,
+        Button.OnPress onPress
+    ) {
+        Button output =  Button.builder(Component.literal(text), onPress).pos(x,y).size(width, height).build();
+        return output;
     }
 }

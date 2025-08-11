@@ -83,29 +83,14 @@ public class ChatScreen extends ScreenHelper {
         int btnY = bgY + BG_HEIGHT - BUTTON_HEIGHT - BUTTON_MARGIN_Y;
 
         // CANCEL / EXIT
-        cancelButton = ButtonHelper.createImageButton(
-                bgX + BUTTON_MARGIN_X,            // x
-                btnY,                             // y
-                BUTTON_WIDTH,                     // width
-                BUTTON_HEIGHT,                    // height
-                textures.GetUI("chat-button-exit"),        // normal texture
-                textures.GetUI("chat-button-exit-hover"),  // hover texture
-                widget -> onClose(),                // onPress
-                widget -> Component.empty()            // narrationSupplier
-        );
+        int buttonWidth = 100;
+        int buttonHeight =  20;
+        int buttonSpacing = 15;
+        cancelButton = ButtonHelper.createTextButton("cancel", inputX, btnY, buttonWidth, buttonHeight, widget -> onClose());
         addRenderableWidget(cancelButton);
 
         // SEND / DONE
-        sendButton = ButtonHelper.createImageButton(
-                bgX + BG_WIDTH - BUTTON_WIDTH - BUTTON_MARGIN_X,  // x
-                btnY,                                             // y
-                BUTTON_WIDTH,                                     // width
-                BUTTON_HEIGHT,                                    // height
-                textures.GetUI("chat-button-done"),               // normal texture
-                textures.GetUI("chat-button-done-hover"),         // hover texture
-                widget -> sendChatMessage(),                      // onPress
-                widget -> Component.empty()                            // narrationSupplier
-        );
+        sendButton = ButtonHelper.createTextButton("done", inputX + buttonWidth + buttonSpacing, btnY, buttonWidth, buttonHeight, widget -> sendChatMessage());
         sendButton.active = false;
         addRenderableWidget(sendButton);
     }
