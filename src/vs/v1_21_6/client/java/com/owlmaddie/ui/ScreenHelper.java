@@ -41,25 +41,25 @@ public abstract class ScreenHelper extends Screen {
         super.renderBackground(context, mouseX, mouseY, delta);
 
         // Draw the chat-box texture
-        ResourceLocation bgTex = textures.GetUI("chat-background");
-        if (bgTex != null) {
-            BlendHelper.enableBlend();
-            BlendHelper.defaultBlendFunc();
-            context.blit(
-                    RenderPipelines.GUI_TEXTURED,
-                    bgTex,
-                    bgX, bgY,
-                    0f, 0f,
-                    BG_WIDTH, BG_HEIGHT,
-                    BG_WIDTH, BG_HEIGHT
-            );
-            BlendHelper.disableBlend();
-        }
+        // ResourceLocation bgTex = textures.GetUI("chat-background");
+        // if (bgTex != null) {
+        //     BlendHelper.enableBlend();
+        //     BlendHelper.defaultBlendFunc();
+        //     context.blit(
+        //             RenderPipelines.GUI_TEXTURED,
+        //             bgTex,
+        //             bgX, bgY,
+        //             0f, 0f,
+        //             BG_WIDTH, BG_HEIGHT,
+        //             BG_WIDTH, BG_HEIGHT
+        //     );
+        //     BlendHelper.disableBlend();
+        // }
 
-        // Render children/widgets but suppress their background call
-        skipNextBackground = true;
+        // // Render children/widgets but suppress their background call
+        // skipNextBackground = true;
         super.render(context, mouseX, mouseY, delta);
-        skipNextBackground = false;
+        // skipNextBackground = false;
 
         // Draw the "Enter your message:" label
         EditBox tf = getTextField();
