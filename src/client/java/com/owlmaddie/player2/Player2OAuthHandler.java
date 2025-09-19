@@ -51,11 +51,11 @@ public class Player2OAuthHandler {
     private static void attemptWebLoginOrFallback(Screen parentScreen) {
         CompletableFuture.runAsync(() -> {
             try {
-                String url = OAUTH_BASE_URL + "/login/web/" + CLIENT_ID;
+                String url = "http://localhost:4315/v1/login/web/" + CLIENT_ID;
                 HttpClient client = HttpClient.newHttpClient();
                 HttpRequest request = HttpRequest.newBuilder()
                         .uri(URI.create(url))
-                        .GET()
+                        .POST(HttpRequest.BodyPublishers.noBody())
                         .build();
 
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
