@@ -1,6 +1,5 @@
 package com.owlmaddie.chat;
 
-
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
@@ -20,7 +19,6 @@ import com.owlmaddie.utils.ServerEntityFinder;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-
 
 public class EventQueueData {
     public static final Logger LOGGER = LoggerFactory.getLogger("creaturepals");
@@ -189,18 +187,25 @@ public class EventQueueData {
         ChatGPTRequest.fetchMessageFromChatGPT(config, promptText, contextData,
                 List.of(new ChatMessage(greetingMessage.userMessage, ChatSender.USER,
                         this.player.getName().getString())),
-                false, "")
+                false, "", player)
                 .thenAccept(char_sheet -> {
-                    try {
-                        if (char_sheet == null) {
-                            throw new RuntimeException(
-                                    ChatGPTRequest.lastErrorMessage + "(gen character sheet)");
+                    ServerPackets.serverInstance.execute(() -> {
+                        try {
+                            if (char_sheet == null) {
+                                throw new RuntimeException(
+                                        ChatGPTRequest.lastErrorMessage + "(gen character sheet)");
+                            }
+                            LOGGER.info("Generated Character sheet:" + char_sheet);
+                            onCharacterSheet.accept(char_sheet);
+                        } catch (Exception e) {
+                            onError.accept(e.getMessage() != null ? e.getMessage() : "");
                         }
-                        LOGGER.info("Generated Character sheet:" + char_sheet);
-                        onCharacterSheet.accept(char_sheet);
-                    } catch (Exception e) {
-                        onError.accept(e.getMessage() != null ? e.getMessage() : "");
-                    }
+                    });
+                }).exceptionally(ex -> {
+                    ServerPackets.serverInstance.execute(() -> {
+                        onError.accept(ex != null && ex.getMessage() != null ? ex.getMessage() : "");
+                    });
+                    return null;
                 });
     }
 

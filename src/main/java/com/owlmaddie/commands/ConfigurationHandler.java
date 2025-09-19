@@ -73,7 +73,7 @@ public class ConfigurationHandler {
 
     public static class Config {
         private String apiKey = "";
-        private String url = "http://127.0.0.1:4315/v1/chat/completions";
+        private String url = "https://api.player2.game/v1/chat/completions";
         private String model = "gpt-3.5-turbo";
         private int maxContextTokens = 16385;
         private int maxOutputTokens = 200;
@@ -90,7 +90,10 @@ public class ConfigurationHandler {
         }
 
         public void setApiKey(String apiKey) {
-            if (apiKey.startsWith("cc_") && apiKey.length() == 15) {
+            if (apiKey.startsWith("p2_")) {
+                // Update URL if a Player2 API key is detected
+                setUrl("https://api.player2.game/v1/chat/completions");
+            } else if (apiKey.startsWith("cc_") && apiKey.length() == 15) {
                 // Update URL if a CreatureChat API key is detected
                 setUrl("https://api.creaturechat.com/v1/chat/completions");
             } else if (apiKey.startsWith("sk-")) {

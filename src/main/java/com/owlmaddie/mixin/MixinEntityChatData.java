@@ -24,7 +24,7 @@ public abstract class MixinEntityChatData {
 
     /**
      * When writing NBT data, if the entity has chat data then store its UUID under
-     * "CCUUID".
+     * "CPUUID".
      */
     @Inject(method = "saveWithoutId(Lnet/minecraft/nbt/CompoundTag;)Lnet/minecraft/nbt/CompoundTag;", at = @At("TAIL"))
     private void writeChatData(CompoundTag nbt, CallbackInfoReturnable<CompoundTag> cir) {
@@ -33,25 +33,25 @@ public abstract class MixinEntityChatData {
         // Retrieve or create the chat data for this entity.
         EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(currentUUID.toString());
         // If the entity actually has chat data (for example, if its character sheet is
-        // non-empty), add CCUUID.
+        // non-empty), add CPUUID.
         if (!chatData.characterSheet.isEmpty()) {
             // Note: cir.getReturnValue() returns the NBT compound the method is about to
             // return.
             CompoundTag returned = cir.getReturnValue();
-            NbtCompoundHelper.putUuid(returned, "CCUUID", currentUUID);
+            NbtCompoundHelper.putUuid(returned, "CPUUID", currentUUID);
         }
     }
 
     /**
-     * When reading NBT data, if there is a "CCUUID" entry and it does not match the
+     * When reading NBT data, if there is a "CPUUID" entry and it does not match the
      * entity’s current UUID,
      * update our chat data key to reflect the change.
      */
     @Inject(method = "load(Lnet/minecraft/nbt/CompoundTag;)V", at = @At("TAIL"))
     private void readChatData(CompoundTag nbt, CallbackInfo ci) {
         UUID currentUUID = this.getUUID();
-        if (nbt.contains("CCUUID")) {
-            UUID originalUUID = NbtCompoundHelper.getUuid(nbt, "CCUUID");
+        if (nbt.contains("CPUUID")) {
+            UUID originalUUID = NbtCompoundHelper.getUuid(nbt, "CPUUID");
             if (!originalUUID.equals(currentUUID)) {
                 ChatDataManager.getServerInstance().updateUUID(originalUUID.toString(), currentUUID.toString());
             }

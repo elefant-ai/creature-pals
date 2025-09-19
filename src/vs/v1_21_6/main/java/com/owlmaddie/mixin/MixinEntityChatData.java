@@ -24,26 +24,23 @@ public abstract class MixinEntityChatData {
     @Shadow
     public abstract UUID getUUID();
 
-    /** Add "CCUUID" when the entity already owns chat data. */
-    @Inject(method = "saveWithoutId(Lnet/minecraft/world/level/storage/ValueOutput;)V",
-            at = @At("TAIL"))
+    /** Add "CPUUID" when the entity already owns chat data. */
+    @Inject(method = "saveWithoutId(Lnet/minecraft/world/level/storage/ValueOutput;)V", at = @At("TAIL"))
     private void writeChatData(ValueOutput valueOutput, CallbackInfo ci) {
         UUID uuid = this.getUUID();
-        EntityChatData chatData =
-                ChatDataManager.getServerInstance().getOrCreateChatData(uuid.toString());
+        EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(uuid.toString());
 
         if (!chatData.characterSheet.isEmpty()) {
-            valueOutput.store("CCUUID", UUIDUtil.CODEC, uuid);
+            valueOutput.store("CPUUID", UUIDUtil.CODEC, uuid);
         }
     }
 
     /** Re-link old chat data after the entity is deserialized. */
-    @Inject(method = "load(Lnet/minecraft/world/level/storage/ValueInput;)V",
-            at = @At("TAIL"))
+    @Inject(method = "load(Lnet/minecraft/world/level/storage/ValueInput;)V", at = @At("TAIL"))
     private void readChatData(ValueInput valueInput, CallbackInfo ci) {
         UUID current = this.getUUID();
 
-        valueInput.read("CCUUID", UUIDUtil.CODEC).ifPresent(original -> {
+        valueInput.read("CPUUID", UUIDUtil.CODEC).ifPresent(original -> {
             if (!original.equals(current)) {
                 ChatDataManager.getServerInstance()
                         .updateUUID(original.toString(), current.toString());

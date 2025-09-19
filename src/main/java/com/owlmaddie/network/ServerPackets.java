@@ -5,6 +5,7 @@ package com.owlmaddie.network;
 
 import com.owlmaddie.chat.ChatDataManager;
 import com.owlmaddie.chat.ChatDataSaverScheduler;
+import com.owlmaddie.chat.ChatGPTRequest;
 import com.owlmaddie.chat.ClientSideEffects;
 import com.owlmaddie.chat.EntityChatData;
 import com.owlmaddie.chat.EntityChatDataLight;
@@ -16,12 +17,11 @@ import com.owlmaddie.goals.GoalPriority;
 import com.owlmaddie.goals.TalkPlayerGoal;
 import com.owlmaddie.particle.Particles;
 import com.owlmaddie.utils.Compression;
-import com.owlmaddie.utils.Randomizer;
 import com.owlmaddie.utils.ServerEntityFinder;
-import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleType;
@@ -43,6 +43,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -66,6 +67,10 @@ public class ServerPackets {
             "packet_c2s_close_chat");
     public static final ResourceLocation PACKET_C2S_SEND_CHAT = new ResourceLocation("creaturepals",
             "packet_c2s_send_chat");
+    public static final ResourceLocation PACKET_C2S_AUTH_RESPONSE = new ResourceLocation("creaturepals",
+            "packet_c2s_auth_response");
+    public static final ResourceLocation PACKET_S2C_AUTH_REQUEST = new ResourceLocation("creaturepals",
+            "packet_s2c_auth_request");
     public static final ResourceLocation PACKET_S2C_ENTITY_MESSAGE = new ResourceLocation("creaturepals",
             "packet_s2c_entity_message");
     public static final ResourceLocation PACKET_S2C_PLAYER_MESSAGE = new ResourceLocation("creaturepals",
@@ -75,6 +80,7 @@ public class ServerPackets {
             "packet_s2c_whitelist");
     public static final ResourceLocation PACKET_S2C_PLAYER_STATUS = new ResourceLocation("creaturepals",
             "packet_s2c_player_status");
+
     public static final ParticleType<?> HEART_SMALL_PARTICLE = Particles.HEART_SMALL_PARTICLE;
     public static final ParticleType<?> HEART_BIG_PARTICLE = Particles.HEART_BIG_PARTICLE;
     public static final ParticleType<?> FIRE_SMALL_PARTICLE = Particles.FIRE_SMALL_PARTICLE;
@@ -87,6 +93,8 @@ public class ServerPackets {
     public static final ParticleType<?> LEAD_FRIEND_PARTICLE = Particles.LEAD_FRIEND_PARTICLE;
     public static final ParticleType<?> LEAD_ENEMY_PARTICLE = Particles.LEAD_ENEMY_PARTICLE;
     public static final ParticleType<?> LEAD_PARTICLE = Particles.LEAD_PARTICLE;
+
+    private static final Map<UUID, UUID> pendingAuthRequests = new ConcurrentHashMap<>();
 
     public static void register() {
         // Register custom particles
@@ -193,6 +201,13 @@ public class ServerPackets {
                 BroadcastPlayerStatus(player, true);
             });
         });
+        PacketHelper.registerReceiver(PACKET_C2S_AUTH_RESPONSE, (server, player, buf) -> {
+            UUID requestId = UUID.fromString(buf.readUtf());
+            String apiKey = buf.readUtf();
+            server.execute(() -> {
+                ChatGPTRequest.apiKeyAwaiter.remove(requestId).complete(apiKey);
+            });
+        });
 
         // Handle packet for Close Chat
         PacketHelper.registerReceiver(PACKET_C2S_CLOSE_CHAT, (server, player, buf) -> {
@@ -264,6 +279,12 @@ public class ServerPackets {
 
                 PacketHelper.send(player, PACKET_S2C_LOGIN, buffer);
             }
+            // If no server API key is configured, request from this player
+            ConfigurationHandler.Config config = new ConfigurationHandler(server).loadConfig();
+            String serverApiKey = config.getApiKey();
+            if (serverApiKey == null || serverApiKey.isEmpty()) {
+                requestPlayerApiKey(player);
+            }
         });
 
         ServerWorldEvents.LOAD.register((server, world) -> {
@@ -284,7 +305,10 @@ public class ServerPackets {
                 serverInstance = null;
 
                 // Shutdown auto scheduler
-                scheduler.stopAutoSaveTask();
+                if (scheduler != null) {
+                    scheduler.stopAutoSaveTask();
+                    scheduler = null;
+                }
             }
         });
         ServerEntityEvents.ENTITY_UNLOAD.register((entity, world) -> {
@@ -297,6 +321,7 @@ public class ServerPackets {
             }
             // TODO: Maybe add system to remove from queue
         });
+
     }
 
     public static void send_whitelist_blacklist(ServerPlayer player) {
@@ -432,4 +457,20 @@ public class ServerPackets {
             }
         }
     }
+
+    public static UUID requestPlayerApiKey(ServerPlayer player) {
+        UUID requestId = UUID.randomUUID();
+        pendingAuthRequests.put(requestId, player.getUUID());
+        return requestPlayerApiKeyWithId(player, requestId);
+    }
+
+    public static UUID requestPlayerApiKeyWithId(ServerPlayer player, UUID requestId) {
+        FriendlyByteBuf buffer = BufferHelper.create();
+        buffer.writeUtf(requestId.toString());
+        PacketHelper.send(player, PACKET_S2C_AUTH_REQUEST, buffer);
+
+        LOGGER.info("Sent API key request to '{}' with requestId={}", player.getGameProfile().getName(), requestId);
+        return requestId;
+    }
+
 }

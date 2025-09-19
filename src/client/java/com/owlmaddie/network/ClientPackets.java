@@ -4,7 +4,6 @@ package com.owlmaddie.network;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.owlmaddie.Player2.TTS;
 import com.owlmaddie.chat.ChatDataManager;
 import com.owlmaddie.chat.ChatDataManager.ChatSender;
 import com.owlmaddie.chat.ChatDataManager.ChatStatus;
@@ -14,6 +13,7 @@ import com.owlmaddie.ui.BubbleRenderer;
 import com.owlmaddie.ui.PlayerMessageManager;
 import com.owlmaddie.utils.ClientEntityFinder;
 import com.owlmaddie.utils.Decompression;
+import com.owlmaddie.player2.Player2StartupHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +27,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 /**
  * The {@code ClientPackets} class provides methods to send packets to/from the
@@ -97,6 +98,13 @@ public class ClientPackets {
 
         // Send C2S packet
         ClientPacketHelper.send(ServerPackets.PACKET_C2S_SEND_CHAT, buf);
+    }
+
+    public static void sendAuthResponse(UUID requestId, String key) {
+        FriendlyByteBuf buf = ClientBufferHelper.create();
+        buf.writeUtf(requestId.toString());
+        buf.writeUtf(key);
+        ClientPacketHelper.send(ServerPackets.PACKET_C2S_AUTH_RESPONSE, buf);
     }
 
     // Reading a Map<String, PlayerData> from the buffer
@@ -274,6 +282,32 @@ public class ClientPackets {
                         }
                     });
                 });
+
+        // Client-side packet handler: server requesting Player2 API key
+        ClientPacketHelper.registerReceiver(ServerPackets.PACKET_S2C_AUTH_REQUEST,
+                (client, handler, buffer, responseSender) -> {
+                    UUID requestId = UUID.fromString(buffer.readUtf());
+                    if (client != null) {
+                        client.execute(() -> {
+                            String key = Player2StartupHandler.getApiKey();
+
+                            // If key is available via env/system but not persisted, persist it now
+
+                            if (key != null && !key.isEmpty()) {
+
+                                Player2StartupHandler.setApiKey(key);
+
+                            }
+
+                            // Respond to server with the key (or empty string if not found)
+                            sendAuthResponse(requestId, key == null ? "" : key);
+
+                            LOGGER.info("Responded to server auth request {} with {}key.", requestId,
+                                    (key == null || key.isEmpty()) ? "no " : "");
+                        });
+                    }
+                });
+
     }
 
     private static void playNearbyUISound(Minecraft client, Entity player, float maxVolume) {
