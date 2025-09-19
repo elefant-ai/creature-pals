@@ -91,7 +91,7 @@ public class ConfigurationHandler {
             } else if (apiKey.startsWith("sk-")) {
                 // Update URL if an OpenAI API key is detected
                 setUrl("https://api.openai.com/v1/chat/completions");
-            } else
+            }
             this.apiKey = apiKey;
         }
 

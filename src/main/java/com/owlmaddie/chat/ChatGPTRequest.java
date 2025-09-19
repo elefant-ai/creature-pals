@@ -7,6 +7,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.owlmaddie.commands.ConfigurationHandler;
 import com.owlmaddie.json.ChatGPTResponse;
+import com.owlmaddie.network.S2C.AuthRequestPayload;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.server.level.ServerPlayer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +19,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 /**
@@ -25,6 +29,10 @@ import java.util.regex.Pattern;
 public class ChatGPTRequest {
     public static final Logger LOGGER = LoggerFactory.getLogger("creaturepals");
     public static String lastErrorMessage;
+
+
+    public static Map<UUID, CompletableFuture<String>> apiKeyAwaiter = new ConcurrentHashMap<>();
+
 
     static class ChatGPTRequestMessage {
         String role;
@@ -121,9 +129,38 @@ public class ChatGPTRequest {
         return (int) Math.round(text.length() / 3.5);
     }
 
-    public static CompletableFuture<String> fetchMessageFromChatGPT(ConfigurationHandler.Config config, String systemPrompt, Map<String, String> contextData, List<ChatMessage> messageHistory, Boolean jsonMode) {
+
+
+    public static CompletableFuture<String> startChat(ConfigurationHandler.Config config, String systemPrompt, Map<String, String> contextData, List<ChatMessage> messageHistory, Boolean jsonMode, ServerPlayer player) {
+        // If a server API key is configured, use it directly and avoid any auth roundtrip
+
+        // Otherwise, request an API key from the player and compose the call when provided
+        CompletableFuture<String> apiKeyFuture = new CompletableFuture<>();
+        UUID authRequestId = UUID.randomUUID();
+        apiKeyAwaiter.put(authRequestId, apiKeyFuture);
+
+        CompletableFuture<String> messageFuture = apiKeyFuture
+                .orTimeout(120, java.util.concurrent.TimeUnit.SECONDS)
+                .thenComposeAsync((apiKey) -> {
+                    LOGGER.info("Received API key from player {}", player.getName().getString());
+                    return fetchMessageFromChatGPT(config, systemPrompt, contextData, messageHistory, jsonMode, apiKey);
+                })
+                .whenComplete((res, ex) -> {
+                    // Ensure cleanup in all cases
+                    apiKeyAwaiter.remove(authRequestId);
+                });
+
+        ServerPlayNetworking.send(player, new AuthRequestPayload(authRequestId));
+
+        return messageFuture;
+    }
+
+
+    public static CompletableFuture<String> fetchMessageFromChatGPT(ConfigurationHandler.Config config, String systemPrompt, Map<String, String> contextData, List<ChatMessage> messageHistory, Boolean jsonMode, String apiKey) {
+
+
         // Init API & LLM details
-        String apiUrl = "https://api.player2.game/v1/chat/completions";
+        String apiUrl = config.getUrl();
         String modelName = config.getModel();
         int timeout = config.getTimeout() * 1000;
         int maxContextTokens = config.getMaxContextTokens();
@@ -213,7 +250,7 @@ public class ChatGPTRequest {
                     }
 
                     Gson gsonOutput = new Gson();
-                    ChatGPTResponse chatGPTResponse = gsonOutput.fromJson(response.toString(), ChatGPTResponse.class);
+                    com.owlmaddie.json.ChatGPTResponse chatGPTResponse = gsonOutput.fromJson(response.toString(), com.owlmaddie.json.ChatGPTResponse.class);
                     if (chatGPTResponse != null && chatGPTResponse.choices != null && !chatGPTResponse.choices.isEmpty()) {
                         String content = chatGPTResponse.choices.get(0).message.content;
                         return content;
@@ -230,4 +267,3 @@ public class ChatGPTRequest {
         });
     }
 }
-
