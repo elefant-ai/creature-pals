@@ -59,7 +59,7 @@ public class ClientInit implements ClientModInitializer {
         MenuScreens.register(ModMenus.MOB_INVENTORY, MobInventoryScreen::new);
 
         // Register an event callback to render text bubbles
-        WorldRenderEvents.BEFORE_DEBUG_RENDER.register(ctx -> {
+        WorldRenderEvents.AFTER_ENTITIES.register(ctx -> {
             float delta = TickDelta.get(ctx);
             BubbleRenderer.drawTextAboveEntities(ctx, tickCounter, delta);
         });

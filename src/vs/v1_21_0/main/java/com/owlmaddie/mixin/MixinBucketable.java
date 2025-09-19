@@ -33,14 +33,14 @@ public interface MixinBucketable {
 
         // capture: mob → bucket
         @Inject(method = "saveDefaultDataToBucketTag(Lnet/minecraft/world/entity/Mob;Lnet/minecraft/world/item/ItemStack;)V", at = @At("TAIL"))
-        private static void captureCCUUID(Mob entity, ItemStack stack, CallbackInfo ci) {
+        private static void captureCPUUID(Mob entity, ItemStack stack, CallbackInfo ci) {
                 UUID oldId = entity.getUUID();
 
-                // Append our CCUUID to the existing BUCKET_ENTITY_DATA component
+                // Append our CPUUID to the existing BUCKET_ENTITY_DATA component
                 CustomData.update(
                                 DataComponents.BUCKET_ENTITY_DATA,
                                 stack,
-                                tag -> tag.putUUID("CCUUID", oldId));
+                                tag -> tag.putUUID("CPUUID", oldId));
 
                 LoggerFactory.getLogger("creaturepals")
                                 .info("[Bucket-Capture] stored {}", oldId);
@@ -48,11 +48,11 @@ public interface MixinBucketable {
 
         // release: bucket → mob
         @Inject(method = "loadDefaultDataFromBucketTag(Lnet/minecraft/world/entity/Mob;Lnet/minecraft/nbt/CompoundTag;)V", at = @At("TAIL"))
-        private static void restoreCCUUID(Mob entity, CompoundTag nbt, CallbackInfo ci) {
-                if (!NbtCompoundHelper.containsUuid(nbt, "CCUUID"))
+        private static void restoreCPUUID(Mob entity, CompoundTag nbt, CallbackInfo ci) {
+                if (!NbtCompoundHelper.containsUuid(nbt, "CPUUID"))
                         return;
 
-                UUID oldId = NbtCompoundHelper.getUuid(nbt, "CCUUID");
+                UUID oldId = NbtCompoundHelper.getUuid(nbt, "CPUUID");
                 UUID newId = entity.getUUID();
 
                 ChatDataManager.getServerInstance()

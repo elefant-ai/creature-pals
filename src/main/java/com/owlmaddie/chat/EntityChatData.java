@@ -338,16 +338,24 @@ public class EntityChatData {
         ChatGPTRequest.fetchMessageFromChatGPT(config, promptText, contextData, previousMessages, false,
                 // "Reminder: Respond with a empty message only when \\\"\\\" you detect a lot
                 // of repetitive content in conversations (multiple byes, etc.)."
-                "")
+                "", player)
                 .thenAccept(ent_msg -> {
-                    try {
-                        if (ent_msg == null) {
-                            throw new RuntimeException(ChatGPTRequest.lastErrorMessage);
+                    serverInstance.execute(() -> {
+                        try {
+                            if (ent_msg == null) {
+                                throw new RuntimeException(ChatGPTRequest.lastErrorMessage);
+                            }
+                            onUncleanResponse.accept(ent_msg);
+                        } catch (Exception e) {
+                            onError.accept(e != null && e.getMessage() != null ? e.getMessage() : "");
                         }
-                        onUncleanResponse.accept(ent_msg);
-                    } catch (Exception e) {
-                        onError.accept(e.getMessage() != null ? e.getMessage() : "");
-                    }
+                    });
+                })
+                .exceptionally(ex -> {
+                    ServerPackets.serverInstance.execute(() -> {
+                        onError.accept(ex != null && ex.getMessage() != null ? ex.getMessage() : "");
+                    });
+                    return null;
                 });
     }
 

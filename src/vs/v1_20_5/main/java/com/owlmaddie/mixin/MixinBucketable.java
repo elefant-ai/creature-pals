@@ -27,7 +27,7 @@ import net.minecraft.world.item.component.CustomData;
 @Mixin(Bucketable.class)
 public interface MixinBucketable {
     @Inject(method = "saveDefaultDataToBucketTag(Lnet/minecraft/world/entity/Mob;Lnet/minecraft/world/item/ItemStack;)V", at = @At("TAIL"))
-    private static void addCCUUIDToStack(Mob entity, ItemStack stack, CallbackInfo ci) {
+    private static void addCPUUIDToStack(Mob entity, ItemStack stack, CallbackInfo ci) {
         Logger LOGGER = LoggerFactory.getLogger("creaturepals");
         UUID originalUUID = entity.getUUID();
         LOGGER.info("Saving original UUID of bucketed entity: " + originalUUID);
@@ -38,16 +38,16 @@ public interface MixinBucketable {
         CustomData component = stack.getOrDefault(type, CustomData.of(new CompoundTag()));
         // Copy its internal NBT, modify, then reapply
         CompoundTag data = component.copyTag();
-        data.putUUID("CCUUID", originalUUID);
+        data.putUUID("CPUUID", originalUUID);
         stack.set(type, CustomData.of(data));
     }
 
     @Inject(method = "loadDefaultDataFromBucketTag(Lnet/minecraft/world/entity/Mob;Lnet/minecraft/nbt/CompoundTag;)V", at = @At("TAIL"))
-    private static void readCCUUIDFromNbt(Mob entity, CompoundTag nbt, CallbackInfo ci) {
+    private static void readCPUUIDFromNbt(Mob entity, CompoundTag nbt, CallbackInfo ci) {
         Logger LOGGER = LoggerFactory.getLogger("creaturepals");
         UUID newUUID = entity.getUUID();
-        if (nbt.contains("CCUUID")) {
-            UUID originalUUID = nbt.getUUID("CCUUID");
+        if (nbt.contains("CPUUID")) {
+            UUID originalUUID = nbt.getUUID("CPUUID");
             LOGGER.info("Duplicating bucketed chat data for original UUID (" + originalUUID + ") to cloned entity: ("
                     + newUUID + ")");
             ChatDataManager.getServerInstance().updateUUID(originalUUID.toString(), newUUID.toString());
