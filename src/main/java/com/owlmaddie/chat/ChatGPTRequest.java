@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.chat;
 
 import com.google.gson.Gson;
@@ -254,10 +254,10 @@ public class ChatGPTRequest {
                         String content = chatGPTResponse.choices.get(0).message.content;
                         if (content == null) {
 
-                        LOGGER.info("CHATGPT RETURN NULL");
+                            LOGGER.info("CHATGPT RETURN NULL");
                             return "";
                         }
-                        LOGGER.info("CHATGPT RETURN "+ content);
+                        LOGGER.info("CHATGPT RETURN " + content);
                         return content;
                     } else {
                         LOGGER.info("CHATGPT RETURN NULL ERR");

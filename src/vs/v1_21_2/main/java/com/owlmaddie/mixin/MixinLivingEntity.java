@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.mixin;
 
 import com.owlmaddie.chat.ChatDataManager;
@@ -37,11 +37,7 @@ public class MixinLivingEntity {
         return chatDataManager.getOrCreateChatData(entity.getStringUUID());
     }
 
-    @Inject(
-            method = "canAttack(Lnet/minecraft/world/entity/LivingEntity;)Z",
-            at = @At("HEAD"),
-            cancellable = true
-    )
+    @Inject(method = "canAttack(Lnet/minecraft/world/entity/LivingEntity;)Z", at = @At("HEAD"), cancellable = true)
     private void modifyCanAttack(LivingEntity target, CallbackInfoReturnable<Boolean> cir) {
         if (target instanceof Player) {
             LivingEntity thisEntity = (LivingEntity) (Object) this;
@@ -54,14 +50,11 @@ public class MixinLivingEntity {
         }
     }
 
-    @Inject(
-            method = "hurtServer(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)Z",
-            at     = @At("RETURN")
-    )
+    @Inject(method = "hurtServer(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)Z", at = @At("RETURN"))
     private void onHurt(ServerLevel world,
-                        DamageSource source,
-                        float amount,
-                        CallbackInfoReturnable<Boolean> cir) {
+            DamageSource source,
+            float amount,
+            CallbackInfoReturnable<Boolean> cir) {
         this.handleOnDamage(source, amount, cir);
     }
 
@@ -69,10 +62,11 @@ public class MixinLivingEntity {
      * Shared logic for post-damage chat generation.
      */
     private void handleOnDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
-        if (!cir.getReturnValue()) return;
+        if (!cir.getReturnValue())
+            return;
 
         Entity attacker = source.getEntity();
-        LivingEntity self = (LivingEntity)(Object)this;
+        LivingEntity self = (LivingEntity) (Object) this;
 
         if (attacker instanceof Player player
                 && self instanceof Mob mob
@@ -96,19 +90,16 @@ public class MixinLivingEntity {
                 String msg = "<" + player.getName().getString()
                         + " attacked you " + directness
                         + " " + weaponName + ">";
-                EventQueueManager.addUserMessage(self, "N/A",serverPlayer,
-                            msg, true);
+                EventQueueManager.addUserMessage(self, "N/A", serverPlayer,
+                        msg, true);
             }
         }
     }
 
-    @Inject(
-            method = "getDamageAfterArmorAbsorb(Lnet/minecraft/world/damagesource/DamageSource;F)F",
-            at     = @At("RETURN")
-    )
+    @Inject(method = "getDamageAfterArmorAbsorb(Lnet/minecraft/world/damagesource/DamageSource;F)F", at = @At("RETURN"))
     private void afterArmor(DamageSource source,
-                            float rawDamage,
-                            CallbackInfoReturnable<Float> cir) {
+            float rawDamage,
+            CallbackInfoReturnable<Float> cir) {
         LivingEntity entity = (LivingEntity) (Object) this;
         Level world = entity.level();
 

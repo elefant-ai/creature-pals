@@ -1,6 +1,5 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
 package com.owlmaddie;
 
 import com.owlmaddie.chat.ChatDataManager;
@@ -20,7 +19,8 @@ import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 
 /**
- * The {@code ClientInit} class initializes this mod in the client and defines all hooks into the
+ * The {@code ClientInit} class initializes this mod in the client and defines
+ * all hooks into the
  * render pipeline to draw chat bubbles, text, and entity icons.
  */
 public class ClientInit implements ClientModInitializer {
@@ -29,18 +29,18 @@ public class ClientInit implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         // Register particle factories
-        ParticleFactoryRegistry.getInstance().register(Particles.HEART_SMALL_PARTICLE,   CreatureParticleFactory::new);
-        ParticleFactoryRegistry.getInstance().register(Particles.HEART_BIG_PARTICLE,     CreatureParticleFactory::new);
-        ParticleFactoryRegistry.getInstance().register(Particles.FIRE_SMALL_PARTICLE,    CreatureParticleFactory::new);
-        ParticleFactoryRegistry.getInstance().register(Particles.FIRE_BIG_PARTICLE,      CreatureParticleFactory::new);
-        ParticleFactoryRegistry.getInstance().register(Particles.ATTACK_PARTICLE,        CreatureParticleFactory::new);
-        ParticleFactoryRegistry.getInstance().register(Particles.FLEE_PARTICLE,          CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(Particles.HEART_SMALL_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(Particles.HEART_BIG_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(Particles.FIRE_SMALL_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(Particles.FIRE_BIG_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(Particles.ATTACK_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(Particles.FLEE_PARTICLE, CreatureParticleFactory::new);
         ParticleFactoryRegistry.getInstance().register(Particles.FOLLOW_FRIEND_PARTICLE, CreatureParticleFactory::new);
-        ParticleFactoryRegistry.getInstance().register(Particles.FOLLOW_ENEMY_PARTICLE,  CreatureParticleFactory::new);
-        ParticleFactoryRegistry.getInstance().register(Particles.PROTECT_PARTICLE,       CreatureParticleFactory::new);
-        ParticleFactoryRegistry.getInstance().register(Particles.LEAD_FRIEND_PARTICLE,   CreatureParticleFactory::new);
-        ParticleFactoryRegistry.getInstance().register(Particles.LEAD_ENEMY_PARTICLE,    CreatureParticleFactory::new);
-        ParticleFactoryRegistry.getInstance().register(Particles.LEAD_PARTICLE,          LeadParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(Particles.FOLLOW_ENEMY_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(Particles.PROTECT_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(Particles.LEAD_FRIEND_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(Particles.LEAD_ENEMY_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(Particles.LEAD_PARTICLE, LeadParticleFactory::new);
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             tickCounter++;
@@ -58,7 +58,8 @@ public class ClientInit implements ClientModInitializer {
             BubbleRenderer.drawTextAboveEntities(ctx, tickCounter, delta);
         });
 
-        // Register an event callback for when the client disconnects from a server or changes worlds
+        // Register an event callback for when the client disconnects from a server or
+        // changes worlds
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             // Clear or reset the ChatDataManager
             ChatDataManager.getClientInstance().clearData();

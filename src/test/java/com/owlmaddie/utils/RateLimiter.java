@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.utils;
 
 import java.util.concurrent.Semaphore;
@@ -8,7 +8,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
- * The {@code RateLimiter} class is used to slow down LLM unit tests so we don't hit any rate limits accidentally.
+ * The {@code RateLimiter} class is used to slow down LLM unit tests so we don't
+ * hit any rate limits accidentally.
  */
 public class RateLimiter {
     private final Semaphore semaphore;

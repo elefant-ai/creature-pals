@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.ui;
 
 import com.owlmaddie.chat.ChatDataManager;
@@ -8,7 +8,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The {@code PlayerMessageManager} class keeps track of currently visible player messages. These are temporary,
+ * The {@code PlayerMessageManager} class keeps track of currently visible
+ * player messages. These are temporary,
  * and only stored when they need to be rendered.
  */
 public class PlayerMessageManager {
@@ -56,4 +57,3 @@ public class PlayerMessageManager {
         openChatUIs.remove(playerId);
     }
 }
-

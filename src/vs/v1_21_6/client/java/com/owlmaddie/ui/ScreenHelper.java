@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.ui;
 
 import com.owlmaddie.render.BlendHelper;
@@ -14,7 +14,8 @@ import net.minecraft.resources.ResourceLocation;
 
 /**
  * Provides a Screen class which renders a chat-background, and can be modified
- * for different versions of Minecraft (as API changes happen). This is modified for Minecraft 1.21.6.
+ * for different versions of Minecraft (as API changes happen). This is modified
+ * for Minecraft 1.21.6.
  */
 public abstract class ScreenHelper extends Screen {
     protected int BG_WIDTH, BG_HEIGHT, bgX, bgY, TITLE_OFFSET;
@@ -43,17 +44,17 @@ public abstract class ScreenHelper extends Screen {
         // Draw the chat-box texture
         // ResourceLocation bgTex = textures.GetUI("chat-background");
         // if (bgTex != null) {
-        //     BlendHelper.enableBlend();
-        //     BlendHelper.defaultBlendFunc();
-        //     context.blit(
-        //             RenderPipelines.GUI_TEXTURED,
-        //             bgTex,
-        //             bgX, bgY,
-        //             0f, 0f,
-        //             BG_WIDTH, BG_HEIGHT,
-        //             BG_WIDTH, BG_HEIGHT
-        //     );
-        //     BlendHelper.disableBlend();
+        // BlendHelper.enableBlend();
+        // BlendHelper.defaultBlendFunc();
+        // context.blit(
+        // RenderPipelines.GUI_TEXTURED,
+        // bgTex,
+        // bgX, bgY,
+        // 0f, 0f,
+        // BG_WIDTH, BG_HEIGHT,
+        // BG_WIDTH, BG_HEIGHT
+        // );
+        // BlendHelper.disableBlend();
         // }
 
         // // Render children/widgets but suppress their background call
@@ -63,7 +64,7 @@ public abstract class ScreenHelper extends Screen {
 
         // Draw the "Enter your message:" label
         EditBox tf = getTextField();
-        Component           lbl = getLabelText();
+        Component lbl = getLabelText();
         int lw = font.width(lbl);
         int lx = (this.width - lw) / 2;
         int ly = tf.getY() - TITLE_OFFSET;
@@ -73,7 +74,7 @@ public abstract class ScreenHelper extends Screen {
     @Override
     public void renderBackground(GuiGraphics context, int mouseX, int mouseY, float delta) {
         if (!skipNextBackground) {
-            //super.renderBackground(context, mouseX, mouseY, delta);
+            // super.renderBackground(context, mouseX, mouseY, delta);
         }
     }
 }

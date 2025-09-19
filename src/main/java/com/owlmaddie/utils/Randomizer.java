@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.utils;
 
 import java.util.Arrays;
@@ -8,11 +8,15 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * The {@code Randomizer} class provides easy functions for generating a variety of different random numbers
+ * The {@code Randomizer} class provides easy functions for generating a variety
+ * of different random numbers
  * and phrases used by this mod.
  */
 public class Randomizer {
-    public enum RandomType { NO_RESPONSE, ERROR, ADJECTIVE, SPEAKING_STYLE, CLASS, ALIGNMENT }
+    public enum RandomType {
+        NO_RESPONSE, ERROR, ADJECTIVE, SPEAKING_STYLE, CLASS, ALIGNMENT
+    }
+
     private static List<String> noResponseMessages = Arrays.asList(
             "<no response>",
             "<silence>",
@@ -37,8 +41,7 @@ public class Randomizer {
             "<peers over your shoulder>",
             "<fakes a smile>",
             "<mutters under breath>",
-            "<counts imaginary stars>"
-    );
+            "<counts imaginary stars>");
     private static List<String> errorResponseMessages = Arrays.asList(
             "Seems like my words got lost in the End. Check out https://player2.game/discord for clues!",
             "Oops! My speech bubble popped. Need help? Visit https://player2.game/discord",
@@ -59,8 +62,7 @@ public class Randomizer {
             "Are my words mining without a pickaxe? Dig up some help at https://player2.game/discord",
             "Sorry, my parrot ate the response. Teach it better at https://player2.game/discord",
             "My magic mirror says: 'Better answers found at https://player2.game/discord'",
-            "This message is temporarily out of order. Order yours at https://player2.game/discord"
-    );
+            "This message is temporarily out of order. Order yours at https://player2.game/discord");
     private static List<String> characterAdjectives = Arrays.asList(
             "mystical", "fiery", "ancient", "cursed", "ethereal", "clumsy", "stealthy",
             "legendary", "toxic", "enigmatic", "celestial", "rambunctious", "shadowy",
@@ -78,8 +80,7 @@ public class Randomizer {
             "unpredictable", "wildcard", "stuttering", "hypochondriac", "hypocritical",
             "optimistic", "overconfident", "jumpy", "brief", "flighty", "visionary", "adorable",
             "sparkly", "bubbly", "unstable", "sad", "angry", "bossy", "altruistic", "quirky",
-            "nostalgic", "emotional", "enthusiastic", "unusual", "conspirator", "traitorous"
-    );
+            "nostalgic", "emotional", "enthusiastic", "unusual", "conspirator", "traitorous");
     private static List<String> speakingStyles = Arrays.asList(
             "formal", "casual", "eloquent", "blunt", "humorous", "sarcastic", "mysterious",
             "cheerful", "melancholic", "authoritative", "nervous", "whimsical", "grumpy",
@@ -92,8 +93,7 @@ public class Randomizer {
             "hipster", "mobster", "angry", "heroic", "disagreeable", "minimalist",
             "scientific", "bureaucratic", "DJ", "military", "shy", "tsundere", "theater kid",
             "boomer", "goth", "surfer", "detective noir", "stupid", "auctioneer", "exaggerated British",
-            "corporate jargon", "motivational speaker", "fast-talking salesperson", "slimy"
-    );
+            "corporate jargon", "motivational speaker", "fast-talking salesperson", "slimy");
     private static List<String> classes = Arrays.asList(
             "warrior", "mage", "archer", "rogue", "paladin", "necromancer", "bard", "lorekeeper",
             "sorcerer", "ranger", "cleric", "berserker", "alchemist", "summoner", "shaman",
@@ -106,13 +106,11 @@ public class Randomizer {
             "librarian", "blacksmith", "architect", "trapper", "baker", "mineralogist",
             "beekeeper", "hermit", "farlander", "void searcher", "end explorer", "archeologist",
             "hero", "villain", "mercenary", "guardian", "rebel", "paragon",
-            "antagonist", "avenger", "seeker", "mystic", "outlaw"
-    );
+            "antagonist", "avenger", "seeker", "mystic", "outlaw");
     private static List<String> alignments = Arrays.asList(
             "lawful good", "neutral good", "chaotic good",
             "lawful neutral", "true neutral", "chaotic neutral",
-            "lawful evil", "neutral evil", "chaotic evil"
-    );
+            "lawful evil", "neutral evil", "chaotic evil");
 
     // Get random no response message
     public static String getRandomMessage(RandomType messageType) {

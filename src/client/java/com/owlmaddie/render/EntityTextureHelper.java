@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.render;
 
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -8,11 +8,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 
 /**
- * Helper to access the getTexture method of a renderer. This API changes in later versions of Minecraft, so we
+ * Helper to access the getTexture method of a renderer. This API changes in
+ * later versions of Minecraft, so we
  * are isolating it into a Helper.
  */
 public final class EntityTextureHelper {
-    private EntityTextureHelper() {}
+    private EntityTextureHelper() {
+    }
 
     /**
      * @param renderer the vanilla EntityRenderer from 1.20.x

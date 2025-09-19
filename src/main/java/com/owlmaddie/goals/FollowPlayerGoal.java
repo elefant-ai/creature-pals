@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.goals;
 
 import com.owlmaddie.controls.LookControls;
@@ -16,7 +16,8 @@ import net.minecraft.world.phys.Vec3;
 import java.util.EnumSet;
 
 /**
- * The {@code FollowPlayerGoal} class instructs a Mob Entity to follow the current target entity.
+ * The {@code FollowPlayerGoal} class instructs a Mob Entity to follow the
+ * current target entity.
  */
 public class FollowPlayerGoal extends PlayerBaseGoal {
     private final Mob entity;
@@ -62,7 +63,7 @@ public class FollowPlayerGoal extends PlayerBaseGoal {
         } else {
             // Look at the player and start moving towards them
             if (this.targetEntity instanceof ServerPlayer) {
-                LookControls.lookAtPlayer((ServerPlayer)this.targetEntity, this.entity);
+                LookControls.lookAtPlayer((ServerPlayer) this.targetEntity, this.entity);
             }
             this.navigation.moveTo(this.targetEntity, this.speed);
         }
@@ -70,7 +71,8 @@ public class FollowPlayerGoal extends PlayerBaseGoal {
 
     private Vec3 findTeleportPosition(int distance) {
         if (this.entity instanceof PathfinderMob) {
-            return LandRandomPos.getPosTowards((PathfinderMob) this.entity, distance, distance, this.targetEntity.position());
+            return LandRandomPos.getPosTowards((PathfinderMob) this.entity, distance, distance,
+                    this.targetEntity.position());
         }
         return null;
     }

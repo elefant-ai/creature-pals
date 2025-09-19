@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.ui;
 
 import java.util.Collections;
@@ -11,14 +11,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * The {@code BubbleLocationManager} class is used to keep track of the currently rendered chat bubbles,
- * to simplify click handling of nearby chat bubbles. This data includes the exact location of the chat
+ * The {@code BubbleLocationManager} class is used to keep track of the
+ * currently rendered chat bubbles,
+ * to simplify click handling of nearby chat bubbles. This data includes the
+ * exact location of the chat
  * bubbles, and their rotations (pitch, yaw).
  */
 public class BubbleLocationManager {
     private static final Map<UUID, BubbleData> bubbleDataMap = new ConcurrentHashMap<>();
 
-    public static void updateBubbleData(UUID entityId, Vec3 position, double width, double height, double yaw, double pitch) {
+    public static void updateBubbleData(UUID entityId, Vec3 position, double width, double height, double yaw,
+            double pitch) {
         bubbleDataMap.put(entityId, new BubbleData(position, width, height, yaw, pitch));
     }
 
@@ -51,4 +54,3 @@ public class BubbleLocationManager {
         return Collections.unmodifiableMap(bubbleDataMap);
     }
 }
-

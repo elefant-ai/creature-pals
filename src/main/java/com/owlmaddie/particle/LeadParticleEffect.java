@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.particle;
 
 import com.mojang.brigadier.StringReader;
@@ -12,7 +12,8 @@ import net.minecraft.network.FriendlyByteBuf;
 import static com.owlmaddie.network.ServerPackets.LEAD_PARTICLE;
 
 /**
- * The {@code LeadParticleEffect} class allows for an 'angle' to be passed along with the Particle, to rotate it in the direction of LEAD behavior.
+ * The {@code LeadParticleEffect} class allows for an 'angle' to be passed along
+ * with the Particle, to rotate it in the direction of LEAD behavior.
  */
 public class LeadParticleEffect implements ParticleOptions {
     public static final ParticleOptions.Deserializer<LeadParticleEffect> DESERIALIZER = new Deserializer<>() {
@@ -24,7 +25,8 @@ public class LeadParticleEffect implements ParticleOptions {
         }
 
         @Override
-        public LeadParticleEffect fromCommand(ParticleType<LeadParticleEffect> particleType, StringReader reader) throws CommandSyntaxException {
+        public LeadParticleEffect fromCommand(ParticleType<LeadParticleEffect> particleType, StringReader reader)
+                throws CommandSyntaxException {
             // Read the angle from a string
             double angle = reader.readDouble();
             return new LeadParticleEffect(angle);

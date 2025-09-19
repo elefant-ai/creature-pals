@@ -1,13 +1,14 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.utils;
 
 import java.io.ByteArrayOutputStream;
 import java.util.zip.Deflater;
 
 /**
- * The {@code Compression} class is used to compress a JSON string and return a byte array.
+ * The {@code Compression} class is used to compress a JSON string and return a
+ * byte array.
  */
 public class Compression {
 

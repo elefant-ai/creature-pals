@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.mixin;
 
 import com.owlmaddie.chat.ChatDataManager;
@@ -21,14 +21,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 
 /**
- * Updated Bucketable mixin for Minecraft 1.20.5+ compatibility (new Data Component API for NBT)
+ * Updated Bucketable mixin for Minecraft 1.20.5+ compatibility (new Data
+ * Component API for NBT)
  */
 @Mixin(Bucketable.class)
 public interface MixinBucketable {
-    @Inject(
-            method = "saveDefaultDataToBucketTag(Lnet/minecraft/world/entity/Mob;Lnet/minecraft/world/item/ItemStack;)V",
-            at = @At("TAIL")
-    )
+    @Inject(method = "saveDefaultDataToBucketTag(Lnet/minecraft/world/entity/Mob;Lnet/minecraft/world/item/ItemStack;)V", at = @At("TAIL"))
     private static void addCCUUIDToStack(Mob entity, ItemStack stack, CallbackInfo ci) {
         Logger LOGGER = LoggerFactory.getLogger("creaturepals");
         UUID originalUUID = entity.getUUID();
@@ -44,16 +42,14 @@ public interface MixinBucketable {
         stack.set(type, CustomData.of(data));
     }
 
-    @Inject(
-            method = "loadDefaultDataFromBucketTag(Lnet/minecraft/world/entity/Mob;Lnet/minecraft/nbt/CompoundTag;)V",
-            at = @At("TAIL")
-    )
+    @Inject(method = "loadDefaultDataFromBucketTag(Lnet/minecraft/world/entity/Mob;Lnet/minecraft/nbt/CompoundTag;)V", at = @At("TAIL"))
     private static void readCCUUIDFromNbt(Mob entity, CompoundTag nbt, CallbackInfo ci) {
         Logger LOGGER = LoggerFactory.getLogger("creaturepals");
         UUID newUUID = entity.getUUID();
         if (nbt.contains("CCUUID")) {
             UUID originalUUID = nbt.getUUID("CCUUID");
-            LOGGER.info("Duplicating bucketed chat data for original UUID (" + originalUUID + ") to cloned entity: (" + newUUID + ")");
+            LOGGER.info("Duplicating bucketed chat data for original UUID (" + originalUUID + ") to cloned entity: ("
+                    + newUUID + ")");
             ChatDataManager.getServerInstance().updateUUID(originalUUID.toString(), newUUID.toString());
         }
     }

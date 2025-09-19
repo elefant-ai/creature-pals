@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.utils;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -20,8 +20,10 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 
 /**
- * The {@code TextureLoader} class registers and returns texture identifiers for resources
- * contained for this mod. UI and Entity icons. Missing textures are logged once.
+ * The {@code TextureLoader} class registers and returns texture identifiers for
+ * resources
+ * contained for this mod. UI and Entity icons. Missing textures are logged
+ * once.
  * Modified for 1.21.5.
  */
 public class TextureLoader {
@@ -30,7 +32,8 @@ public class TextureLoader {
     public static GpuTexture lastTexture = null;
     public static ResourceLocation lastTextureId = null;
 
-    public TextureLoader() {}
+    public TextureLoader() {
+    }
 
     /**
      * Load and bind a UI texture (assets/creaturepals/textures/ui/{name}.png).

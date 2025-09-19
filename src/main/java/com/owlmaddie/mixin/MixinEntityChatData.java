@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.mixin;
 
 import com.owlmaddie.chat.ChatDataManager;
@@ -23,7 +23,8 @@ public abstract class MixinEntityChatData {
     public abstract UUID getUUID();
 
     /**
-     * When writing NBT data, if the entity has chat data then store its UUID under "CCUUID".
+     * When writing NBT data, if the entity has chat data then store its UUID under
+     * "CCUUID".
      */
     @Inject(method = "saveWithoutId(Lnet/minecraft/nbt/CompoundTag;)Lnet/minecraft/nbt/CompoundTag;", at = @At("TAIL"))
     private void writeChatData(CompoundTag nbt, CallbackInfoReturnable<CompoundTag> cir) {
@@ -31,16 +32,19 @@ public abstract class MixinEntityChatData {
 
         // Retrieve or create the chat data for this entity.
         EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(currentUUID.toString());
-        // If the entity actually has chat data (for example, if its character sheet is non-empty), add CCUUID.
+        // If the entity actually has chat data (for example, if its character sheet is
+        // non-empty), add CCUUID.
         if (!chatData.characterSheet.isEmpty()) {
-            // Note: cir.getReturnValue() returns the NBT compound the method is about to return.
+            // Note: cir.getReturnValue() returns the NBT compound the method is about to
+            // return.
             CompoundTag returned = cir.getReturnValue();
             NbtCompoundHelper.putUuid(returned, "CCUUID", currentUUID);
         }
     }
 
     /**
-     * When reading NBT data, if there is a "CCUUID" entry and it does not match the entity’s current UUID,
+     * When reading NBT data, if there is a "CCUUID" entry and it does not match the
+     * entity’s current UUID,
      * update our chat data key to reflect the change.
      */
     @Inject(method = "load(Lnet/minecraft/nbt/CompoundTag;)V", at = @At("TAIL"))

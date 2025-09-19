@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
@@ -31,8 +31,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * The {@code CreatureChatCommands} class registers custom commands to set new API key, model, and url.
- * Permission level set to 4 (server owner), since this deals with API keys and potential costs.
+ * The {@code CreatureChatCommands} class registers custom commands to set new
+ * API key, model, and url.
+ * Permission level set to 4 (server owner), since this deals with API keys and
+ * potential costs.
  */
 public class CreaturePalsCommands {
     public static final Logger LOGGER = LoggerFactory.getLogger("creaturepals");
@@ -58,26 +60,34 @@ public class CreaturePalsCommands {
                 .then(registerHelpCommand()));
     }
 
-    private static LiteralArgumentBuilder<CommandSourceStack> registerSetCommand(String settingName, String settingDescription, ArgumentType<?> valueType) {
+    private static LiteralArgumentBuilder<CommandSourceStack> registerSetCommand(String settingName,
+            String settingDescription, ArgumentType<?> valueType) {
         return Commands.literal(settingName)
                 .requires(source -> source.hasPermission(4))
                 .then(Commands.literal("set")
                         .then(Commands.argument("value", valueType)
                                 .then(addConfigArgs((context, useServerConfig) -> {
                                     if (valueType instanceof StringArgumentType)
-                                        return setConfig(context.getSource(), settingName, StringArgumentType.getString(context, "value"), useServerConfig, settingDescription);
+                                        return setConfig(context.getSource(), settingName,
+                                                StringArgumentType.getString(context, "value"), useServerConfig,
+                                                settingDescription);
                                     else if (valueType instanceof IntegerArgumentType)
-                                        return setConfig(context.getSource(), settingName, IntegerArgumentType.getInteger(context, "value"), useServerConfig, settingDescription);
+                                        return setConfig(context.getSource(), settingName,
+                                                IntegerArgumentType.getInteger(context, "value"), useServerConfig,
+                                                settingDescription);
                                     return 1;
                                 }))
                                 .executes(context -> {
                                     if (valueType instanceof StringArgumentType)
-                                        return setConfig(context.getSource(), settingName, StringArgumentType.getString(context, "value"), false, settingDescription);
+                                        return setConfig(context.getSource(), settingName,
+                                                StringArgumentType.getString(context, "value"), false,
+                                                settingDescription);
                                     else if (valueType instanceof IntegerArgumentType)
-                                        return setConfig(context.getSource(), settingName, IntegerArgumentType.getInteger(context, "value"), false, settingDescription);
+                                        return setConfig(context.getSource(), settingName,
+                                                IntegerArgumentType.getInteger(context, "value"), false,
+                                                settingDescription);
                                     return 1;
-                                })
-                        ));
+                                })));
     }
 
     private static List<ResourceLocation> getLivingEntityIds() {
@@ -85,13 +95,12 @@ public class CreaturePalsCommands {
                 .keySet()
                 .stream()
                 .filter(id ->
-                        // getOptional(...) returns Optional<EntityType<?>> on all versions
-                        BuiltInRegistries.ENTITY_TYPE
-                                .getOptional(id)
-                                .map(type -> type.getCategory() != MobCategory.MISC
-                                        || isIncludedEntity(type))
-                                .orElse(false)
-                )
+                // getOptional(...) returns Optional<EntityType<?>> on all versions
+                BuiltInRegistries.ENTITY_TYPE
+                        .getOptional(id)
+                        .map(type -> type.getCategory() != MobCategory.MISC
+                                || isIncludedEntity(type))
+                        .orElse(false))
                 .collect(Collectors.toList());
     }
 
@@ -106,29 +115,33 @@ public class CreaturePalsCommands {
                 .map(ResourceLocation::toString)
                 .collect(Collectors.toList());
     }
-    private static LiteralArgumentBuilder<CommandSourceStack> registerTTSCommand(){
+
+    private static LiteralArgumentBuilder<CommandSourceStack> registerTTSCommand() {
         return Commands.literal("tts")
                 .requires(source -> source.hasPermission(4))
                 .then(Commands.literal("set")
-                    .then(Commands.literal("on")
-                        .executes(context -> TTS.enableTTS())   
-                    ).then(Commands.literal("off")
-                        .executes(context -> TTS.disableTTS()))
-                );
+                        .then(Commands.literal("on")
+                                .executes(context -> TTS.enableTTS()))
+                        .then(Commands.literal("off")
+                                .executes(context -> TTS.disableTTS())));
     }
+
     private static LiteralArgumentBuilder<CommandSourceStack> registerChatBubbleCommand() {
         return Commands.literal("chatbubble")
                 .requires(source -> source.hasPermission(4))
                 .then(Commands.literal("set")
                         .then(Commands.literal("on")
-                                .then(addConfigArgs((context, useServerConfig) -> setChatBubbleEnabled(context, true, useServerConfig)))
+                                .then(addConfigArgs((context, useServerConfig) -> setChatBubbleEnabled(context, true,
+                                        useServerConfig)))
                                 .executes(context -> setChatBubbleEnabled(context, true, false)))
                         .then(Commands.literal("off")
-                                .then(addConfigArgs((context, useServerConfig) -> setChatBubbleEnabled(context, false, useServerConfig)))
+                                .then(addConfigArgs((context, useServerConfig) -> setChatBubbleEnabled(context, false,
+                                        useServerConfig)))
                                 .executes(context -> setChatBubbleEnabled(context, false, false))));
     }
 
-    private static int setChatBubbleEnabled(CommandContext<CommandSourceStack> context, boolean enabled, boolean useServerConfig) {
+    private static int setChatBubbleEnabled(CommandContext<CommandSourceStack> context, boolean enabled,
+            boolean useServerConfig) {
         CommandSourceStack source = context.getSource();
         ConfigurationHandler configHandler = new ConfigurationHandler(source.getServer());
         ConfigurationHandler.Config config = configHandler.loadConfig();
@@ -136,11 +149,14 @@ public class CreaturePalsCommands {
         config.setChatBubbles(enabled);
 
         if (configHandler.saveConfig(config, useServerConfig)) {
-            Component feedbackMessage = Component.literal("Player chat bubbles have been " + (enabled ? "enabled" : "disabled") + ".").withStyle(ChatFormatting.GREEN);
+            Component feedbackMessage = Component
+                    .literal("Player chat bubbles have been " + (enabled ? "enabled" : "disabled") + ".")
+                    .withStyle(ChatFormatting.GREEN);
             source.sendSuccess(() -> feedbackMessage, true);
             return 1;
         } else {
-            Component feedbackMessage = Component.literal("Failed to update player chat bubble setting.").withStyle(ChatFormatting.RED);
+            Component feedbackMessage = Component.literal("Failed to update player chat bubble setting.")
+                    .withStyle(ChatFormatting.RED);
             source.sendSuccess(() -> feedbackMessage, false);
             return 0;
         }
@@ -150,14 +166,19 @@ public class CreaturePalsCommands {
         return Commands.literal("whitelist")
                 .requires(source -> source.hasPermission(4))
                 .then(Commands.argument("entityType", ResourceLocationArgument.id())
-                        .suggests((context, builder) -> SharedSuggestionProvider.suggestResource(getLivingEntityIds(), builder))
-                        .then(addConfigArgs((context, useServerConfig) -> modifyList(context, "whitelist", ResourceLocationArgument.getId(context, "entityType").toString(), useServerConfig)))
-                        .executes(context -> modifyList(context, "whitelist", ResourceLocationArgument.getId(context, "entityType").toString(), false)))
+                        .suggests((context, builder) -> SharedSuggestionProvider.suggestResource(getLivingEntityIds(),
+                                builder))
+                        .then(addConfigArgs((context, useServerConfig) -> modifyList(context, "whitelist",
+                                ResourceLocationArgument.getId(context, "entityType").toString(), useServerConfig)))
+                        .executes(context -> modifyList(context, "whitelist",
+                                ResourceLocationArgument.getId(context, "entityType").toString(), false)))
                 .then(Commands.literal("all")
-                        .then(addConfigArgs((context, useServerConfig) -> modifyList(context, "whitelist", "all", useServerConfig)))
+                        .then(addConfigArgs(
+                                (context, useServerConfig) -> modifyList(context, "whitelist", "all", useServerConfig)))
                         .executes(context -> modifyList(context, "whitelist", "all", false)))
                 .then(Commands.literal("clear")
-                        .then(addConfigArgs((context, useServerConfig) -> modifyList(context, "whitelist", "clear", useServerConfig)))
+                        .then(addConfigArgs((context, useServerConfig) -> modifyList(context, "whitelist", "clear",
+                                useServerConfig)))
                         .executes(context -> modifyList(context, "whitelist", "clear", false)));
     }
 
@@ -165,14 +186,19 @@ public class CreaturePalsCommands {
         return Commands.literal("blacklist")
                 .requires(source -> source.hasPermission(4))
                 .then(Commands.argument("entityType", ResourceLocationArgument.id())
-                        .suggests((context, builder) -> SharedSuggestionProvider.suggestResource(getLivingEntityIds(), builder))
-                        .then(addConfigArgs((context, useServerConfig) -> modifyList(context, "blacklist", ResourceLocationArgument.getId(context, "entityType").toString(), useServerConfig)))
-                        .executes(context -> modifyList(context, "blacklist", ResourceLocationArgument.getId(context, "entityType").toString(), false)))
+                        .suggests((context, builder) -> SharedSuggestionProvider.suggestResource(getLivingEntityIds(),
+                                builder))
+                        .then(addConfigArgs((context, useServerConfig) -> modifyList(context, "blacklist",
+                                ResourceLocationArgument.getId(context, "entityType").toString(), useServerConfig)))
+                        .executes(context -> modifyList(context, "blacklist",
+                                ResourceLocationArgument.getId(context, "entityType").toString(), false)))
                 .then(Commands.literal("all")
-                        .then(addConfigArgs((context, useServerConfig) -> modifyList(context, "blacklist", "all", useServerConfig)))
+                        .then(addConfigArgs(
+                                (context, useServerConfig) -> modifyList(context, "blacklist", "all", useServerConfig)))
                         .executes(context -> modifyList(context, "blacklist", "all", false)))
                 .then(Commands.literal("clear")
-                        .then(addConfigArgs((context, useServerConfig) -> modifyList(context, "blacklist", "clear", useServerConfig)))
+                        .then(addConfigArgs((context, useServerConfig) -> modifyList(context, "blacklist", "clear",
+                                useServerConfig)))
                         .executes(context -> modifyList(context, "blacklist", "clear", false)));
     }
 
@@ -205,43 +231,57 @@ public class CreaturePalsCommands {
                         .then(Commands.argument("value", StringArgumentType.string())
                                 .then(addConfigArgs((context, useServerConfig) -> {
                                     String story = StringArgumentType.getString(context, "value");
-                                    ConfigurationHandler.Config config = new ConfigurationHandler(context.getSource().getServer()).loadConfig();
+                                    ConfigurationHandler.Config config = new ConfigurationHandler(
+                                            context.getSource().getServer()).loadConfig();
                                     config.setStory(story);
-                                    if (new ConfigurationHandler(context.getSource().getServer()).saveConfig(config, useServerConfig)) {
-                                        context.getSource().sendSuccess(() -> Component.literal("Story set successfully: " + story).withStyle(ChatFormatting.GREEN), true);
+                                    if (new ConfigurationHandler(context.getSource().getServer()).saveConfig(config,
+                                            useServerConfig)) {
+                                        context.getSource()
+                                                .sendSuccess(() -> Component.literal("Story set successfully: " + story)
+                                                        .withStyle(ChatFormatting.GREEN), true);
                                         return 1;
                                     } else {
-                                        context.getSource().sendSuccess(() -> Component.literal("Failed to set story!").withStyle(ChatFormatting.RED), false);
+                                        context.getSource().sendSuccess(() -> Component.literal("Failed to set story!")
+                                                .withStyle(ChatFormatting.RED), false);
                                         return 0;
                                     }
                                 }))))
                 .then(Commands.literal("clear")
                         .then(addConfigArgs((context, useServerConfig) -> {
-                            ConfigurationHandler.Config config = new ConfigurationHandler(context.getSource().getServer()).loadConfig();
+                            ConfigurationHandler.Config config = new ConfigurationHandler(
+                                    context.getSource().getServer()).loadConfig();
                             config.setStory("");
-                            if (new ConfigurationHandler(context.getSource().getServer()).saveConfig(config, useServerConfig)) {
-                                context.getSource().sendSuccess(() -> Component.literal("Story cleared successfully!").withStyle(ChatFormatting.GREEN), true);
+                            if (new ConfigurationHandler(context.getSource().getServer()).saveConfig(config,
+                                    useServerConfig)) {
+                                context.getSource().sendSuccess(() -> Component.literal("Story cleared successfully!")
+                                        .withStyle(ChatFormatting.GREEN), true);
                                 return 1;
                             } else {
-                                context.getSource().sendSuccess(() -> Component.literal("Failed to clear story!").withStyle(ChatFormatting.RED), false);
+                                context.getSource().sendSuccess(
+                                        () -> Component.literal("Failed to clear story!").withStyle(ChatFormatting.RED),
+                                        false);
                                 return 0;
                             }
                         })))
                 .then(Commands.literal("display")
-                .executes(context -> {
-                    ConfigurationHandler.Config config = new ConfigurationHandler(context.getSource().getServer()).loadConfig();
-                    String story = config.getStory();
-                    if (story == null || story.isEmpty()) {
-                        context.getSource().sendSuccess(() -> Component.literal("No story is currently set.").withStyle(ChatFormatting.RED), false);
-                        return 0;
-                    } else {
-                        context.getSource().sendSuccess(() -> Component.literal("Current story: " + story).withStyle(ChatFormatting.AQUA), false);
-                        return 1;
-                    }
-                }));
+                        .executes(context -> {
+                            ConfigurationHandler.Config config = new ConfigurationHandler(
+                                    context.getSource().getServer()).loadConfig();
+                            String story = config.getStory();
+                            if (story == null || story.isEmpty()) {
+                                context.getSource().sendSuccess(() -> Component.literal("No story is currently set.")
+                                        .withStyle(ChatFormatting.RED), false);
+                                return 0;
+                            } else {
+                                context.getSource().sendSuccess(() -> Component.literal("Current story: " + story)
+                                        .withStyle(ChatFormatting.AQUA), false);
+                                return 1;
+                            }
+                        }));
     }
 
-    private static <T> int setConfig(CommandSourceStack source, String settingName, T value, boolean useServerConfig, String settingDescription) {
+    private static <T> int setConfig(CommandSourceStack source, String settingName, T value, boolean useServerConfig,
+            String settingDescription) {
         ConfigurationHandler configHandler = new ConfigurationHandler(source.getServer());
         ConfigurationHandler.Config config = configHandler.loadConfig();
         try {
@@ -266,7 +306,8 @@ public class CreaturePalsCommands {
                     throw new IllegalArgumentException("Unknown configuration setting: " + settingName);
             }
         } catch (ClassCastException e) {
-            Component errorMessage = Component.literal("Invalid type for setting " + settingName).withStyle(ChatFormatting.RED);
+            Component errorMessage = Component.literal("Invalid type for setting " + settingName)
+                    .withStyle(ChatFormatting.RED);
             source.sendSuccess(() -> errorMessage, false);
             LOGGER.error("Type mismatch during configuration setting for: " + settingName, e);
             return 0;
@@ -279,7 +320,8 @@ public class CreaturePalsCommands {
 
         Component feedbackMessage;
         if (configHandler.saveConfig(config, useServerConfig)) {
-            feedbackMessage = Component.literal(settingDescription + " Set Successfully!").withStyle(ChatFormatting.GREEN);
+            feedbackMessage = Component.literal(settingDescription + " Set Successfully!")
+                    .withStyle(ChatFormatting.GREEN);
             source.sendSuccess(() -> feedbackMessage, false);
             LOGGER.info("Command executed: " + feedbackMessage.getString());
             return 1;
@@ -291,7 +333,8 @@ public class CreaturePalsCommands {
         }
     }
 
-    private static int modifyList(CommandContext<CommandSourceStack> context, String listName, String action, boolean useServerConfig) {
+    private static int modifyList(CommandContext<CommandSourceStack> context, String listName, String action,
+            boolean useServerConfig) {
         CommandSourceStack source = context.getSource();
         ConfigurationHandler configHandler = new ConfigurationHandler(source.getServer());
         ConfigurationHandler.Config config = configHandler.loadConfig();
@@ -346,7 +389,8 @@ public class CreaturePalsCommands {
         }
 
         if (configHandler.saveConfig(config, useServerConfig)) {
-            Component feedbackMessage = Component.literal("Successfully updated " + listName + " with " + action).withStyle(ChatFormatting.GREEN);
+            Component feedbackMessage = Component.literal("Successfully updated " + listName + " with " + action)
+                    .withStyle(ChatFormatting.GREEN);
             source.sendSuccess(() -> feedbackMessage, false);
 
             // Send whitelist / blacklist to all players

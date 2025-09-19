@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.utils;
 
 import com.google.gson.Gson;
@@ -20,9 +20,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * The {@code EntityTestData} class is a test representation of our regular EntityChatData class. This allows us
- * to simulate loading entity JSON data, adding new messages, and sending HTTP requests for the testing module. It
- * is not possible to use the original class, due to Minecraft and Fabric imports and dependencies.
+ * The {@code EntityTestData} class is a test representation of our regular
+ * EntityChatData class. This allows us
+ * to simulate loading entity JSON data, adding new messages, and sending HTTP
+ * requests for the testing module. It
+ * is not possible to use the original class, due to Minecraft and Fabric
+ * imports and dependencies.
  */
 public class EntityTestData {
     public String entityId;
@@ -50,8 +53,10 @@ public class EntityTestData {
     }
 
     public String getCharacterProp(String propertyName) {
-        // Create a case-insensitive regex pattern to match the property name and capture its value
-        Pattern pattern = Pattern.compile("-?\\s*" + Pattern.quote(propertyName) + ":\\s*(.+)", Pattern.CASE_INSENSITIVE);
+        // Create a case-insensitive regex pattern to match the property name and
+        // capture its value
+        Pattern pattern = Pattern.compile("-?\\s*" + Pattern.quote(propertyName) + ":\\s*(.+)",
+                Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(characterSheet);
 
         if (matcher.find()) {
@@ -65,7 +70,8 @@ public class EntityTestData {
     // Add a message to the history and update the current message
     public void addMessage(String message, ChatDataManager.ChatSender messageSender, String playerName) {
         // Truncate message (prevent crazy long messages... just in case)
-        String truncatedMessage = message.substring(0, Math.min(message.length(), ChatDataManager.MAX_CHAR_IN_USER_MESSAGE));
+        String truncatedMessage = message.substring(0,
+                Math.min(message.length(), ChatDataManager.MAX_CHAR_IN_USER_MESSAGE));
 
         // Add message to history
         previousMessages.add(new ChatMessage(truncatedMessage, messageSender, playerName));
@@ -85,7 +91,8 @@ public class EntityTestData {
 
     public Map<String, String> getPlayerContext(Path worldPath, Path playerPath, Path entityPath) {
         Gson gson = new Gson();
-        Type mapType = new TypeToken<Map<String, String>>() {}.getType();
+        Type mapType = new TypeToken<Map<String, String>>() {
+        }.getType();
         Map<String, String> contextData = new HashMap<>();
 
         try {

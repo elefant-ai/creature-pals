@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.goals;
 
 import java.util.EnumSet;
@@ -12,8 +12,10 @@ import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * The {@code FleePlayerGoal} class instructs a Mob Entity to flee from the current player
- * and only recalculates path when it has reached its destination and the player is close again.
+ * The {@code FleePlayerGoal} class instructs a Mob Entity to flee from the
+ * current player
+ * and only recalculates path when it has reached its destination and the player
+ * is close again.
  */
 public class FleePlayerGoal extends PlayerBaseGoal {
     private final Mob entity;
@@ -66,7 +68,8 @@ public class FleePlayerGoal extends PlayerBaseGoal {
             Vec3 fleeDirection = entityPos.subtract(playerPos).normalize();
 
             // Apply movement with the entity's speed in the opposite direction
-            this.entity.setDeltaMovement(fleeDirection.x * this.speed, fleeDirection.y * this.speed, fleeDirection.z * this.speed);
+            this.entity.setDeltaMovement(fleeDirection.x * this.speed, fleeDirection.y * this.speed,
+                    fleeDirection.z * this.speed);
             this.entity.hurtMarked = true;
         }
     }
@@ -83,4 +86,3 @@ public class FleePlayerGoal extends PlayerBaseGoal {
         }
     }
 }
-

@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.utils;
 
 import java.util.ArrayList;
@@ -13,7 +13,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 
 /**
- * The {@code ServerEntityFinder} class is used to find a specific LivingEntity by UUID, since
+ * The {@code ServerEntityFinder} class is used to find a specific LivingEntity
+ * by UUID, since
  * there is not a built-in method for this.
  */
 public class ServerEntityFinder {
@@ -25,6 +26,7 @@ public class ServerEntityFinder {
         }
         return null; // Entity not found
     }
+
     public static List<Entity> getCloseEntities(ServerLevel world, ServerPlayer player, double cutoff) {
         List<Entity> output = new ArrayList<>();
         for (Entity entity : world.getAllEntities()) {

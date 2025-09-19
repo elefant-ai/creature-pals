@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.ui;
 
 import com.owlmaddie.utils.TextureLoader;
@@ -40,11 +40,10 @@ public abstract class ScreenHelper extends Screen {
         if (bgTex != null) {
             context.blit(
                     bgTex,
-                    bgX, bgY,          // on-screen pos
-                    0,   0,            // texture origin
+                    bgX, bgY, // on-screen pos
+                    0, 0, // texture origin
                     BG_WIDTH, BG_HEIGHT,
-                    BG_WIDTH, BG_HEIGHT
-            );
+                    BG_WIDTH, BG_HEIGHT);
         }
 
         // Render children, but suppress their background call

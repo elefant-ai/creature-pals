@@ -1,10 +1,11 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.goals;
 
 /**
- * The {@code GoalPriority} enum sets the priorities of each type of custom Goal used in this mod.
+ * The {@code GoalPriority} enum sets the priorities of each type of custom Goal
+ * used in this mod.
  * For example, talking to a player is higher priority than following a player.
  */
 public enum GoalPriority {

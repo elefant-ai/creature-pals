@@ -1,13 +1,14 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.render;
 
 import com.mojang.blaze3d.opengl.GlStateManager;
 import org.lwjgl.opengl.GL11;
 
 public final class BlendHelper {
-    private BlendHelper() {}
+    private BlendHelper() {
+    }
 
     /** turn on alpha blending */
     public static void enableBlend() {
@@ -21,8 +22,7 @@ public final class BlendHelper {
                 GL11.GL_SRC_ALPHA,
                 GL11.GL_ONE_MINUS_SRC_ALPHA,
                 GL11.GL_ONE,
-                GL11.GL_ZERO
-        );
+                GL11.GL_ZERO);
     }
 
     /** turn off alpha blending */

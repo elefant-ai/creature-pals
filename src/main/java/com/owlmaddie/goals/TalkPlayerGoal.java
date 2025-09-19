@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.goals;
 
 import com.owlmaddie.controls.LookControls;
@@ -11,7 +11,8 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 
 /**
- * The {@code TalkPlayerGoal} class instructs a Mob Entity to look at a player and not move for X seconds.
+ * The {@code TalkPlayerGoal} class instructs a Mob Entity to look at a player
+ * and not move for X seconds.
  */
 public class TalkPlayerGoal extends Goal {
     private final Mob entity;
@@ -40,7 +41,8 @@ public class TalkPlayerGoal extends Goal {
 
     @Override
     public boolean canContinueToUse() {
-        // Check if the target player is still valid and if the specified duration has not yet passed
+        // Check if the target player is still valid and if the specified duration has
+        // not yet passed
         return this.targetPlayer != null && this.targetPlayer.isAlive() &&
                 (System.currentTimeMillis() - this.startTime) < (this.seconds * 1000);
     }

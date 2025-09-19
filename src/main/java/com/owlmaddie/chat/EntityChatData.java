@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.chat;
 
 import com.google.gson.annotations.Expose;
@@ -140,6 +140,7 @@ public class EntityChatData {
         this.legacyPlayerId = null;
         this.legacyFriendship = null;
     }
+
     // Get the player data (or fallback to the blank player)
     public PlayerData getPlayerData(String playerName) {
         if (this.players == null) {
@@ -190,14 +191,17 @@ public class EntityChatData {
         }
         return ((Holder<MobEffect>) raw).value();
     }
-    public Map<String, String> getPlayerContext(ServerPlayer player, String userLanguage, ConfigurationHandler.Config config) {
+
+    public Map<String, String> getPlayerContext(ServerPlayer player, String userLanguage,
+            ConfigurationHandler.Config config) {
         // Add PLAYER context information
         Map<String, String> contextData = new HashMap<>();
         contextData.put("player_name", player.getDisplayName().getString());
         contextData.put("player_health", Math.round(player.getHealth()) + "/" + Math.round(player.getMaxHealth()));
         contextData.put("player_hunger", String.valueOf(player.getFoodData().getFoodLevel()));
         contextData.put("player_held_item", String.valueOf(player.getMainHandItem().getItem().toString()));
-        contextData.put("player_biome", player.level().getBiome(player.blockPosition()).unwrapKey().get().location().getPath());
+        contextData.put("player_biome",
+                player.level().getBiome(player.blockPosition()).unwrapKey().get().location().getPath());
         contextData.put("player_is_creative", player.isCreative() ? "yes" : "no");
         contextData.put("player_is_swimming", player.isSwimming() ? "yes" : "no");
         contextData.put("player_is_on_ground", player.onGround() ? "yes" : "no");
@@ -214,8 +218,8 @@ public class EntityChatData {
 
         // Get active player effects
         String effectsString = player.getActiveEffectsMap().values().stream()
-            .map(inst -> effectOf(inst).getDescriptionId() + " x" + (inst.getAmplifier() + 1))
-            .collect(Collectors.joining(", "));
+                .map(inst -> effectOf(inst).getDescriptionId() + " x" + (inst.getAmplifier() + 1))
+                .collect(Collectors.joining(", "));
         contextData.put("player_active_effects", effectsString);
 
         // Add custom story section (if any)
@@ -224,7 +228,6 @@ public class EntityChatData {
         } else {
             contextData.put("story", "");
         }
-
 
         // Get World time (as 24 hour value)
         int hours = (int) ((player.level().getDayTime() / 1000 + 6) % 24); // Minecraft day starts at 6 AM
@@ -250,7 +253,7 @@ public class EntityChatData {
         contextData.put("world_moon_phase", moonPhaseDescription);
 
         // Get Entity details
-        Mob entity = (Mob) ServerEntityFinder.getEntityByUUID((ServerLevel)player.level(), UUID.fromString(entityId));
+        Mob entity = (Mob) ServerEntityFinder.getEntityByUUID((ServerLevel) player.level(), UUID.fromString(entityId));
         if (entity.getCustomName() == null) {
             contextData.put("entity_name", "");
         } else {
