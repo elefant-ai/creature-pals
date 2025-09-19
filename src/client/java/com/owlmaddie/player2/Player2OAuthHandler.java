@@ -1,6 +1,5 @@
 package com.owlmaddie.player2;
 
-
 import java.awt.Desktop;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -47,15 +46,16 @@ public class Player2OAuthHandler {
         attemptWebLoginOrFallback(parentScreen);
     }
 
-    // Try GET /login/web/{CLIENT_ID}; if it returns p2Key, use it; else start device authorization
+    // Try GET /login/web/{CLIENT_ID}; if it returns p2Key, use it; else start
+    // device authorization
     private static void attemptWebLoginOrFallback(Screen parentScreen) {
         CompletableFuture.runAsync(() -> {
             try {
-                String url = OAUTH_BASE_URL + "/login/web/" + CLIENT_ID;
+                String url = "http://localhost:4315/v1/login/web/" + CLIENT_ID;
                 HttpClient client = HttpClient.newHttpClient();
                 HttpRequest request = HttpRequest.newBuilder()
                         .uri(URI.create(url))
-                        .GET()
+                        .POST(HttpRequest.BodyPublishers.noBody())
                         .build();
 
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -142,7 +142,8 @@ public class Player2OAuthHandler {
                     Minecraft.getInstance().execute(() -> {
                         Minecraft mcClient = Minecraft.getInstance();
                         if (mcClient != null) {
-                            mcClient.setScreen(new Player2OAuthScreen(parentScreen, deviceCode, userCode, verificationUri, interval));
+                            mcClient.setScreen(new Player2OAuthScreen(parentScreen, deviceCode, userCode,
+                                    verificationUri, interval));
                         }
                     });
 
@@ -152,7 +153,8 @@ public class Player2OAuthHandler {
                 } else {
                     System.err.println("Device authorization request failed with status " + response.statusCode());
                     System.err.println("Response body: " + response.body());
-                    throw new RuntimeException("Device authorization request failed with status " + response.statusCode() + ": " + response.body());
+                    throw new RuntimeException("Device authorization request failed with status "
+                            + response.statusCode() + ": " + response.body());
                 }
 
             } catch (Exception e) {
@@ -181,14 +183,14 @@ public class Player2OAuthHandler {
                         .build();
 
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                
+
                 // Debug: Log the token polling response
                 System.out.println("Token polling response status: " + response.statusCode());
                 System.out.println("Token polling response body: " + response.body());
 
                 if (response.statusCode() == 200) {
                     JsonObject tokenResponse = JsonParser.parseString(response.body()).getAsJsonObject();
-                    
+
                     if (tokenResponse.has("p2Key")) {
                         String p2Key = tokenResponse.get("p2Key").getAsString();
 
@@ -199,7 +201,7 @@ public class Player2OAuthHandler {
                         executor.shutdown();
 
                         System.out.println("Successfully obtained Player2 API key via Device Authorization Flow");
-                        
+
                         // Notify the user on the main thread
                         Minecraft.getInstance().execute(() -> {
                             showSuccessNotification();
@@ -209,7 +211,8 @@ public class Player2OAuthHandler {
                 } else if (response.statusCode() == 400) {
                     // Still pending, continue polling
                     JsonObject errorResponse = JsonParser.parseString(response.body()).getAsJsonObject();
-                    if (errorResponse.has("error") && "authorization_pending".equals(errorResponse.get("error").getAsString())) {
+                    if (errorResponse.has("error")
+                            && "authorization_pending".equals(errorResponse.get("error").getAsString())) {
                         // This is expected, continue polling
                         return;
                     }
@@ -244,7 +247,6 @@ public class Player2OAuthHandler {
         }
     }
 
-
     /**
      * Check if we're currently in the authentication process
      */
@@ -272,7 +274,8 @@ public class Player2OAuthHandler {
         private Button cancelButton;
         private Button helpButton;
 
-        public Player2OAuthScreen(Screen parent, String deviceCode, String userCode, String verificationUri, int interval) {
+        public Player2OAuthScreen(Screen parent, String deviceCode, String userCode, String verificationUri,
+                int interval) {
             super(Component.literal("Player2 Authentication"));
             this.parent = parent;
             this.deviceCode = deviceCode;
@@ -292,26 +295,23 @@ public class Player2OAuthHandler {
             this.addRenderableWidget(new net.minecraft.client.gui.components.StringWidget(
                     centerX - 100, centerY - 80, 200, 20,
                     Component.literal("Player2 Authentication Required"),
-                    this.font
-            ));
+                    this.font));
 
             // Open browser button
             openBrowserButton = Button.builder(
                     Component.literal("Authenticate"),
-                    button -> openBrowser(verificationUri + "?user_code=" + userCode)
-            ).bounds(centerX -75, centerY + 50, 150, 20).build();
+                    button -> openBrowser(verificationUri + "?user_code=" + userCode))
+                    .bounds(centerX - 75, centerY + 50, 150, 20).build();
 
             // Cancel button
             cancelButton = Button.builder(
                     Component.literal("Cancel"),
-                    button -> onClose()
-            ).bounds(centerX - 75, centerY + 80, 150, 20).build();
+                    button -> onClose()).bounds(centerX - 75, centerY + 80, 150, 20).build();
 
             // Help button
             helpButton = Button.builder(
                     Component.literal("Help"),
-                    button -> showHelp()
-            ).bounds(width - 125, centerY + 80, 100, 20).build();
+                    button -> showHelp()).bounds(width - 125, centerY + 80, 100, 20).build();
 
             addRenderableWidget(openBrowserButton);
             addRenderableWidget(cancelButton);
@@ -327,10 +327,13 @@ public class Player2OAuthHandler {
                         }
                     },
                     Component.literal("Authentication Help"),
-                    Component.literal("1. Click 'Open Player2 Website' to open the verification page\n2. Enter the verification code shown above: " + userCode + "\n3. Log in to your Player2 account if needed\n4. Authorize the 'creature-pals-minecraft-mod' application\n5. The mod will automatically detect when authorization is complete\n\nIf the browser didn't open, manually visit:\n" + verificationUri),
+                    Component.literal(
+                            "1. Click 'Open Player2 Website' to open the verification page\n2. Enter the verification code shown above: "
+                                    + userCode
+                                    + "\n3. Log in to your Player2 account if needed\n4. Authorize the 'creature-pals-minecraft-mod' application\n5. The mod will automatically detect when authorization is complete\n\nIf the browser didn't open, manually visit:\n"
+                                    + verificationUri),
                     Component.literal("OK"),
-                    true
-            ));
+                    true));
         }
 
         @Override
@@ -342,7 +345,6 @@ public class Player2OAuthHandler {
                 minecraft.setScreen(new net.minecraft.client.gui.screens.TitleScreen());
             }
         }
-
 
     }
 
@@ -364,11 +366,11 @@ public class Player2OAuthHandler {
         if (client != null) {
             // Always show success message, regardless of current screen
             client.setScreen(new AlertScreen(new TitleScreen(),
-                Component.literal("Authentication Successful!"),
-                Component.literal("Your Player2 API key has been automatically retrieved and saved.\n\nYou can now use all the mod features!"),
-                Component.literal("Continue"),
-                    true
-            ));
+                    Component.literal("Authentication Successful!"),
+                    Component.literal(
+                            "Your Player2 API key has been automatically retrieved and saved.\n\nYou can now use all the mod features!"),
+                    Component.literal("Continue"),
+                    true));
         }
     }
 }
