@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 /**
  * Handles Player2 API key validation and setup on Minecraft startup
@@ -84,12 +85,36 @@ public class Player2StartupHandler {
             Screen currentScreen = client.screen;
             LOGGER.info("Player2StartupHandler: Current screen: "
                     + (currentScreen != null ? currentScreen.getClass().getSimpleName() : "null"));
+            Runnable onSuccess = () -> {
+                Minecraft.getInstance().execute(() -> {
+                    Player2OAuthScreen.showSuccessNotification();
+                });
+            };
+
             if (currentScreen instanceof TitleScreen) {
                 LOGGER.info("Player2StartupHandler: On title screen, starting OAuth flow");
-                Player2OAuthHandler.startOAuthFlow(null);
+                Consumer<OAuthData> onData = (data) -> {
+                    // Show the authentication screen with the user code
+                    Minecraft.getInstance().execute(() -> {
+                        Minecraft mcClient = Minecraft.getInstance();
+                        if (mcClient != null) {
+                            mcClient.setScreen(new Player2OAuthScreen(null, data));
+                        }
+                    });
+                };
+                Player2OAuthHandler.startOAuthFlow(onData, onSuccess);
             } else if (currentScreen != null) {
                 LOGGER.info("Player2StartupHandler: On other screen, starting OAuth flow");
-                Player2OAuthHandler.startOAuthFlow(currentScreen);
+                Consumer<OAuthData> onData = (data) -> {
+                    // Show the authentication screen with the user code
+                    Minecraft.getInstance().execute(() -> {
+                        Minecraft mcClient = Minecraft.getInstance();
+                        if (mcClient != null) {
+                            mcClient.setScreen(new Player2OAuthScreen(currentScreen, data));
+                        }
+                    });
+                };
+                Player2OAuthHandler.startOAuthFlow(onData, onSuccess);
             }
         } else {
             LOGGER.warn("Player2StartupHandler: Minecraft client is null!");
