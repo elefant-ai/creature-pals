@@ -1,4 +1,4 @@
-package com.owlmaddie.player2;
+package com.owlmaddie.player2.auth;
 
 public class OAuthData {
     String deviceCode;

@@ -1,6 +1,5 @@
 package com.owlmaddie.mixin.client;
 
-import com.owlmaddie.player2.Player2StartupHandler;
 import net.minecraft.client.gui.screens.TitleScreen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +7,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import com.owlmaddie.player2.auth.Player2StartupHandler;
 
 @Mixin(TitleScreen.class)
 public class TitleScreenMixin {
