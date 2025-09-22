@@ -7,13 +7,14 @@ import com.google.gson.reflect.TypeToken;
 import com.owlmaddie.chat.ChatDataManager;
 import com.owlmaddie.chat.ChatDataManager.ChatSender;
 import com.owlmaddie.chat.ChatDataManager.ChatStatus;
+import com.owlmaddie.player2.auth.Player2StartupHandler;
 import com.owlmaddie.chat.EntityChatData;
 import com.owlmaddie.chat.PlayerData;
 import com.owlmaddie.ui.BubbleRenderer;
 import com.owlmaddie.ui.PlayerMessageManager;
 import com.owlmaddie.utils.ClientEntityFinder;
 import com.owlmaddie.utils.Decompression;
-import com.owlmaddie.player2.Player2StartupHandler;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

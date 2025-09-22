@@ -1,4 +1,4 @@
-package com.owlmaddie.player2;
+package com.owlmaddie.player2.auth;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;

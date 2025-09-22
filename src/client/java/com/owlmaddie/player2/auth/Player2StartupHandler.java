@@ -1,4 +1,4 @@
-package com.owlmaddie.player2;
+package com.owlmaddie.player2.auth;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
@@ -11,6 +11,8 @@ import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.owlmaddie.player2.Player2APIService;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;

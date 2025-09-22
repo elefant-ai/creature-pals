@@ -1,4 +1,4 @@
-package com.owlmaddie.player2;
+package com.owlmaddie.player2.auth;
 
 import java.awt.Desktop;
 import java.net.URI;

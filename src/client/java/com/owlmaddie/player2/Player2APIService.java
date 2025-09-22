@@ -1,6 +1,8 @@
 package com.owlmaddie.player2;
 
 import com.google.gson.*;
+import com.owlmaddie.player2.auth.Player2StartupHandler;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
