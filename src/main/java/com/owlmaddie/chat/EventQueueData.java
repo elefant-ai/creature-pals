@@ -17,6 +17,7 @@ import com.owlmaddie.commands.ConfigurationHandler;
 import com.owlmaddie.network.ServerPackets;
 import com.owlmaddie.utils.ServerEntityFinder;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 
@@ -238,7 +239,7 @@ public class EventQueueData {
 
     public boolean shouldDelete() {
         if (player != null) {
-            return ServerEntityFinder.getEntityByUUID(player.level(),
+            return ServerEntityFinder.getEntityByUUID((ServerLevel) player.level(),
                     UUID.fromString(entityId)) == null || !entity.isAlive();
         }
         return false;

@@ -26,7 +26,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 
-
 // side effects that are broadcast to client or modify chatData
 public class ClientSideEffects {
     public static final Logger LOGGER = LoggerFactory.getLogger("creaturepals");
@@ -46,9 +45,11 @@ public class ClientSideEffects {
         if (cleanedMessage.isEmpty()) {
             getChatData(UUID.fromString(entityId)).addMessage("...", ChatDataManager.ChatSender.ASSISTANT, player);
             BroadcastEntityMessage(new EntityChatDataLight(entityId, "...", 0, ChatStatus.DISPLAY, ChatSender.ASSISTANT,
-                    getChatData(UUID.fromString(entityId)).characterSheet, getChatData(UUID.fromString(entityId)).players));
+                    getChatData(UUID.fromString(entityId)).characterSheet,
+                    getChatData(UUID.fromString(entityId)).players));
         } else {
-            getChatData(UUID.fromString(entityId)).addMessage(uncleanEntityMessageResponse, ChatDataManager.ChatSender.ASSISTANT,
+            getChatData(UUID.fromString(entityId)).addMessage(uncleanEntityMessageResponse,
+                    ChatDataManager.ChatSender.ASSISTANT,
                     player);
             sendChatAsEntity(entityId, cleanedMessage, player, true);
         }
@@ -67,13 +68,15 @@ public class ClientSideEffects {
             throw new RuntimeException(
                     "Generated \"\" or \"N/A\" as a character name");
         }
-        String shortGreeting = Optional.ofNullable(getChatData(UUID.fromString(entityId)).getCharacterProp("short greeting"))
+        String shortGreeting = Optional
+                .ofNullable(getChatData(UUID.fromString(entityId)).getCharacterProp("short greeting"))
                 .filter(s -> !s.isEmpty())
                 .orElse(Randomizer.getRandomMessage(Randomizer.RandomType.ALIGNMENT))
                 .replace("\n", " ");
         setNameOfEntity(entityId, characterName);
         if (shouldGreet) {
-            getChatData(UUID.fromString(entityId)).addMessage(shortGreeting, ChatDataManager.ChatSender.ASSISTANT, player);
+            getChatData(UUID.fromString(entityId)).addMessage(shortGreeting, ChatDataManager.ChatSender.ASSISTANT,
+                    player);
             sendChatAsEntity(entityId, shortGreeting, player, true);
         }
     }
@@ -124,10 +127,11 @@ public class ClientSideEffects {
             boolean shouldBroadcast) {
         LOGGER.info("SIDEEFFECT/sendChatAsEntity entityId={} message={} ", entityId.toString(), message);
         ServerPackets.BroadcastEntityMessage(new EntityChatDataLight(entityId, message, 0, ChatStatus.DISPLAY,
-                ChatSender.ASSISTANT, getChatData(UUID.fromString(entityId)).characterSheet, getChatData(UUID.fromString(entityId)).players));
+                ChatSender.ASSISTANT, getChatData(UUID.fromString(entityId)).characterSheet,
+                getChatData(UUID.fromString(entityId)).players));
 
         LOGGER.info("Finding entity ");
-        Entity entity = ServerEntityFinder.getEntityByUUID(player.level(),
+        Entity entity = ServerEntityFinder.getEntityByUUID((ServerLevel) player.level(),
                 UUID.fromString(entityId));
         LOGGER.info("Custom name");
         if (entity == null || entity.getCustomName() == null) {
@@ -136,7 +140,7 @@ public class ClientSideEffects {
         String entityCustomName = entity.getCustomName().getString();
         LOGGER.info("Find entity Type");
         String entityType = entity.getType().toShortString();
-        
+
         LOGGER.info("player broadcast");
         if (shouldBroadcast) {
             ServerPackets.BroadcastMessage(Component.literal("<" + entityCustomName
@@ -149,7 +153,8 @@ public class ClientSideEffects {
         LOGGER.info("SIDEEFFECT/setPending entityId={} ", entityId.toString());
         if (getChatData(UUID.fromString(entityId)).previousMessages.size() == 0) {
             ServerPackets.BroadcastEntityMessage(new EntityChatDataLight(entityId, "", 0, ChatStatus.PENDING,
-                    ChatSender.USER, getChatData(UUID.fromString(entityId)).characterSheet, getChatData(UUID.fromString(entityId)).players));
+                    ChatSender.USER, getChatData(UUID.fromString(entityId)).characterSheet,
+                    getChatData(UUID.fromString(entityId)).players));
             return;
         }
         setStatusUsingParamsFromChatData(entityId, ChatStatus.PENDING);
@@ -167,8 +172,10 @@ public class ClientSideEffects {
 
         // broadcast
         ServerPackets.BroadcastEntityMessage(
-                new EntityChatDataLight(entityId, topMessage.message, getChatData(UUID.fromString(entityId)).currentLineNumber, status,
-                        topMessage.sender, getChatData(UUID.fromString(entityId)).characterSheet, getChatData(UUID.fromString(entityId)).players));
+                new EntityChatDataLight(entityId, topMessage.message,
+                        getChatData(UUID.fromString(entityId)).currentLineNumber, status,
+                        topMessage.sender, getChatData(UUID.fromString(entityId)).characterSheet,
+                        getChatData(UUID.fromString(entityId)).players));
 
     }
 

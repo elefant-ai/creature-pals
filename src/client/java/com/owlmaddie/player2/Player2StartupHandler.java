@@ -1,28 +1,18 @@
 package com.owlmaddie.player2;
 
-import com.owlmaddie.commands.ConfigurationHandler;
-import com.owlmaddie.player2.Player2OAuthHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.screens.ConfirmScreen;
-import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.dialog.ButtonListDialogScreen;
-import net.minecraft.client.gui.screens.inventory.MenuAccess;
+// import net.minecraft.client.gui.screens.dialog.ButtonListDialogScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.inventory.MenuConstructor;
-import net.minecraft.world.inventory.MenuType;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Handles Player2 API key validation and setup on Minecraft startup
@@ -326,7 +316,9 @@ public class Player2StartupHandler {
                         Component.literal(
                                 "Your Player2 API key has been saved for this session.\n\nNote: You'll need to set this as an environment variable for permanent storage."),
                         Component.literal("Continue"),
-                        ButtonListDialogScreen.DISCONNECT));
+                        Component.literal("Exit")
+                // ButtonListDialogScreen.DISCONNECT
+                ));
 
             } catch (Exception e) {
                 minecraft.setScreen(new ConfirmScreen(
@@ -334,8 +326,8 @@ public class Player2StartupHandler {
                         Component.literal("Error"),
                         Component.literal("Failed to save API key: " + e.getMessage()),
                         Component.literal("OK"),
-                        ButtonListDialogScreen.DISCONNECT
-
+                        Component.literal("Exit")
+                // ButtonListDialogScreen.DISCONNECT
                 ));
             }
         }
@@ -353,7 +345,8 @@ public class Player2StartupHandler {
                     Component.literal(
                             "1. Visit player2.game and sign up\n2. Get your API key from your account\n3. Set it as an environment variable:\n\nWindows (PowerShell):\n$env:PLAYER2_API_KEY=\"your_key\"\n\nWindows (CMD):\nset PLAYER2_API_KEY=your_key\n\nLinux/macOS:\nexport PLAYER2_API_KEY=\"your_key\"\n\n4. Restart Minecraft"),
                     Component.literal("OK"),
-                    ButtonListDialogScreen.DISCONNECT
+                    Component.literal("Exit")
+            // ButtonListDialogScreen.DISCONNECT
 
             ));
         }

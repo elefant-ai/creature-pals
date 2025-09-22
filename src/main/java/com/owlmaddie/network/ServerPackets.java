@@ -234,7 +234,7 @@ public class ServerPackets {
             UUID entityId = UUID.fromString(buf.readUtf());
             String message = buf.readUtf(32767);
             String userLanguage = buf.readUtf(32767);
-            Entity ent = ServerEntityFinder.getEntityByUUID(player.level(), entityId);
+            Entity ent = ServerEntityFinder.getEntityByUUID((ServerLevel) player.level(), entityId);
             String RHS = ent != null && ent.getCustomName() != null && !ent.getCustomName().equals("N/A")
                     ? "> (to " + ent.getCustomName().getString() + ") "
                     : "> ";
