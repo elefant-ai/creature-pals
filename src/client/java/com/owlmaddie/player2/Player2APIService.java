@@ -1,6 +1,7 @@
 package com.owlmaddie.player2;
 
 import com.google.gson.*;
+import com.owlmaddie.player2.auth.Player2OAuthHandler;
 import com.owlmaddie.player2.auth.Player2StartupHandler;
 
 import org.slf4j.Logger;
@@ -24,7 +25,7 @@ public class Player2APIService {
      * @return The API key, or null if not set
      */
     private static String getApiKey() {
-        return Player2StartupHandler.getApiKey();
+        return Player2OAuthHandler.getApiKey();
     }
 
     /**

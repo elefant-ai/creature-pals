@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.owlmaddie.player2.auth.Player2OAuthHandler;
 import com.owlmaddie.player2.auth.Player2StartupHandler;
 
 @Mixin(TitleScreen.class)
@@ -19,7 +20,7 @@ public class TitleScreenMixin {
 
         // Check Player2 API key when title screen is rendered
         // This ensures it happens after the mixin is fully loaded
-        if (!Player2StartupHandler.hasCheckedApiKey()) {
+        if (!Player2OAuthHandler.hasCheckedApiKey()) {
             LOGGER.info("TitleScreenMixin: Title screen rendering, checking API key...");
             Player2StartupHandler.checkApiKeyOnStartup();
         }
