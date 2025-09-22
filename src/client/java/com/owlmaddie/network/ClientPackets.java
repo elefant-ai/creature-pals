@@ -7,6 +7,7 @@ import com.google.gson.reflect.TypeToken;
 import com.owlmaddie.chat.ChatDataManager;
 import com.owlmaddie.chat.ChatDataManager.ChatSender;
 import com.owlmaddie.chat.ChatDataManager.ChatStatus;
+import com.owlmaddie.player2.TTS;
 import com.owlmaddie.player2.auth.OAuthThroughChat;
 import com.owlmaddie.player2.auth.Player2OAuthHandler;
 import com.owlmaddie.player2.auth.Player2StartupHandler;
@@ -168,7 +169,7 @@ public class ClientPackets {
                                 // for now skip error
                                 return;
                             }
-                            // TTS.speak(message, entityId);
+                            TTS.speak(message, entityId);
                         }
                     });
                 });

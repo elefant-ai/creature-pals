@@ -9,7 +9,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class TTS {
+    public static final Logger LOGGER = LoggerFactory.getLogger("creaturepals");
+
     static class PerEntityTTS {
         public String voiceId;
         public String lastMessage;
@@ -27,12 +32,15 @@ public class TTS {
     private static final Random random = new Random();
 
     public static void speak(String message, UUID entityId) {
+        LOGGER.info("client/tts/speak(msg={}, id={})", message, entityId);
         if (!enabled) {
             return;
         }
         ttsThread.submit(() -> {
             entityTTSData.computeIfAbsent(entityId, id -> {
-                if (englishVoices == null) {
+                LOGGER.info("computing tts data for id={}", entityId);
+                if (englishVoices == null || englishVoices.size() == 0) {
+                    LOGGER.info("computing voices");
                     List<JsonObject> voices = Player2APIService.getVoices();
                     // Filter for English voices - adjust based on actual Player2 voice structure
                     englishVoices = voices.stream().filter(jsonV -> {
@@ -60,6 +68,7 @@ public class TTS {
 
                     // If no voices found, use a default
                     if (englishVoices.isEmpty()) {
+                        LOGGER.info("Setting default voices");
                         englishVoices = List.of("alloy", "echo", "fable", "onyx", "nova");
                     }
                 }

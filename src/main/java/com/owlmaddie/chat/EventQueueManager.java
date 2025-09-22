@@ -11,10 +11,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
 import com.owlmaddie.commands.ConfigurationHandler;
-import org.apache.commons.lang3.function.TriConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.owlmaddie.network.PacketHelper.TriConsumer;
 import com.owlmaddie.utils.ServerEntityFinder;
 
 import net.minecraft.server.MinecraftServer;
