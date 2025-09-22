@@ -7,6 +7,7 @@ import com.google.gson.reflect.TypeToken;
 import com.owlmaddie.chat.ChatDataManager;
 import com.owlmaddie.chat.ChatDataManager.ChatSender;
 import com.owlmaddie.chat.ChatDataManager.ChatStatus;
+import com.owlmaddie.player2.auth.Player2OAuthHandler;
 import com.owlmaddie.player2.auth.Player2StartupHandler;
 import com.owlmaddie.chat.EntityChatData;
 import com.owlmaddie.chat.PlayerData;
@@ -290,13 +291,13 @@ public class ClientPackets {
                     UUID requestId = UUID.fromString(buffer.readUtf());
                     if (client != null) {
                         client.execute(() -> {
-                            String key = Player2StartupHandler.getApiKey();
+                            String key = Player2OAuthHandler.getApiKey();
 
                             // If key is available via env/system but not persisted, persist it now
 
                             if (key != null && !key.isEmpty()) {
 
-                                Player2StartupHandler.setApiKey(key);
+                                Player2OAuthHandler.setApiKey(key);
 
                             }
 

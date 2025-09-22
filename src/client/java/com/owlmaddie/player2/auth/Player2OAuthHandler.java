@@ -11,8 +11,13 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.owlmaddie.player2.Player2APIService;
 
 /**
  * Handles Player2 Device Authorization Flow authentication
@@ -22,6 +27,11 @@ public class Player2OAuthHandler {
     private static final String DEVICE_AUTH_URL = OAUTH_BASE_URL + "/login/device/new";
     private static final String OAUTH_TOKEN_URL = OAUTH_BASE_URL + "/login/device/token";
     private static final String CLIENT_ID = "01977e1e-0b52-7269-ac8d-97522d4c1c21";
+
+    private static boolean hasCheckedApiKey = false;
+    private static boolean isApiKeyValid = false;
+
+    private static Logger LOGGER = LoggerFactory.getLogger("creaturepals");
 
     private static final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
     private static boolean isAuthenticating = false;
@@ -60,7 +70,7 @@ public class Player2OAuthHandler {
                     JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
                     if (json.has("p2Key")) {
                         String p2Key = json.get("p2Key").getAsString();
-                        Player2StartupHandler.setApiKey(p2Key);
+                        setApiKey(p2Key);
                         System.out.println("Obtained Player2 API key via web login probe.");
                         // Notify user on main thread and finish
                         // Reset auth state; no OAuth UI needed
@@ -180,7 +190,7 @@ public class Player2OAuthHandler {
                         String p2Key = tokenResponse.get("p2Key").getAsString();
 
                         // Store the token
-                        Player2StartupHandler.setApiKey(p2Key);
+                        setApiKey(p2Key);
 
                         // Stop polling
                         executor.shutdown();
@@ -242,4 +252,149 @@ public class Player2OAuthHandler {
     public static void resetAuthenticationState() {
         isAuthenticating = false;
     }
+
+    /**
+     * Get the API key from system properties, environment variable, or file
+     */
+    @Nullable
+    public static String getApiKey() {
+        // First try system properties (current session)
+        String apiKey = System.getProperty("PLAYER2_API_KEY");
+        if (apiKey != null && !apiKey.trim().isEmpty()) {
+            return apiKey.trim();
+        }
+
+        // Then try environment variable
+        apiKey = System.getenv("PLAYER2_API_KEY");
+        if (apiKey != null && !apiKey.trim().isEmpty()) {
+            return apiKey.trim();
+        }
+
+        // Finally try reading from file
+        try {
+            String minecraftDir = null;
+            String os = System.getProperty("os.name").toLowerCase();
+            if (os.contains("win")) {
+                minecraftDir = System.getenv("APPDATA") + "\\.minecraft";
+            } else if (os.contains("mac")) {
+                minecraftDir = System.getProperty("user.home") + "/Library/Application Support/minecraft";
+            } else {
+                // Assume Linux/Unix
+                minecraftDir = System.getProperty("user.home") + "/.minecraft";
+            }
+            java.io.File file = new java.io.File(minecraftDir, "p2key.txt");
+            if (file.exists()) {
+                apiKey = new String(java.nio.file.Files.readAllBytes(file.toPath())).trim();
+                if (!apiKey.isEmpty()) {
+                    // Store in system properties for this session
+                    System.setProperty("PLAYER2_API_KEY", apiKey);
+                    return apiKey;
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.error("Failed to read API key from file: " + e.getMessage());
+        }
+
+        return null;
+    }
+
+    /**
+     * Check if the Player2 API key is set and valid
+     * This should be called on Minecraft startup
+     */
+    public static void checkApiKey(Runnable onNotFoundAPiKey, Consumer<String> onValidationErrStr) {
+        if (hasCheckedApiKey) {
+            return; // Already checked
+        }
+
+        hasCheckedApiKey = true;
+        LOGGER.info("Player2StartupHandler: Checking API key on startup...");
+
+        // Resolve API key from system property, env var, or persisted file
+        String apiKey = getApiKey();
+        if (apiKey == null || apiKey.trim().isEmpty()) {
+            // No API key set, show setup screen
+            LOGGER.info("Player2StartupHandler: No API key found, showing setup screen");
+            onNotFoundAPiKey.run();
+            return;
+        }
+
+        LOGGER.info("Player2StartupHandler: API key found, validating...");
+
+        // API key is set, validate it
+        validateApiKey(apiKey, onValidationErrStr);
+    }
+
+    /**
+     * Validate the provided API key by sending a test request
+     */
+    public static void validateApiKey(String apiKey, Consumer<String> onValidationErrStr) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                // Test the API key with a simple heartbeat
+                Player2APIService.sendHeartbeat();
+                isApiKeyValid = true;
+                LOGGER.info("Player2 API key validated successfully: " + apiKey);
+            } catch (Exception e) {
+                isApiKeyValid = false;
+                LOGGER.warn("Player2 API key validation failed: " + e.getMessage());
+                onValidationErrStr.accept(e.getMessage());
+            }
+        });
+    }
+
+    /**
+     * Force revalidation of the API key
+     */
+    public static void revalidateApiKey(Runnable onNotFoundAPiKey, Consumer<String> onValidationErrStr) {
+        hasCheckedApiKey = false;
+        isApiKeyValid = false;
+        checkApiKey(onNotFoundAPiKey, onValidationErrStr);
+    }
+
+    /**
+     * Clear the API key from system properties
+     */
+    public static void clearApiKey() {
+        System.clearProperty("PLAYER2_API_KEY");
+        hasCheckedApiKey = false;
+        isApiKeyValid = false;
+    }
+
+    /**
+     * Set the API key in system properties and file
+     */
+    public static void setApiKey(String apiKey) {
+        if (apiKey != null && !apiKey.trim().isEmpty()) {
+            // Store in system properties for current session
+            System.setProperty("PLAYER2_API_KEY", apiKey.trim());
+
+            // Store in file for persistence
+            try {
+                String minecraftDir = null;
+                String os = System.getProperty("os.name").toLowerCase();
+                if (os.contains("win")) {
+                    minecraftDir = System.getenv("APPDATA") + "\\.minecraft";
+                } else if (os.contains("mac")) {
+                    minecraftDir = System.getProperty("user.home") + "/Library/Application Support/minecraft";
+                } else {
+                    // Assume Linux/Unix
+                    minecraftDir = System.getProperty("user.home") + "/.minecraft";
+                }
+                java.io.File file = new java.io.File(minecraftDir, "p2key.txt");
+                java.nio.file.Files.write(file.toPath(), apiKey.trim().getBytes());
+                LOGGER.debug("Player2 API key saved to: " + file.getAbsolutePath());
+            } catch (Exception e) {
+                LOGGER.warn("Failed to save API key to file: " + e.getMessage());
+            }
+
+            hasCheckedApiKey = false;
+            isApiKeyValid = false;
+        }
+    }
+
+    public static boolean hasCheckedApiKey() {
+        return hasCheckedApiKey;
+    }
+
 }

@@ -8,13 +8,9 @@ import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.components.Button;
 // import net.minecraft.client.gui.screens.dialog.ButtonListDialogScreen;
 import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.owlmaddie.player2.Player2APIService;
-
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 /**
@@ -22,106 +18,6 @@ import java.util.function.Consumer;
  */
 public class Player2StartupHandler {
     static Logger LOGGER = LoggerFactory.getLogger("creaturepals");
-
-    private static boolean hasCheckedApiKey = false;
-    private static boolean isApiKeyValid = false;
-
-    /**
-     * Check if the Player2 API key is set and valid
-     * This should be called on Minecraft startup
-     */
-    public static void checkApiKeyOnStartup() {
-        if (hasCheckedApiKey) {
-            return; // Already checked
-        }
-
-        hasCheckedApiKey = true;
-        LOGGER.info("Player2StartupHandler: Checking API key on startup...");
-
-        // Resolve API key from system property, env var, or persisted file
-        String apiKey = getApiKey();
-        if (apiKey == null || apiKey.trim().isEmpty()) {
-            // No API key set, show setup screen
-            LOGGER.info("Player2StartupHandler: No API key found, showing setup screen");
-            showApiKeySetupScreen();
-            return;
-        }
-
-        LOGGER.info("Player2StartupHandler: API key found, validating...");
-
-        // API key is set, validate it
-        validateApiKey(apiKey);
-    }
-
-    /**
-     * Validate the provided API key by sending a test request
-     */
-    private static void validateApiKey(String apiKey) {
-        CompletableFuture.runAsync(() -> {
-            try {
-                // Test the API key with a simple heartbeat
-                Player2APIService.sendHeartbeat();
-                isApiKeyValid = true;
-                LOGGER.info("Player2 API key validated successfully: " + apiKey);
-            } catch (Exception e) {
-                isApiKeyValid = false;
-                LOGGER.warn("Player2 API key validation failed: " + e.getMessage());
-
-                // Show error screen on main thread
-                Minecraft.getInstance().execute(() -> {
-                    showApiKeyErrorScreen(e.getMessage());
-                });
-            }
-        });
-    }
-
-    /**
-     * Show the API key setup screen
-     */
-    private static void showApiKeySetupScreen() {
-        LOGGER.info("Player2StartupHandler: showApiKeySetupScreen called");
-        Minecraft client = Minecraft.getInstance();
-        if (client != null) {
-            // If we're on the title screen, show the OAuth screen directly
-            // Otherwise, show it on the current screen
-            Screen currentScreen = client.screen;
-            LOGGER.info("Player2StartupHandler: Current screen: "
-                    + (currentScreen != null ? currentScreen.getClass().getSimpleName() : "null"));
-            Runnable onSuccess = () -> {
-                Minecraft.getInstance().execute(() -> {
-                    Player2OAuthScreen.showSuccessNotification();
-                });
-            };
-
-            if (currentScreen instanceof TitleScreen) {
-                LOGGER.info("Player2StartupHandler: On title screen, starting OAuth flow");
-                Consumer<OAuthData> onData = (data) -> {
-                    // Show the authentication screen with the user code
-                    Minecraft.getInstance().execute(() -> {
-                        Minecraft mcClient = Minecraft.getInstance();
-                        if (mcClient != null) {
-                            mcClient.setScreen(new Player2OAuthScreen(null, data));
-                        }
-                    });
-                };
-                Player2OAuthHandler.startOAuthFlow(onData, onSuccess);
-            } else if (currentScreen != null) {
-                LOGGER.info("Player2StartupHandler: On other screen, starting OAuth flow");
-                Consumer<OAuthData> onData = (data) -> {
-                    // Show the authentication screen with the user code
-                    Minecraft.getInstance().execute(() -> {
-                        Minecraft mcClient = Minecraft.getInstance();
-                        if (mcClient != null) {
-                            mcClient.setScreen(new Player2OAuthScreen(currentScreen, data));
-                        }
-                    });
-                };
-                Player2OAuthHandler.startOAuthFlow(onData, onSuccess);
-            }
-        } else {
-            LOGGER.warn("Player2StartupHandler: Minecraft client is null!");
-        }
-    }
 
     /**
      * Show the API key error screen
@@ -131,115 +27,6 @@ public class Player2StartupHandler {
         if (client != null && client.screen != null) {
             client.setScreen(new Player2ApiKeyErrorScreen(client.screen, errorMessage));
         }
-    }
-
-    /**
-     * Check if the API key is currently valid
-     */
-    public static boolean isApiKeyValid() {
-        return isApiKeyValid;
-    }
-
-    /**
-     * Check if the API key has been checked
-     */
-    public static boolean hasCheckedApiKey() {
-        return hasCheckedApiKey;
-    }
-
-    /**
-     * Force revalidation of the API key
-     */
-    public static void revalidateApiKey() {
-        hasCheckedApiKey = false;
-        isApiKeyValid = false;
-        checkApiKeyOnStartup();
-    }
-
-    /**
-     * Clear the API key from system properties
-     */
-    public static void clearApiKey() {
-        System.clearProperty("PLAYER2_API_KEY");
-        hasCheckedApiKey = false;
-        isApiKeyValid = false;
-    }
-
-    /**
-     * Set the API key in system properties and file
-     */
-    public static void setApiKey(String apiKey) {
-        if (apiKey != null && !apiKey.trim().isEmpty()) {
-            // Store in system properties for current session
-            System.setProperty("PLAYER2_API_KEY", apiKey.trim());
-
-            // Store in file for persistence
-            try {
-                String minecraftDir = null;
-                String os = System.getProperty("os.name").toLowerCase();
-                if (os.contains("win")) {
-                    minecraftDir = System.getenv("APPDATA") + "\\.minecraft";
-                } else if (os.contains("mac")) {
-                    minecraftDir = System.getProperty("user.home") + "/Library/Application Support/minecraft";
-                } else {
-                    // Assume Linux/Unix
-                    minecraftDir = System.getProperty("user.home") + "/.minecraft";
-                }
-                java.io.File file = new java.io.File(minecraftDir, "p2key.txt");
-                java.nio.file.Files.write(file.toPath(), apiKey.trim().getBytes());
-                LOGGER.debug("Player2 API key saved to: " + file.getAbsolutePath());
-            } catch (Exception e) {
-                LOGGER.warn("Failed to save API key to file: " + e.getMessage());
-            }
-
-            hasCheckedApiKey = false;
-            isApiKeyValid = false;
-        }
-    }
-
-    /**
-     * Get the API key from system properties, environment variable, or file
-     */
-    @Nullable
-    public static String getApiKey() {
-        // First try system properties (current session)
-        String apiKey = System.getProperty("PLAYER2_API_KEY");
-        if (apiKey != null && !apiKey.trim().isEmpty()) {
-            return apiKey.trim();
-        }
-
-        // Then try environment variable
-        apiKey = System.getenv("PLAYER2_API_KEY");
-        if (apiKey != null && !apiKey.trim().isEmpty()) {
-            return apiKey.trim();
-        }
-
-        // Finally try reading from file
-        try {
-            String minecraftDir = null;
-            String os = System.getProperty("os.name").toLowerCase();
-            if (os.contains("win")) {
-                minecraftDir = System.getenv("APPDATA") + "\\.minecraft";
-            } else if (os.contains("mac")) {
-                minecraftDir = System.getProperty("user.home") + "/Library/Application Support/minecraft";
-            } else {
-                // Assume Linux/Unix
-                minecraftDir = System.getProperty("user.home") + "/.minecraft";
-            }
-            java.io.File file = new java.io.File(minecraftDir, "p2key.txt");
-            if (file.exists()) {
-                apiKey = new String(java.nio.file.Files.readAllBytes(file.toPath())).trim();
-                if (!apiKey.isEmpty()) {
-                    // Store in system properties for this session
-                    System.setProperty("PLAYER2_API_KEY", apiKey);
-                    return apiKey;
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.error("Failed to read API key from file: " + e.getMessage());
-        }
-
-        return null;
     }
 
     /**
@@ -334,7 +121,7 @@ public class Player2StartupHandler {
                 System.setProperty("PLAYER2_API_KEY", apiKey);
 
                 // Validate the key
-                validateApiKey(apiKey);
+                Player2OAuthHandler.validateApiKey(apiKey, Player2ApiKeyErrorScreen.onValidationErrStr);
 
                 // Show success message
                 minecraft.setScreen(new ConfirmScreen(
@@ -388,6 +175,54 @@ public class Player2StartupHandler {
             }
         }
 
+        /**
+         * Show the API key setup screen
+         */
+        private static void showApiKeySetupScreen() {
+            LOGGER.info("Player2StartupHandler: showApiKeySetupScreen called");
+            Minecraft client = Minecraft.getInstance();
+            if (client != null) {
+                // If we're on the title screen, show the OAuth screen directly
+                // Otherwise, show it on the current screen
+                Screen currentScreen = client.screen;
+                LOGGER.info("Player2StartupHandler: Current screen: "
+                        + (currentScreen != null ? currentScreen.getClass().getSimpleName() : "null"));
+                Runnable onSuccess = () -> {
+                    Minecraft.getInstance().execute(() -> {
+                        Player2OAuthScreen.showSuccessNotification();
+                    });
+                };
+
+                if (currentScreen instanceof TitleScreen) {
+                    LOGGER.info("Player2StartupHandler: On title screen, starting OAuth flow");
+                    Consumer<OAuthData> onData = (data) -> {
+                        // Show the authentication screen with the user code
+                        Minecraft.getInstance().execute(() -> {
+                            Minecraft mcClient = Minecraft.getInstance();
+                            if (mcClient != null) {
+                                mcClient.setScreen(new Player2OAuthScreen(null, data));
+                            }
+                        });
+                    };
+                    Player2OAuthHandler.startOAuthFlow(onData, onSuccess);
+                } else if (currentScreen != null) {
+                    LOGGER.info("Player2StartupHandler: On other screen, starting OAuth flow");
+                    Consumer<OAuthData> onData = (data) -> {
+                        // Show the authentication screen with the user code
+                        Minecraft.getInstance().execute(() -> {
+                            Minecraft mcClient = Minecraft.getInstance();
+                            if (mcClient != null) {
+                                mcClient.setScreen(new Player2OAuthScreen(currentScreen, data));
+                            }
+                        });
+                    };
+                    Player2OAuthHandler.startOAuthFlow(onData, onSuccess);
+                }
+            } else {
+                LOGGER.warn("Player2StartupHandler: Minecraft client is null!");
+            }
+        }
+
     }
 
     /**
@@ -402,6 +237,13 @@ public class Player2StartupHandler {
             this.parent = parent;
             this.errorMessage = errorMessage;
         }
+
+        public static final Consumer<String> onValidationErrStr = (errStr) -> {
+            // Show error screen on main thread
+            Minecraft.getInstance().execute(() -> {
+                showApiKeyErrorScreen(errStr);
+            });
+        };
 
         @Override
         protected void init() {
@@ -425,7 +267,8 @@ public class Player2StartupHandler {
             // Retry button
             addRenderableWidget(Button.builder(
                     Component.literal("Retry"),
-                    button -> retryValidation()).bounds(centerX - 100, centerY, 200, 20).build());
+                    button -> retryValidation(Player2ApiKeySetupScreen::showApiKeySetupScreen, onValidationErrStr))
+                    .bounds(centerX - 100, centerY, 200, 20).build());
 
             // Setup button
             addRenderableWidget(Button.builder(
@@ -438,8 +281,8 @@ public class Player2StartupHandler {
                     button -> onClose()).bounds(centerX - 100, centerY + 60, 200, 20).build());
         }
 
-        private void retryValidation() {
-            Player2StartupHandler.revalidateApiKey();
+        private void retryValidation(Runnable onNotFoundAPiKey, Consumer<String> onValidationErrStr) {
+            Player2OAuthHandler.revalidateApiKey(onNotFoundAPiKey, onValidationErrStr);
             onClose();
         }
 
@@ -457,5 +300,10 @@ public class Player2StartupHandler {
             }
         }
 
+    }
+
+    public static void checkApiKeyOnStartup() {
+        Player2OAuthHandler.checkApiKey(Player2ApiKeySetupScreen::showApiKeySetupScreen,
+                Player2ApiKeyErrorScreen.onValidationErrStr);
     }
 }
