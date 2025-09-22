@@ -138,8 +138,10 @@ public class Player2OAuthHandler {
                     String deviceCode = deviceResponse.get("deviceCode").getAsString();
                     String userCode = deviceResponse.get("userCode").getAsString();
                     String verificationUri = deviceResponse.get("verificationUri").getAsString();
+                    String verificationUriComplete = deviceResponse.get("verificationUriComplete").getAsString();
                     int interval = deviceResponse.get("interval").getAsInt();
-                    OAuthData data = new OAuthData(deviceCode, userCode, verificationUri, interval);
+                    OAuthData data = new OAuthData(deviceCode, userCode, verificationUri, interval,
+                            verificationUriComplete);
                     onData.accept(data);
 
                     // Start polling for token

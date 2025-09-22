@@ -80,6 +80,8 @@ public class ServerPackets {
             "packet_s2c_whitelist");
     public static final ResourceLocation PACKET_S2C_PLAYER_STATUS = new ResourceLocation("creaturepals",
             "packet_s2c_player_status");
+    public static final ResourceLocation PACKET_S2C_UNAUTH_ERR = new ResourceLocation("creaturepals",
+            "packet_s2c_unauth_err");
 
     public static final ParticleType<?> HEART_SMALL_PARTICLE = Particles.HEART_SMALL_PARTICLE;
     public static final ParticleType<?> HEART_BIG_PARTICLE = Particles.HEART_BIG_PARTICLE;
@@ -428,6 +430,11 @@ public class ServerPackets {
                     + serverPlayer.getName().getString() + " | isChatOpen: " + isChatOpen);
             PacketHelper.send(serverPlayer, PACKET_S2C_PLAYER_STATUS, buffer);
         }
+    }
+
+    public static void BroadcastUnauthErr(ServerPlayer player) {
+        FriendlyByteBuf buffer = BufferHelper.create();
+        PacketHelper.send(player, PACKET_S2C_UNAUTH_ERR, buffer);
     }
 
     // Send a chat message to all players (i.e. death message)

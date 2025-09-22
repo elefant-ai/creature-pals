@@ -4,13 +4,16 @@ public class OAuthData {
     String deviceCode;
     String userCode;
     String verificationUri;
+    String verificationUriComplete;
+
     int interval;
 
     public OAuthData(String deviceCode, String userCode, String verificationUri,
-            int interval) {
+            int interval, String verificationUriComplete) {
         this.deviceCode = deviceCode;
         this.userCode = userCode;
         this.verificationUri = verificationUri;
         this.interval = interval;
+        this.verificationUriComplete = verificationUriComplete;
     }
 }

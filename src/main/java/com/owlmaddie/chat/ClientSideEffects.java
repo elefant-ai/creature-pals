@@ -116,6 +116,10 @@ public class ClientSideEffects {
                     "https://player2.game/discord");
             return;
         }
+        if (errMsg.contains("Unauthorized")) {
+            ServerPackets.BroadcastUnauthErr(player);
+            return;
+        }
         sendChatAsEntity(entityId, errorMessage, player, false);
         LOGGER.error("After chat as ent ");
         getChatData(UUID.fromString(entityId)).status = ChatStatus.DISPLAY;

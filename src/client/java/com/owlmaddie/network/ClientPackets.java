@@ -7,6 +7,7 @@ import com.google.gson.reflect.TypeToken;
 import com.owlmaddie.chat.ChatDataManager;
 import com.owlmaddie.chat.ChatDataManager.ChatSender;
 import com.owlmaddie.chat.ChatDataManager.ChatStatus;
+import com.owlmaddie.player2.auth.OAuthThroughChat;
 import com.owlmaddie.player2.auth.Player2OAuthHandler;
 import com.owlmaddie.player2.auth.Player2StartupHandler;
 import com.owlmaddie.chat.EntityChatData;
@@ -284,7 +285,11 @@ public class ClientPackets {
                         }
                     });
                 });
+        ClientPacketHelper.registerReceiver(ServerPackets.PACKET_S2C_UNAUTH_ERR,
+                (client, handler, buffer, responseSender) -> {
 
+                    OAuthThroughChat.handleAuthError();
+                });
         // Client-side packet handler: server requesting Player2 API key
         ClientPacketHelper.registerReceiver(ServerPackets.PACKET_S2C_AUTH_REQUEST,
                 (client, handler, buffer, responseSender) -> {
