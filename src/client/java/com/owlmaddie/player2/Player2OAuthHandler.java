@@ -15,9 +15,7 @@ import com.google.gson.JsonParser;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.AlertScreen;
-import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.dialog.ButtonListDialogScreen;
 import net.minecraft.network.chat.Component;
 
 /**

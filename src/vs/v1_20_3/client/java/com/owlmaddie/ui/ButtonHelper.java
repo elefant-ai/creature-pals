@@ -31,4 +31,13 @@ public class ButtonHelper {
       }
     };
   }
+
+  public static Button createTextButton(
+      String text,
+      int x, int y,
+      int width, int height,
+      Button.OnPress onPress) {
+    Button output = Button.builder(Component.literal(text), onPress).pos(x, y).size(width, height).build();
+    return output;
+  }
 }

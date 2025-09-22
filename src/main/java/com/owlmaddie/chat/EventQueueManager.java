@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.owlmaddie.utils.ServerEntityFinder;
 
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -145,7 +146,8 @@ public class EventQueueManager {
             String entityId = iterator.next();
             boolean added = false;
             for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-                Entity cur = ServerEntityFinder.getEntityByUUID(player.level(), UUID.fromString(entityId));
+                Entity cur = ServerEntityFinder.getEntityByUUID((ServerLevel) player.level(),
+                        UUID.fromString(entityId));
                 if (cur != null) {
                     LOGGER.info("tryAddAllNewEntities entityId={}", entityId);
                     getOrCreateQueueData(entityId, cur);
@@ -172,7 +174,8 @@ public class EventQueueManager {
 
     public static void addUserMessage(Entity entity, String userLanguage, ServerPlayer player,
             String userMessage, boolean is_auto_message) {
-        LOGGER.info("Add user message entityID={}, playerID={}, message={} ", entity.getStringUUID(), player.getUUID(), userMessage);
+        LOGGER.info("Add user message entityID={}, playerID={}, message={} ", entity.getStringUUID(), player.getUUID(),
+                userMessage);
         EventQueueData q = getOrCreateQueueData(entity.getStringUUID(), entity);
         q.addUserMessage(entity, userLanguage, player, userMessage, is_auto_message);
     }
@@ -180,7 +183,7 @@ public class EventQueueManager {
     public static void addUserMessageToAllClose(String userLanguage, ServerPlayer player, String userMessage,
             boolean is_auto_message) {
         addingEntityQueues = true; // if dont have this, then will first create queue data and poll before
-        ServerEntityFinder.getCloseEntities(player.level(), player, 6).stream().filter(
+        ServerEntityFinder.getCloseEntities((ServerLevel) player.level(), player, 6).stream().filter(
                 (e) -> !(e instanceof Player)).forEach((e) -> {
                     LOGGER.info("Sending user msg={} to ent_id={}", userMessage, e.getStringUUID());
                     // adding user message.
