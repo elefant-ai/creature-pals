@@ -10,7 +10,6 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.owlmaddie.Player2.TTS;
 import com.owlmaddie.network.ServerPackets;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.ChatFormatting;
@@ -56,7 +55,7 @@ public class CreaturePalsCommands {
                 .then(registerWhitelistCommand())
                 .then(registerBlacklistCommand())
                 .then(registerChatBubbleCommand())
-                .then(registerTTSCommand())
+                // .then(registerTTSCommand())
                 .then(registerHelpCommand()));
     }
 
@@ -116,15 +115,16 @@ public class CreaturePalsCommands {
                 .collect(Collectors.toList());
     }
 
-    private static LiteralArgumentBuilder<CommandSourceStack> registerTTSCommand() {
-        return Commands.literal("tts")
-                .requires(source -> source.hasPermission(4))
-                .then(Commands.literal("set")
-                        .then(Commands.literal("on")
-                                .executes(context -> TTS.enableTTS()))
-                        .then(Commands.literal("off")
-                                .executes(context -> TTS.disableTTS())));
-    }
+    // private static LiteralArgumentBuilder<CommandSourceStack>
+    // registerTTSCommand() {
+    // return Commands.literal("tts")
+    // .requires(source -> source.hasPermission(4))
+    // .then(Commands.literal("set")
+    // .then(Commands.literal("on")
+    // .executes(context -> TTS.enableTTS()))
+    // .then(Commands.literal("off")
+    // .executes(context -> TTS.disableTTS())));
+    // }
 
     private static LiteralArgumentBuilder<CommandSourceStack> registerChatBubbleCommand() {
         return Commands.literal("chatbubble")

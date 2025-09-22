@@ -1,17 +1,14 @@
 package com.owlmaddie.chat;
 
 import static com.owlmaddie.network.ServerPackets.BroadcastEntityMessage;
-import static com.owlmaddie.network.ServerPackets.BroadcastMessage;
 import static com.owlmaddie.network.ServerPackets.serverInstance;
 
 import java.util.Optional;
-import java.util.Queue;
 import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.owlmaddie.Player2.TTS;
 import com.owlmaddie.chat.ChatDataManager.ChatSender;
 import com.owlmaddie.chat.ChatDataManager.ChatStatus;
 import com.owlmaddie.message.MessageParser;
@@ -118,6 +115,7 @@ public class ClientSideEffects {
         }
         if (errMsg.contains("Unauthorized")) {
             ServerPackets.BroadcastUnauthErr(player);
+            sendChatAsEntity(entityId, "Please authorize to use AI features.", player, false);
             return;
         }
         sendChatAsEntity(entityId, errorMessage, player, false);
@@ -150,7 +148,6 @@ public class ClientSideEffects {
             ServerPackets.BroadcastMessage(Component.literal("<" + entityCustomName
                     + " the " + entityType + "> " + message));
         }
-        TTS.speak(message, UUID.fromString(entityId));
     }
 
     public static void setPending(String entityId) {

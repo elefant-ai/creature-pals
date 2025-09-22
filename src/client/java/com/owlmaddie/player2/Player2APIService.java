@@ -41,18 +41,21 @@ public class Player2APIService {
             throws Exception {
         String apiKey = getApiKey();
         if (apiKey == null || apiKey.isEmpty()) {
+            LOGGER.info("Player2APIKey env variable not set");
             throw new IllegalStateException("PLAYER2_API_KEY environment variable is not set");
         }
+
+        LOGGER.info("Sending request to url={}", BASE_URL + endpoint);
 
         URL url = new URI(BASE_URL + endpoint).toURL();
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod(postRequest ? "POST" : "GET");
 
-        connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
-        connection.setRequestProperty("Accept", "application/json; charset=utf-8");
+        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setRequestProperty("Accept", "application/json");
         connection.setRequestProperty("Authorization", "Bearer " + apiKey);
 
-        LOGGER.debug("Sending %s request to %s\n", postRequest ? "POST" : "GET", endpoint);
+        LOGGER.debug("Sending %s request to %s\n", postRequest ? "POST" : "GET", BASE_URL + endpoint);
 
         if (postRequest && requestBody != null) {
             LOGGER.debug("Request Body: %s\n", requestBody);
