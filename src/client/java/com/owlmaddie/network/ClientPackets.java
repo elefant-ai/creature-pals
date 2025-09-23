@@ -288,7 +288,7 @@ public class ClientPackets {
                 });
         ClientPacketHelper.registerReceiver(ServerPackets.PACKET_S2C_UNAUTH_ERR,
                 (client, handler, buffer, responseSender) -> {
-
+                    LOGGER.info("Client: recieved unauth err");
                     OAuthThroughChat.handleAuthError();
                 });
         // Client-side packet handler: server requesting Player2 API key

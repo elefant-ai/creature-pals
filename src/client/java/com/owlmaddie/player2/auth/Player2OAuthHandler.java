@@ -41,6 +41,7 @@ public class Player2OAuthHandler {
      */
     public static void startOAuthFlow(Consumer<OAuthData> onData, Runnable onSuccess) {
         if (isAuthenticating) {
+            LOGGER.info("Already auth, skipping");
             return; // Already authenticating
         }
 
@@ -198,9 +199,9 @@ public class Player2OAuthHandler {
                         executor.shutdown();
 
                         System.out.println("Successfully obtained Player2 API key via Device Authorization Flow");
-
                         // Notify the user on the main thread
                         onSuccess.run();
+                        isAuthenticating = false;
                     }
                 } else if (response.statusCode() == 400) {
                     // Still pending, continue polling

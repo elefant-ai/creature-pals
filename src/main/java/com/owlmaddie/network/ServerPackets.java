@@ -448,6 +448,7 @@ public class ServerPackets {
     }
 
     public static void BroadcastUnauthErr(ServerPlayer player) {
+        LOGGER.info("Server: Sending unauth err packet");
         FriendlyByteBuf buffer = BufferHelper.create();
         PacketHelper.send(player, PACKET_S2C_UNAUTH_ERR, buffer);
     }
