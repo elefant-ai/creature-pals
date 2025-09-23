@@ -81,6 +81,8 @@ public class ServerPackets {
             "packet_c2s_send_chat");
     public static final ResourceLocation PACKET_C2S_AUTH_RESPONSE = new ResourceLocation("creaturepals",
             "packet_c2s_auth_response");
+    public static final ResourceLocation PACKET_C2S_AUTH_FIXED_ERROR = new ResourceLocation("creaturepals",
+            "packet_c2s_auth_fixed_error");
     public static final ResourceLocation PACKET_S2C_AUTH_REQUEST = new ResourceLocation("creaturepals",
             "packet_s2c_auth_request");
     public static final ResourceLocation PACKET_S2C_ENTITY_MESSAGE = new ResourceLocation("creaturepals",
@@ -219,7 +221,9 @@ public class ServerPackets {
             UUID requestId = UUID.fromString(buf.readUtf());
             String apiKey = buf.readUtf();
             server.execute(() -> {
-                ChatGPTRequest.apiKeyAwaiter.remove(requestId).complete(apiKey);
+                if (ChatGPTRequest.apiKeyAwaiter.get(requestId) != null) {
+                    ChatGPTRequest.apiKeyAwaiter.remove(requestId).complete(apiKey);
+                }
             });
         });
 
@@ -254,6 +258,11 @@ public class ServerPackets {
                     ClientSideEffects.setPending(entity.getStringUUID());
                 }
             });
+        });
+
+        PacketHelper.registerReceiver(PACKET_C2S_AUTH_FIXED_ERROR, (server, player, buf) -> {
+            LOGGER.info("Server: recieved packet that auth error was fixed.");
+            EventQueueManager.fixedAuthError(player);
         });
 
         // Send lite chat data JSON to new player (to populate client data)

@@ -6,6 +6,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -33,30 +34,32 @@ public class Player2OAuthHandler {
 
     private static Logger LOGGER = LoggerFactory.getLogger("creaturepals");
 
-    private static final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+    private static ScheduledExecutorService executor;
     private static boolean isAuthenticating = false;
+    private static ExecutorService authExecutor = Executors.newSingleThreadExecutor();
 
     /**
      * Start the Device Authorization Flow
      */
-    public static void startOAuthFlow(Consumer<OAuthData> onData, Runnable onSuccess) {
+    public static void startOAuthFlow(Consumer<OAuthData> onData, Runnable onSuccess, Runnable onError) {
         if (isAuthenticating) {
             LOGGER.info("Already auth, skipping");
             return; // Already authenticating
         }
+        executor = Executors.newScheduledThreadPool(1);
 
         isAuthenticating = true;
 
         // First attempt a web login that may already be authorized for this client
-        attemptWebLoginOrFallback(onData, onSuccess);
+        attemptWebLoginOrFallback(onData, onSuccess, onError);
     }
 
     // Try GET /login/web/{CLIENT_ID}; if it returns p2Key, use it; else start
     // device authorization
-    private static void attemptWebLoginOrFallback(Consumer<OAuthData> onData, Runnable onSuccess) {
-        CompletableFuture.runAsync(() -> {
+    private static void attemptWebLoginOrFallback(Consumer<OAuthData> onData, Runnable onSuccess, Runnable onError) {
+        authExecutor.submit(() -> {
             try {
-                String url = "http://localhost:4315/v1/login/web/" + CLIENT_ID;
+                String url = "http://127.0.0.1:4315/v1/login/web/" + CLIENT_ID;
                 HttpClient client = HttpClient.newHttpClient();
                 HttpRequest request = HttpRequest.newBuilder()
                         .uri(URI.create(url))
@@ -75,18 +78,18 @@ public class Player2OAuthHandler {
                         System.out.println("Obtained Player2 API key via web login probe.");
                         // Notify user on main thread and finish
                         // Reset auth state; no OAuth UI needed
-                        onSuccess.run();
                         isAuthenticating = false;
+                        onSuccess.run();
                         return;
                     }
                 }
 
                 // Fallback to device authorization if not successful
-                startDeviceAuthorization(onData, onSuccess);
+                startDeviceAuthorization(onData, onSuccess, onError);
             } catch (Exception e) {
                 System.err.println("Web login probe failed: " + e.getMessage());
                 // On any failure, fallback to device authorization
-                startDeviceAuthorization(onData, onSuccess);
+                startDeviceAuthorization(onData, onSuccess, onError);
             }
         });
     }
@@ -94,72 +97,71 @@ public class Player2OAuthHandler {
     /**
      * Start the device authorization process
      */
-    private static void startDeviceAuthorization(Consumer<OAuthData> onData, Runnable onSuccess) {
-        CompletableFuture.runAsync(() -> {
-            try {
-                // Step 1: Request device authorization
-                JsonObject deviceRequest = new JsonObject();
-                deviceRequest.addProperty("client_id", CLIENT_ID);
-                deviceRequest.addProperty("scope", "api");
+    private static void startDeviceAuthorization(Consumer<OAuthData> onData, Runnable onSuccess, Runnable onError) {
+        try {
+            // Step 1: Request device authorization
+            JsonObject deviceRequest = new JsonObject();
+            deviceRequest.addProperty("client_id", CLIENT_ID);
+            deviceRequest.addProperty("scope", "api");
 
-                HttpClient client = HttpClient.newHttpClient();
-                HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create(DEVICE_AUTH_URL))
-                        .header("Content-Type", "application/json")
-                        .POST(HttpRequest.BodyPublishers.ofString(deviceRequest.toString()))
-                        .build();
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(DEVICE_AUTH_URL))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(deviceRequest.toString()))
+                    .build();
 
-                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-                // Log the raw response for debugging
-                System.out.println("Device authorization response status: " + response.statusCode());
-                System.out.println("Device authorization response body: " + response.body());
+            // Log the raw response for debugging
+            System.out.println("Device authorization response status: " + response.statusCode());
+            System.out.println("Device authorization response body: " + response.body());
 
-                if (response.statusCode() == 200) {
-                    JsonObject deviceResponse = JsonParser.parseString(response.body()).getAsJsonObject();
+            if (response.statusCode() == 200) {
+                JsonObject deviceResponse = JsonParser.parseString(response.body()).getAsJsonObject();
 
-                    // Debug: Log the full response to see what fields are available
-                    System.out.println("Device authorization response: " + deviceResponse.toString());
+                // Debug: Log the full response to see what fields are available
+                System.out.println("Device authorization response: " + deviceResponse.toString());
 
-                    // Check if all required fields are present
-                    if (!deviceResponse.has("deviceCode")) {
-                        throw new RuntimeException("Missing 'deviceCode' field in response");
-                    }
-                    if (!deviceResponse.has("userCode")) {
-                        throw new RuntimeException("Missing 'userCode' field in response");
-                    }
-                    if (!deviceResponse.has("verificationUri")) {
-                        throw new RuntimeException("Missing 'verificationUri' field in response");
-                    }
-                    if (!deviceResponse.has("interval")) {
-                        throw new RuntimeException("Missing 'interval' field in response");
-                    }
-
-                    // Extract device code and user code
-                    String deviceCode = deviceResponse.get("deviceCode").getAsString();
-                    String userCode = deviceResponse.get("userCode").getAsString();
-                    String verificationUri = deviceResponse.get("verificationUri").getAsString();
-                    String verificationUriComplete = deviceResponse.get("verificationUriComplete").getAsString();
-                    int interval = deviceResponse.get("interval").getAsInt();
-                    OAuthData data = new OAuthData(deviceCode, userCode, verificationUri, interval,
-                            verificationUriComplete);
-                    onData.accept(data);
-
-                    // Start polling for token
-                    startTokenPolling(deviceCode, interval, onSuccess);
-
-                } else {
-                    System.err.println("Device authorization request failed with status " + response.statusCode());
-                    System.err.println("Response body: " + response.body());
-                    throw new RuntimeException("Device authorization request failed with status "
-                            + response.statusCode() + ": " + response.body());
+                // Check if all required fields are present
+                if (!deviceResponse.has("deviceCode")) {
+                    throw new RuntimeException("Missing 'deviceCode' field in response");
+                }
+                if (!deviceResponse.has("userCode")) {
+                    throw new RuntimeException("Missing 'userCode' field in response");
+                }
+                if (!deviceResponse.has("verificationUri")) {
+                    throw new RuntimeException("Missing 'verificationUri' field in response");
+                }
+                if (!deviceResponse.has("interval")) {
+                    throw new RuntimeException("Missing 'interval' field in response");
                 }
 
-            } catch (Exception e) {
-                System.err.println("Device authorization failed: " + e.getMessage());
-                isAuthenticating = false;
+                // Extract device code and user code
+                String deviceCode = deviceResponse.get("deviceCode").getAsString();
+                String userCode = deviceResponse.get("userCode").getAsString();
+                String verificationUri = deviceResponse.get("verificationUri").getAsString();
+                String verificationUriComplete = deviceResponse.get("verificationUriComplete").getAsString();
+                int interval = deviceResponse.get("interval").getAsInt();
+                OAuthData data = new OAuthData(deviceCode, userCode, verificationUri, interval,
+                        verificationUriComplete);
+                onData.accept(data);
+
+                // Start polling for token
+                startTokenPolling(deviceCode, interval, onSuccess);
+
+            } else {
+                System.err.println("Device authorization request failed with status " + response.statusCode());
+                System.err.println("Response body: " + response.body());
+                throw new RuntimeException("Device authorization request failed with status "
+                        + response.statusCode() + ": " + response.body());
             }
-        });
+
+        } catch (Exception e) {
+            System.err.println("Device authorization failed: " + e.getMessage());
+            isAuthenticating = false;
+            onError.run();
+        }
     }
 
     /**
@@ -200,8 +202,8 @@ public class Player2OAuthHandler {
 
                         System.out.println("Successfully obtained Player2 API key via Device Authorization Flow");
                         // Notify the user on the main thread
-                        onSuccess.run();
                         isAuthenticating = false;
+                        onSuccess.run();
                     }
                 } else if (response.statusCode() == 400) {
                     // Still pending, continue polling

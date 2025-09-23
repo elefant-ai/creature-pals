@@ -114,6 +114,7 @@ public class ClientSideEffects {
             return;
         }
         if (errMsg.contains("Unauthorized")) {
+            EventQueueManager.unauthError(player); // stop processing queues linked to this player.
             ServerPackets.BroadcastUnauthErr(player);
             sendChatAsEntity(entityId, "Please authorize to use AI features.", player, false);
             return;
