@@ -25,6 +25,7 @@ import net.minecraft.world.entity.player.Player;
 public class EventQueueManager {
     public static final Logger LOGGER = LoggerFactory.getLogger("creaturepals");
     private static boolean addingEntityQueues = false;
+    private static Set<ServerPlayer> unauthPlayers = new HashSet<>();
 
     private static class LLMCompleter {
         private boolean isProcessing = false;
@@ -82,6 +83,7 @@ public class EventQueueManager {
     private static Optional<String> getEntityIdToProcess(MinecraftServer server) {
         return queueData.values().stream()
                 .filter(EventQueueData::shouldProcess)
+                .filter((data) -> !unauthPlayers.contains(data.getPlayer()))
                 .max(Comparator.comparingInt(EventQueueData::getPriority))
                 .map(EventQueueData::getId);
     }
@@ -191,6 +193,14 @@ public class EventQueueManager {
                     addUserMessage(e, userLanguage, player, userMessage, is_auto_message);
                 });
         addingEntityQueues = false;
+    }
+
+    public static void unauthError(ServerPlayer player) {
+        unauthPlayers.add(player);
+    }
+
+    public static void fixedAuthError(ServerPlayer player) {
+        unauthPlayers.remove(player);
     }
 
 }

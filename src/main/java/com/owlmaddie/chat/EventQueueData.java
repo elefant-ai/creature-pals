@@ -8,6 +8,7 @@ import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +24,7 @@ import net.minecraft.world.entity.Entity;
 
 public class EventQueueData {
     public static final Logger LOGGER = LoggerFactory.getLogger("creaturepals");
-    private static long waitTimeAfterError = 10_000_000_000L; // wait 10 sec after err before doing any polling
+    private static long waitTimeAfterError = 20_000_000_000L; // wait 10 sec after err before doing any polling
 
     private String entityId;
     private Entity entity;
@@ -236,6 +237,11 @@ public class EventQueueData {
     // MessageData toAdd = new MessageData(userLanguage, player, newMessage, false);
     // addMessage(toAdd);
     // }
+
+    @Nullable
+    public ServerPlayer getPlayer() {
+        return player;
+    }
 
     public boolean shouldDelete() {
         if (player != null) {

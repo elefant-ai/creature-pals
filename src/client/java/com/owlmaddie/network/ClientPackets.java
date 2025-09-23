@@ -111,6 +111,12 @@ public class ClientPackets {
         ClientPacketHelper.send(ServerPackets.PACKET_C2S_AUTH_RESPONSE, buf);
     }
 
+    public static void sendAuthFixedError() {
+        LOGGER.info("Client: sending auth fixed error");
+        FriendlyByteBuf buf = ClientBufferHelper.create();
+        ClientPacketHelper.send(ServerPackets.PACKET_C2S_AUTH_FIXED_ERROR, buf);
+    }
+
     // Reading a Map<String, PlayerData> from the buffer
     public static Map<String, PlayerData> readPlayerDataMap(FriendlyByteBuf buffer) {
         int size = buffer.readInt(); // Read the size of the map

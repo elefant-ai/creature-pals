@@ -205,7 +205,9 @@ public class Player2StartupHandler {
                             }
                         });
                     };
-                    Player2OAuthHandler.startOAuthFlow(onData, onSuccess);
+                    Player2OAuthHandler.startOAuthFlow(onData, onSuccess, () -> {
+                        LOGGER.error("Start oauth err!");
+                    });
                 } else if (currentScreen != null) {
                     LOGGER.info("Player2StartupHandler: On other screen, starting OAuth flow");
                     Consumer<OAuthData> onData = (data) -> {
@@ -217,7 +219,9 @@ public class Player2StartupHandler {
                             }
                         });
                     };
-                    Player2OAuthHandler.startOAuthFlow(onData, onSuccess);
+                    Player2OAuthHandler.startOAuthFlow(onData, onSuccess, () -> {
+                        LOGGER.error("Start oauth err!");
+                    });
                 }
             } else {
                 LOGGER.warn("Player2StartupHandler: Minecraft client is null!");
