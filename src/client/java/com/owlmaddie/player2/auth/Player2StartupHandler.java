@@ -111,8 +111,8 @@ public class Player2StartupHandler {
         }
 
         private void saveApiKey() {
-            String apiKey = apiKeyField.getMessage().tryCollapseToString(); // .getString(); // instead of getString
-                                                                            // maybe tryToCollapseToString()
+            String apiKey = apiKeyField.getMessage().getString(); // .getString(); // instead of getString
+                                                                  // maybe tryToCollapseToString()
             if (apiKey.isEmpty()) {
                 return;
             }
