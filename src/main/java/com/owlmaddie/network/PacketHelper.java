@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.network;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -26,7 +26,8 @@ public class PacketHelper {
     }
 
     // Updated registerReceiver method using TriConsumer
-    public static void registerReceiver(ResourceLocation identifier, TriConsumer<MinecraftServer, ServerPlayer, FriendlyByteBuf> handler) {
+    public static void registerReceiver(ResourceLocation identifier,
+            TriConsumer<MinecraftServer, ServerPlayer, FriendlyByteBuf> handler) {
         ServerPlayNetworking.registerGlobalReceiver(identifier, (server, player, netHandler, buf, responseSender) -> {
             handler.accept(server, player, buf);
         });

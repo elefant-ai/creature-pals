@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.controls;
 
 import net.minecraft.world.entity.monster.Phantom;
@@ -41,7 +41,8 @@ public class LookControls {
             handleFlyingEntity(entity, targetPos, 4F);
         } else {
             // Make the entity look at the player
-            entity.getLookControl().setLookAt(targetPos.x, targetPos.y, targetPos.z, 10.0F, (float)entity.getMaxHeadXRot());
+            entity.getLookControl().setLookAt(targetPos.x, targetPos.y, targetPos.z, 10.0F,
+                    (float) entity.getMaxHeadXRot());
         }
     }
 
@@ -52,16 +53,16 @@ public class LookControls {
 
     private static void handleSquidLook(Squid squid, Vec3 targetPos) {
         Vec3 toPlayer = calculateNormalizedDirection(squid, targetPos);
-        Vec3 swimVec  = toPlayer.scale(0.15f);
+        Vec3 swimVec = toPlayer.scale(0.15f);
 
         // Force the internal swimVec so tickMovement() picks it up
-        ((ISquidEntity)squid).forceSwimVector(swimVec);
+        ((ISquidEntity) squid).forceSwimVector(swimVec);
 
         // Drive motion (so server and client both move)
         squid.setDeltaMovement(swimVec);
 
         if (squid.position().distanceTo(targetPos) < 3.5) {
-            ((ISquidEntity)squid).forceSwimVector(Vec3.ZERO);
+            ((ISquidEntity) squid).forceSwimVector(Vec3.ZERO);
             squid.setDeltaMovement(0, 0, 0);
         }
     }
@@ -71,19 +72,20 @@ public class LookControls {
         Vec3 flyingPosition = flyingEntity.position();
         Vec3 toPlayer = targetPos.subtract(flyingPosition).normalize();
 
-        // Calculate the yaw to align the flyingEntity's facing direction with the movement direction
-        float targetYaw = (float)(Mth.atan2(toPlayer.z, toPlayer.x) * (180 / Math.PI) - 90);
+        // Calculate the yaw to align the flyingEntity's facing direction with the
+        // movement direction
+        float targetYaw = (float) (Mth.atan2(toPlayer.z, toPlayer.x) * (180 / Math.PI) - 90);
         flyingEntity.setYRot(targetYaw);
 
         // Look at player while adjusting yaw
-        flyingEntity.getLookControl().setLookAt(targetPos.x, targetPos.y, targetPos.z, 10.0F, (float)flyingEntity.getMaxHeadXRot());
+        flyingEntity.getLookControl().setLookAt(targetPos.x, targetPos.y, targetPos.z, 10.0F,
+                (float) flyingEntity.getMaxHeadXRot());
 
         float initialSpeed = 0.15F;
         flyingEntity.setDeltaMovement(
                 (float) toPlayer.x * initialSpeed,
                 (float) toPlayer.y * initialSpeed,
-                (float) toPlayer.z * initialSpeed
-        );
+                (float) toPlayer.z * initialSpeed);
 
         double distanceToPlayer = flyingEntity.position().distanceTo(targetPos);
         if (distanceToPlayer < stopDistance) {

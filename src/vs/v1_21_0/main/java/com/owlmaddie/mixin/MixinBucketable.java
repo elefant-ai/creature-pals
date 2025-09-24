@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.mixin;
 
 import com.owlmaddie.chat.ChatDataManager;
@@ -31,40 +31,34 @@ import java.util.UUID;
 @Mixin(Bucketable.class)
 public interface MixinBucketable {
 
-    // capture: mob → bucket
-    @Inject(
-            method = "saveDefaultDataToBucketTag(Lnet/minecraft/world/entity/Mob;Lnet/minecraft/world/item/ItemStack;)V",
-            at     = @At("TAIL")
-    )
-    private static void captureCCUUID(Mob entity, ItemStack stack, CallbackInfo ci) {
-        UUID oldId = entity.getUUID();
+        // capture: mob → bucket
+        @Inject(method = "saveDefaultDataToBucketTag(Lnet/minecraft/world/entity/Mob;Lnet/minecraft/world/item/ItemStack;)V", at = @At("TAIL"))
+        private static void captureCPUUID(Mob entity, ItemStack stack, CallbackInfo ci) {
+                UUID oldId = entity.getUUID();
 
-        // Append our CCUUID to the existing BUCKET_ENTITY_DATA component
-        CustomData.update(
-                DataComponents.BUCKET_ENTITY_DATA,
-                stack,
-                tag -> tag.putUUID("CCUUID", oldId)
-        );
+                // Append our CPUUID to the existing BUCKET_ENTITY_DATA component
+                CustomData.update(
+                                DataComponents.BUCKET_ENTITY_DATA,
+                                stack,
+                                tag -> tag.putUUID("CPUUID", oldId));
 
-        LoggerFactory.getLogger("creaturechat")
-                .info("[Bucket-Capture] stored {}", oldId);
-    }
+                LoggerFactory.getLogger("creaturepals")
+                                .info("[Bucket-Capture] stored {}", oldId);
+        }
 
-    // release: bucket → mob
-    @Inject(
-            method = "loadDefaultDataFromBucketTag(Lnet/minecraft/world/entity/Mob;Lnet/minecraft/nbt/CompoundTag;)V",
-            at     = @At("TAIL")
-    )
-    private static void restoreCCUUID(Mob entity, CompoundTag nbt, CallbackInfo ci) {
-        if (!NbtCompoundHelper.containsUuid(nbt, "CCUUID")) return;
+        // release: bucket → mob
+        @Inject(method = "loadDefaultDataFromBucketTag(Lnet/minecraft/world/entity/Mob;Lnet/minecraft/nbt/CompoundTag;)V", at = @At("TAIL"))
+        private static void restoreCPUUID(Mob entity, CompoundTag nbt, CallbackInfo ci) {
+                if (!NbtCompoundHelper.containsUuid(nbt, "CPUUID"))
+                        return;
 
-        UUID oldId = NbtCompoundHelper.getUuid(nbt, "CCUUID");
-        UUID newId = entity.getUUID();
+                UUID oldId = NbtCompoundHelper.getUuid(nbt, "CPUUID");
+                UUID newId = entity.getUUID();
 
-        ChatDataManager.getServerInstance()
-                .updateUUID(oldId.toString(), newId.toString());
+                ChatDataManager.getServerInstance()
+                                .updateUUID(oldId.toString(), newId.toString());
 
-        LoggerFactory.getLogger("creaturechat")
-                .info("[Bucket-Release] chat {} → {}", oldId, newId);
-    }
+                LoggerFactory.getLogger("creaturepals")
+                                .info("[Bucket-Release] chat {} → {}", oldId, newId);
+        }
 }

@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.ui;
 
 import com.owlmaddie.chat.ChatDataManager;
@@ -19,20 +19,20 @@ import org.lwjgl.glfw.GLFW;
  */
 public class ChatScreen extends ScreenHelper {
     // Chat background size
-    private static final int CHAT_BACKGROUND_WIDTH   = 261;
-    private static final int CHAT_BACKGROUND_HEIGHT   = 88;
+    private static final int CHAT_BACKGROUND_WIDTH = 261;
+    private static final int CHAT_BACKGROUND_HEIGHT = 88;
 
     // Chat bubble title (enter your message)
     private static final int CHAT_TITLE_OFFSET = 13;
 
     // text input margins and size
-    private static final int TEXT_INPUT_MARGIN_X   = 22;
+    private static final int TEXT_INPUT_MARGIN_X = 22;
     private static final int TEXT_INPUT_MARGIN_TOP = 30;
-    private static final int TEXT_INPUT_HEIGHT     = 20;
+    private static final int TEXT_INPUT_HEIGHT = 20;
 
     // button dimensions and margins
-    private static final int BUTTON_WIDTH    = 101;
-    private static final int BUTTON_HEIGHT   = 21;
+    private static final int BUTTON_WIDTH = 101;
+    private static final int BUTTON_HEIGHT = 21;
     private static final int BUTTON_MARGIN_X = 10;
     private static final int BUTTON_MARGIN_Y = 9;
 
@@ -60,7 +60,7 @@ public class ChatScreen extends ScreenHelper {
         TITLE_OFFSET = CHAT_TITLE_OFFSET;
 
         // center background horizontally, 1/5 down vertically
-        bgX = (this.width  - BG_WIDTH)  / 2;
+        bgX = (this.width - BG_WIDTH) / 2;
         bgY = (this.height - BG_HEIGHT) / 5;
 
         // 1) text input
@@ -71,8 +71,7 @@ public class ChatScreen extends ScreenHelper {
                 font,
                 inputX, inputY,
                 inputW, TEXT_INPUT_HEIGHT,
-                Component.literal("")
-        );
+                Component.literal(""));
         textField.setMaxLength(ChatDataManager.MAX_CHAR_IN_USER_MESSAGE);
         textField.setResponder(this::onTextChanged);
         setFocused(textField);
@@ -82,29 +81,16 @@ public class ChatScreen extends ScreenHelper {
         int btnY = bgY + BG_HEIGHT - BUTTON_HEIGHT - BUTTON_MARGIN_Y;
 
         // CANCEL / EXIT
-        cancelButton = ButtonHelper.createImageButton(
-                bgX + BUTTON_MARGIN_X,            // x
-                btnY,                             // y
-                BUTTON_WIDTH,                     // width
-                BUTTON_HEIGHT,                    // height
-                textures.GetUI("chat-button-exit"),        // normal texture
-                textures.GetUI("chat-button-exit-hover"),  // hover texture
-                widget -> onClose(),                // onPress
-                widget -> Component.empty()            // narrationSupplier
-        );
+        int buttonWidth = 100;
+        int buttonHeight = 20;
+        int buttonSpacing = 15;
+        cancelButton = ButtonHelper.createTextButton("cancel", inputX, btnY, buttonWidth, buttonHeight,
+                widget -> onClose());
         addRenderableWidget(cancelButton);
 
         // SEND / DONE
-        sendButton = ButtonHelper.createImageButton(
-                bgX + BG_WIDTH - BUTTON_WIDTH - BUTTON_MARGIN_X,  // x
-                btnY,                                             // y
-                BUTTON_WIDTH,                                     // width
-                BUTTON_HEIGHT,                                    // height
-                textures.GetUI("chat-button-done"),               // normal texture
-                textures.GetUI("chat-button-done-hover"),         // hover texture
-                widget -> sendChatMessage(),                      // onPress
-                widget -> Component.empty()                            // narrationSupplier
-        );
+        sendButton = ButtonHelper.createTextButton("done", inputX + buttonWidth + buttonSpacing, btnY, buttonWidth,
+                buttonHeight, widget -> sendChatMessage());
         sendButton.active = false;
         addRenderableWidget(sendButton);
     }

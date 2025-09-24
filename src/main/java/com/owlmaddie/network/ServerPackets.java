@@ -1,11 +1,15 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.network;
 
 import com.owlmaddie.chat.ChatDataManager;
 import com.owlmaddie.chat.ChatDataSaverScheduler;
+import com.owlmaddie.chat.ChatGPTRequest;
+import com.owlmaddie.chat.ClientSideEffects;
 import com.owlmaddie.chat.EntityChatData;
+import com.owlmaddie.chat.EntityChatDataLight;
+import com.owlmaddie.chat.EventQueueManager;
 import com.owlmaddie.chat.PlayerData;
 import com.owlmaddie.commands.ConfigurationHandler;
 import com.owlmaddie.goals.EntityBehaviorManager;
@@ -13,12 +17,11 @@ import com.owlmaddie.goals.GoalPriority;
 import com.owlmaddie.goals.TalkPlayerGoal;
 import com.owlmaddie.particle.Particles;
 import com.owlmaddie.utils.Compression;
-import com.owlmaddie.utils.Randomizer;
 import com.owlmaddie.utils.ServerEntityFinder;
-import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleType;
@@ -40,27 +43,48 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
- * The {@code ServerPackets} class provides methods to send packets to/from the client for generating greetings,
+ * The {@code ServerPackets} class provides methods to send packets to/from the
+ * client for generating greetings,
  * updating message details, and sending user messages.
  */
 public class ServerPackets {
-    public static final Logger LOGGER = LoggerFactory.getLogger("creaturechat");
+    public static final Logger LOGGER = LoggerFactory.getLogger("creaturepals");
     public static MinecraftServer serverInstance;
     public static ChatDataSaverScheduler scheduler = null;
-    public static final ResourceLocation PACKET_C2S_GREETING = new ResourceLocation("creaturechat", "packet_c2s_greeting");
-    public static final ResourceLocation PACKET_C2S_READ_NEXT = new ResourceLocation("creaturechat", "packet_c2s_read_next");
-    public static final ResourceLocation PACKET_C2S_SET_STATUS = new ResourceLocation("creaturechat", "packet_c2s_set_status");
-    public static final ResourceLocation PACKET_C2S_OPEN_CHAT = new ResourceLocation("creaturechat", "packet_c2s_open_chat");
-    public static final ResourceLocation PACKET_C2S_CLOSE_CHAT = new ResourceLocation("creaturechat", "packet_c2s_close_chat");
-    public static final ResourceLocation PACKET_C2S_SEND_CHAT = new ResourceLocation("creaturechat", "packet_c2s_send_chat");
-    public static final ResourceLocation PACKET_S2C_ENTITY_MESSAGE = new ResourceLocation("creaturechat", "packet_s2c_entity_message");
-    public static final ResourceLocation PACKET_S2C_PLAYER_MESSAGE = new ResourceLocation("creaturechat", "packet_s2c_player_message");
-    public static final ResourceLocation PACKET_S2C_LOGIN = new ResourceLocation("creaturechat", "packet_s2c_login");
-    public static final ResourceLocation PACKET_S2C_WHITELIST = new ResourceLocation("creaturechat", "packet_s2c_whitelist");
-    public static final ResourceLocation PACKET_S2C_PLAYER_STATUS = new ResourceLocation("creaturechat", "packet_s2c_player_status");
+    public static final ResourceLocation PACKET_C2S_GREETING = new ResourceLocation("creaturepals",
+            "packet_c2s_greeting");
+    public static final ResourceLocation PACKET_C2S_READ_NEXT = new ResourceLocation("creaturepals",
+            "packet_c2s_read_next");
+    public static final ResourceLocation PACKET_C2S_SET_STATUS = new ResourceLocation("creaturepals",
+            "packet_c2s_set_status");
+    public static final ResourceLocation PACKET_C2S_OPEN_CHAT = new ResourceLocation("creaturepals",
+            "packet_c2s_open_chat");
+    public static final ResourceLocation PACKET_C2S_CLOSE_CHAT = new ResourceLocation("creaturepals",
+            "packet_c2s_close_chat");
+    public static final ResourceLocation PACKET_C2S_SEND_CHAT = new ResourceLocation("creaturepals",
+            "packet_c2s_send_chat");
+    public static final ResourceLocation PACKET_C2S_AUTH_RESPONSE = new ResourceLocation("creaturepals",
+            "packet_c2s_auth_response");
+    public static final ResourceLocation PACKET_C2S_AUTH_FIXED_ERROR = new ResourceLocation("creaturepals",
+            "packet_c2s_auth_fixed_error");
+    public static final ResourceLocation PACKET_S2C_AUTH_REQUEST = new ResourceLocation("creaturepals",
+            "packet_s2c_auth_request");
+    public static final ResourceLocation PACKET_S2C_ENTITY_MESSAGE = new ResourceLocation("creaturepals",
+            "packet_s2c_entity_message");
+    public static final ResourceLocation PACKET_S2C_PLAYER_MESSAGE = new ResourceLocation("creaturepals",
+            "packet_s2c_player_message");
+    public static final ResourceLocation PACKET_S2C_LOGIN = new ResourceLocation("creaturepals", "packet_s2c_login");
+    public static final ResourceLocation PACKET_S2C_WHITELIST = new ResourceLocation("creaturepals",
+            "packet_s2c_whitelist");
+    public static final ResourceLocation PACKET_S2C_PLAYER_STATUS = new ResourceLocation("creaturepals",
+            "packet_s2c_player_status");
+    public static final ResourceLocation PACKET_S2C_UNAUTH_ERR = new ResourceLocation("creaturepals",
+            "packet_s2c_unauth_err");
+
     public static final ParticleType<?> HEART_SMALL_PARTICLE = Particles.HEART_SMALL_PARTICLE;
     public static final ParticleType<?> HEART_BIG_PARTICLE = Particles.HEART_BIG_PARTICLE;
     public static final ParticleType<?> FIRE_SMALL_PARTICLE = Particles.FIRE_SMALL_PARTICLE;
@@ -74,20 +98,32 @@ public class ServerPackets {
     public static final ParticleType<?> LEAD_ENEMY_PARTICLE = Particles.LEAD_ENEMY_PARTICLE;
     public static final ParticleType<?> LEAD_PARTICLE = Particles.LEAD_PARTICLE;
 
+    private static final Map<UUID, UUID> pendingAuthRequests = new ConcurrentHashMap<>();
+
     public static void register() {
         // Register custom particles
-        Registry.register(BuiltInRegistries.PARTICLE_TYPE, new ResourceLocation("creaturechat", "heart_small"), HEART_SMALL_PARTICLE);
-        Registry.register(BuiltInRegistries.PARTICLE_TYPE, new ResourceLocation("creaturechat", "heart_big"), HEART_BIG_PARTICLE);
-        Registry.register(BuiltInRegistries.PARTICLE_TYPE, new ResourceLocation("creaturechat", "fire_small"), FIRE_SMALL_PARTICLE);
-        Registry.register(BuiltInRegistries.PARTICLE_TYPE, new ResourceLocation("creaturechat", "fire_big"), FIRE_BIG_PARTICLE);
-        Registry.register(BuiltInRegistries.PARTICLE_TYPE, new ResourceLocation("creaturechat", "attack"), ATTACK_PARTICLE);
-        Registry.register(BuiltInRegistries.PARTICLE_TYPE, new ResourceLocation("creaturechat", "flee"), FLEE_PARTICLE);
-        Registry.register(BuiltInRegistries.PARTICLE_TYPE, new ResourceLocation("creaturechat", "follow_enemy"), FOLLOW_ENEMY_PARTICLE);
-        Registry.register(BuiltInRegistries.PARTICLE_TYPE, new ResourceLocation("creaturechat", "follow_friend"), FOLLOW_FRIEND_PARTICLE);
-        Registry.register(BuiltInRegistries.PARTICLE_TYPE, new ResourceLocation("creaturechat", "protect"), PROTECT_PARTICLE);
-        Registry.register(BuiltInRegistries.PARTICLE_TYPE, new ResourceLocation("creaturechat", "lead_enemy"), LEAD_ENEMY_PARTICLE);
-        Registry.register(BuiltInRegistries.PARTICLE_TYPE, new ResourceLocation("creaturechat", "lead_friend"), LEAD_FRIEND_PARTICLE);
-        Registry.register(BuiltInRegistries.PARTICLE_TYPE, new ResourceLocation("creaturechat", "lead"), LEAD_PARTICLE);
+        Registry.register(BuiltInRegistries.PARTICLE_TYPE, new ResourceLocation("creaturepals", "heart_small"),
+                HEART_SMALL_PARTICLE);
+        Registry.register(BuiltInRegistries.PARTICLE_TYPE, new ResourceLocation("creaturepals", "heart_big"),
+                HEART_BIG_PARTICLE);
+        Registry.register(BuiltInRegistries.PARTICLE_TYPE, new ResourceLocation("creaturepals", "fire_small"),
+                FIRE_SMALL_PARTICLE);
+        Registry.register(BuiltInRegistries.PARTICLE_TYPE, new ResourceLocation("creaturepals", "fire_big"),
+                FIRE_BIG_PARTICLE);
+        Registry.register(BuiltInRegistries.PARTICLE_TYPE, new ResourceLocation("creaturepals", "attack"),
+                ATTACK_PARTICLE);
+        Registry.register(BuiltInRegistries.PARTICLE_TYPE, new ResourceLocation("creaturepals", "flee"), FLEE_PARTICLE);
+        Registry.register(BuiltInRegistries.PARTICLE_TYPE, new ResourceLocation("creaturepals", "follow_enemy"),
+                FOLLOW_ENEMY_PARTICLE);
+        Registry.register(BuiltInRegistries.PARTICLE_TYPE, new ResourceLocation("creaturepals", "follow_friend"),
+                FOLLOW_FRIEND_PARTICLE);
+        Registry.register(BuiltInRegistries.PARTICLE_TYPE, new ResourceLocation("creaturepals", "protect"),
+                PROTECT_PARTICLE);
+        Registry.register(BuiltInRegistries.PARTICLE_TYPE, new ResourceLocation("creaturepals", "lead_enemy"),
+                LEAD_ENEMY_PARTICLE);
+        Registry.register(BuiltInRegistries.PARTICLE_TYPE, new ResourceLocation("creaturepals", "lead_friend"),
+                LEAD_FRIEND_PARTICLE);
+        Registry.register(BuiltInRegistries.PARTICLE_TYPE, new ResourceLocation("creaturepals", "lead"), LEAD_PARTICLE);
 
         // Handle packet for Greeting
         PacketHelper.registerReceiver(PACKET_C2S_GREETING, (server, player, buf) -> {
@@ -96,11 +132,13 @@ public class ServerPackets {
 
             // Ensure that the task is synced with the server thread
             server.execute(() -> {
-                Mob entity = (Mob)ServerEntityFinder.getEntityByUUID((ServerLevel)player.level(), entityId);
+                Mob entity = (Mob) ServerEntityFinder.getEntityByUUID((ServerLevel) player.level(), entityId);
                 if (entity != null) {
-                    EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(entity.getStringUUID());
+                    EntityChatData chatData = ChatDataManager.getServerInstance()
+                            .getOrCreateChatData(entity.getStringUUID());
                     if (chatData.characterSheet.isEmpty()) {
-                        generate_character(userLanguage, chatData, player, entity);
+                        LOGGER.info("C2S_GREETING");
+                        EventQueueManager.addGreeting(entity, userLanguage, player);
                     }
                 }
             });
@@ -113,35 +151,39 @@ public class ServerPackets {
 
             // Ensure that the task is synced with the server thread
             server.execute(() -> {
-                Mob entity = (Mob)ServerEntityFinder.getEntityByUUID((ServerLevel)player.level(), entityId);
+                Mob entity = (Mob) ServerEntityFinder.getEntityByUUID((ServerLevel) player.level(), entityId);
                 if (entity != null) {
                     // Set talk to player goal (prevent entity from walking off)
                     TalkPlayerGoal talkGoal = new TalkPlayerGoal(player, entity, 3.5F);
                     EntityBehaviorManager.addGoal(entity, talkGoal, GoalPriority.TALK_PLAYER);
 
-                    EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(entity.getStringUUID());
-                    LOGGER.debug("Update read lines to " + lineNumber + " for: " + entity.getType().toString());
-                    chatData.setLineNumber(lineNumber);
+                    LOGGER.info("ServerPackets/read_Next entityID={} lineNumber={} playerID={}", entityId, lineNumber,
+                            player.getUUID());
+                    EntityChatData chatData = ChatDataManager.getServerInstance()
+                            .getOrCreateChatData(entity.getStringUUID());
+                    LOGGER.info("Update read lines to " + lineNumber + " for: " + entity.getType().toString());
+                    ClientSideEffects.setLineNumberUsingParamsFromChatData(entity.getStringUUID(), lineNumber);
                 }
             });
         });
 
         // Handle packet for setting status of chat bubbles
         PacketHelper.registerReceiver(PACKET_C2S_SET_STATUS, (server, player, buf) -> {
+
             UUID entityId = UUID.fromString(buf.readUtf());
             String status_name = buf.readUtf(32767);
 
+            LOGGER.info("ServerPackets/setStatus entityID={} status={} playerID={}", entityId, status_name,
+                    player.getUUID());
             // Ensure that the task is synced with the server thread
             server.execute(() -> {
-                Mob entity = (Mob)ServerEntityFinder.getEntityByUUID((ServerLevel)player.level(), entityId);
+                Mob entity = (Mob) ServerEntityFinder.getEntityByUUID((ServerLevel) player.level(), entityId);
                 if (entity != null) {
                     // Set talk to player goal (prevent entity from walking off)
                     TalkPlayerGoal talkGoal = new TalkPlayerGoal(player, entity, 3.5F);
                     EntityBehaviorManager.addGoal(entity, talkGoal, GoalPriority.TALK_PLAYER);
-
-                    EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(entity.getStringUUID());
-                    LOGGER.debug("Hiding chat bubble for: " + entity.getType().toString());
-                    chatData.setStatus(ChatDataManager.ChatStatus.valueOf(status_name));
+                    ClientSideEffects.setStatusUsingParamsFromChatData(entity.getStringUUID(),
+                            ChatDataManager.ChatStatus.valueOf(status_name));
                 }
             });
         });
@@ -152,7 +194,7 @@ public class ServerPackets {
 
             // Ensure that the task is synced with the server thread
             server.execute(() -> {
-                Mob entity = (Mob)ServerEntityFinder.getEntityByUUID((ServerLevel)player.level(), entityId);
+                Mob entity = (Mob) ServerEntityFinder.getEntityByUUID((ServerLevel) player.level(), entityId);
                 if (entity != null) {
                     // Set talk to player goal (prevent entity from walking off)
                     TalkPlayerGoal talkGoal = new TalkPlayerGoal(player, entity, 7F);
@@ -163,10 +205,18 @@ public class ServerPackets {
                 BroadcastPlayerStatus(player, true);
             });
         });
+        PacketHelper.registerReceiver(PACKET_C2S_AUTH_RESPONSE, (server, player, buf) -> {
+            UUID requestId = UUID.fromString(buf.readUtf());
+            String apiKey = buf.readUtf();
+            server.execute(() -> {
+                if (ChatGPTRequest.apiKeyAwaiter.get(requestId) != null) {
+                    ChatGPTRequest.apiKeyAwaiter.remove(requestId).complete(apiKey);
+                }
+            });
+        });
 
         // Handle packet for Close Chat
         PacketHelper.registerReceiver(PACKET_C2S_CLOSE_CHAT, (server, player, buf) -> {
-
             server.execute(() -> {
                 // Sync player UI status to all clients
                 BroadcastPlayerStatus(player, false);
@@ -178,19 +228,29 @@ public class ServerPackets {
             UUID entityId = UUID.fromString(buf.readUtf());
             String message = buf.readUtf(32767);
             String userLanguage = buf.readUtf(32767);
+            Entity ent = ServerEntityFinder.getEntityByUUID((ServerLevel) player.level(), entityId);
+            String RHS = ent != null && ent.getCustomName() != null && !ent.getCustomName().equals("N/A")
+                    ? "> (to " + ent.getCustomName().getString() + ") "
+                    : "> ";
+            LOGGER.info("ServerPackets/sendChat entityID={} message={} playerID={}", entityId, message,
+                    player.getUUID());
+            BroadcastMessage(Component.literal("<" + player.getName().getString() + RHS + message));
 
             // Ensure that the task is synced with the server thread
             server.execute(() -> {
-                Mob entity = (Mob)ServerEntityFinder.getEntityByUUID((ServerLevel)player.level(), entityId);
+                Mob entity = (Mob) ServerEntityFinder.getEntityByUUID((ServerLevel) player.level(), entityId);
                 if (entity != null) {
-                    EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(entity.getStringUUID());
-                    if (chatData.characterSheet.isEmpty()) {
-                        generate_character(userLanguage, chatData, player, entity);
-                    } else {
-                        generate_chat(userLanguage, chatData, player, entity, message, false);
-                    }
+                    ChatDataManager.getServerInstance()
+                            .getOrCreateChatData(entity.getStringUUID());
+                    EventQueueManager.addUserMessage(entity, userLanguage, player, message, false);
+                    ClientSideEffects.setPending(entity.getStringUUID());
                 }
             });
+        });
+
+        PacketHelper.registerReceiver(PACKET_C2S_AUTH_FIXED_ERROR, (server, player, buf) -> {
+            LOGGER.info("Server: recieved packet that auth error was fixed.");
+            EventQueueManager.fixedAuthError(player);
         });
 
         // Send lite chat data JSON to new player (to populate client data)
@@ -201,9 +261,11 @@ public class ServerPackets {
             // Send entire whitelist / blacklist to logged in player
             send_whitelist_blacklist(player);
 
-            LOGGER.info("Server send compressed, chunked login message packets to player: " + player.getName().getString());
+            LOGGER.info(
+                    "Server send compressed, chunked login message packets to player: " + player.getName().getString());
             // Get lite JSON data & compress to byte array
-            String chatDataJSON = ChatDataManager.getServerInstance().GetLightChatData(player.getDisplayName().getString());
+            String chatDataJSON = ChatDataManager.getServerInstance()
+                    .GetLightChatData(player.getDisplayName().getString());
             byte[] compressedData = Compression.compressString(chatDataJSON);
             if (compressedData == null) {
                 LOGGER.error("Failed to compress chat data.");
@@ -228,6 +290,12 @@ public class ServerPackets {
 
                 PacketHelper.send(player, PACKET_S2C_LOGIN, buffer);
             }
+            // If no server API key is configured, request from this player
+            ConfigurationHandler.Config config = new ConfigurationHandler(server).loadConfig();
+            String serverApiKey = config.getApiKey();
+            if (serverApiKey == null || serverApiKey.isEmpty()) {
+                requestPlayerApiKey(player);
+            }
         });
 
         ServerWorldEvents.LOAD.register((server, world) -> {
@@ -248,16 +316,23 @@ public class ServerPackets {
                 serverInstance = null;
 
                 // Shutdown auto scheduler
-                scheduler.stopAutoSaveTask();
+                if (scheduler != null) {
+                    scheduler.stopAutoSaveTask();
+                    scheduler = null;
+                }
             }
         });
         ServerEntityEvents.ENTITY_UNLOAD.register((entity, world) -> {
             String entityUUID = entity.getStringUUID();
-            if (entity.getRemovalReason() == Entity.RemovalReason.KILLED && ChatDataManager.getServerInstance().entityChatDataMap.containsKey(entityUUID)) {
+            if (entity.getRemovalReason() == Entity.RemovalReason.KILLED
+                    && ChatDataManager.getServerInstance().entityChatDataMap.containsKey(entityUUID)) {
                 LOGGER.debug("Entity killed (" + entityUUID + "), updating death time stamp.");
-                ChatDataManager.getServerInstance().entityChatDataMap.get(entityUUID).death = System.currentTimeMillis();
+                ChatDataManager.getServerInstance().entityChatDataMap.get(entityUUID).death = System
+                        .currentTimeMillis();
             }
+            // TODO: Maybe add system to remove from queue
         });
+
     }
 
     public static void send_whitelist_blacklist(ServerPlayer player) {
@@ -290,46 +365,6 @@ public class ServerPackets {
         }
     }
 
-    public static void generate_character(String userLanguage, EntityChatData chatData, ServerPlayer player, Mob entity) {
-        // Set talk to player goal (prevent entity from walking off)
-        TalkPlayerGoal talkGoal = new TalkPlayerGoal(player, entity, 3.5F);
-        EntityBehaviorManager.addGoal(entity, talkGoal, GoalPriority.TALK_PLAYER);
-
-        // Grab random adjective
-        String randomAdjective = Randomizer.getRandomMessage(Randomizer.RandomType.ADJECTIVE);
-        String randomClass = Randomizer.getRandomMessage(Randomizer.RandomType.CLASS);
-        String randomAlignment = Randomizer.getRandomMessage(Randomizer.RandomType.ALIGNMENT);
-        String randomSpeakingStyle = Randomizer.getRandomMessage(Randomizer.RandomType.SPEAKING_STYLE);
-
-        // Generate random name parameters
-        String randomLetter = Randomizer.RandomLetter();
-        int randomSyllables = Randomizer.RandomNumber(5) + 1;
-
-        // Build the message
-        StringBuilder userMessageBuilder = new StringBuilder();
-        userMessageBuilder.append("Please generate a ").append(randomAdjective).append(" character. ");
-        userMessageBuilder.append("This character is a ").append(randomClass).append(" class, who is ").append(randomAlignment).append(". ");
-        if (entity.getCustomName() != null && !entity.getCustomName().getString().equals("N/A")) {
-            userMessageBuilder.append("Their name is '").append(entity.getCustomName().getString()).append("'. ");
-        } else {
-            userMessageBuilder.append("Their name starts with the letter '").append(randomLetter)
-                    .append("' and is ").append(randomSyllables).append(" syllables long. ");
-        }
-        userMessageBuilder.append("They speak in '").append(userLanguage).append("' with a ").append(randomSpeakingStyle).append(" style.");
-
-        // Generate new character
-        chatData.generateCharacter(userLanguage, player, userMessageBuilder.toString(), false);
-    }
-
-    public static void generate_chat(String userLanguage, EntityChatData chatData, ServerPlayer player, Mob entity, String message, boolean is_auto_message) {
-        // Set talk to player goal (prevent entity from walking off)
-        TalkPlayerGoal talkGoal = new TalkPlayerGoal(player, entity, 3.5F);
-        EntityBehaviorManager.addGoal(entity, talkGoal, GoalPriority.TALK_PLAYER);
-
-        // Add new message
-        chatData.generateMessage(userLanguage, player, message, is_auto_message);
-    }
-
     // Writing a Map<String, PlayerData> to the buffer
     public static void writePlayerDataMap(FriendlyByteBuf buffer, Map<String, PlayerData> map) {
         buffer.writeInt(map.size()); // Write the size of the map
@@ -341,47 +376,33 @@ public class ServerPackets {
     }
 
     // Send new message to all connected players
-    public static void BroadcastEntityMessage(EntityChatData chatData) {
+    public static void BroadcastEntityMessage(EntityChatDataLight chatData) {
         // Log useful information before looping through all players
-        LOGGER.info("Broadcasting entity message: entityId={}, status={}, currentMessage={}, currentLineNumber={}, senderType={}",
+        LOGGER.info(
+                "Broadcasting entity message: entityId={}, status={}, currentMessage={}, currentLineNumber={}, senderType={}",
                 chatData.entityId, chatData.status,
-                chatData.currentMessage.length() > 24 ? chatData.currentMessage.substring(0, 24) + "..." : chatData.currentMessage,
+                chatData.currentMessage.length() > 24 ? chatData.currentMessage.substring(0, 24) + "..."
+                        : chatData.currentMessage,
                 chatData.currentLineNumber, chatData.sender);
 
-        for (ServerLevel world : serverInstance.getAllLevels()) {
-            // Find Entity by UUID and update custom name
-            UUID entityId = UUID.fromString(chatData.entityId);
-            Mob entity = (Mob)ServerEntityFinder.getEntityByUUID(world, entityId);
-            if (entity != null) {
-                String characterName = chatData.getCharacterProp("name");
-                if (!characterName.isEmpty() && !characterName.equals("N/A") && entity.getCustomName() == null) {
-                    LOGGER.debug("Setting entity name to " + characterName + " for " + chatData.entityId);
-                    entity.setCustomName(Component.literal(characterName));
-                    entity.setCustomNameVisible(true);
-                    entity.setPersistenceRequired();
-                }
-            }
+        // for (ServerLevel world : serverInstance.getAllLevels()) {
+        // Find Entity by UUID and update custom name
 
-            // Make auto-generated message appear as a pending icon (attack, show/give, arrival)
-            if (chatData.sender == ChatDataManager.ChatSender.USER && chatData.auto_generated > 0) {
-                chatData.status = ChatDataManager.ChatStatus.PENDING;
-            }
+        // Iterate over all players and send the packet
+        for (ServerPlayer player : serverInstance.getPlayerList().getPlayers()) {
+            FriendlyByteBuf buffer = BufferHelper.create();
+            buffer.writeUtf(chatData.entityId);
+            buffer.writeUtf(chatData.currentMessage);
+            buffer.writeInt(chatData.currentLineNumber);
+            buffer.writeUtf(chatData.status.toString());
+            buffer.writeUtf(chatData.sender.toString());
+            writePlayerDataMap(buffer, chatData.players);
 
-            // Iterate over all players and send the packet
-            for (ServerPlayer player : serverInstance.getPlayerList().getPlayers()) {
-                FriendlyByteBuf buffer = BufferHelper.create();
-                buffer.writeUtf(chatData.entityId);
-                buffer.writeUtf(chatData.currentMessage);
-                buffer.writeInt(chatData.currentLineNumber);
-                buffer.writeUtf(chatData.status.toString());
-                buffer.writeUtf(chatData.sender.toString());
-                writePlayerDataMap(buffer, chatData.players);
-
-                // Send message to player
-                PacketHelper.send(player, PACKET_S2C_ENTITY_MESSAGE, buffer);
-            }
-            break;
+            // Send message to player
+            PacketHelper.send(player, PACKET_S2C_ENTITY_MESSAGE, buffer);
         }
+        // break;
+        // }
     }
 
     // Send new message to all connected players
@@ -414,19 +435,27 @@ public class ServerPackets {
 
         // Iterate over all players and send the packet
         for (ServerPlayer serverPlayer : serverInstance.getPlayerList().getPlayers()) {
-            LOGGER.debug("Server broadcast " + player.getName().getString() + " player status to client: " + serverPlayer.getName().getString() + " | isChatOpen: " + isChatOpen);
+            LOGGER.debug("Server broadcast " + player.getName().getString() + " player status to client: "
+                    + serverPlayer.getName().getString() + " | isChatOpen: " + isChatOpen);
             PacketHelper.send(serverPlayer, PACKET_S2C_PLAYER_STATUS, buffer);
         }
+    }
+
+    public static void BroadcastUnauthErr(ServerPlayer player) {
+        LOGGER.info("Server: Sending unauth err packet");
+        FriendlyByteBuf buffer = BufferHelper.create();
+        PacketHelper.send(player, PACKET_S2C_UNAUTH_ERR, buffer);
     }
 
     // Send a chat message to all players (i.e. death message)
     public static void BroadcastMessage(Component message) {
         for (ServerPlayer serverPlayer : serverInstance.getPlayerList().getPlayers()) {
             serverPlayer.displayClientMessage(message, false);
-        };
+        }
     }
 
-    // Send a chat message to a player which is clickable (for error messages with a link for help)
+    // Send a chat message to a player which is clickable (for error messages with a
+    // link for help)
     public static void SendClickableError(Player player, String message, String url) {
         MutableComponent text = Component.literal(message)
                 .withStyle(ChatFormatting.RED)
@@ -441,8 +470,24 @@ public class ServerPackets {
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             // Check if the player is an operator
             if (server.getPlayerList().isOp(player.getGameProfile())) {
-                ServerPackets.SendClickableError(player, message, "http://discord.creaturechat.com");
+                ServerPackets.SendClickableError(player, message, "https://player2.game/discord");
             }
         }
     }
+
+    public static UUID requestPlayerApiKey(ServerPlayer player) {
+        UUID requestId = UUID.randomUUID();
+        pendingAuthRequests.put(requestId, player.getUUID());
+        return requestPlayerApiKeyWithId(player, requestId);
+    }
+
+    public static UUID requestPlayerApiKeyWithId(ServerPlayer player, UUID requestId) {
+        FriendlyByteBuf buffer = BufferHelper.create();
+        buffer.writeUtf(requestId.toString());
+        PacketHelper.send(player, PACKET_S2C_AUTH_REQUEST, buffer);
+
+        LOGGER.info("Sent API key request to '{}' with requestId={}", player.getGameProfile().getName(), requestId);
+        return requestId;
+    }
+
 }

@@ -1,10 +1,11 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.mixin;
 
 import com.owlmaddie.chat.ChatDataManager;
 import com.owlmaddie.chat.EntityChatData;
+import com.owlmaddie.chat.EventQueueManager;
 import com.owlmaddie.chat.PlayerData;
 import com.owlmaddie.network.ServerPackets;
 import net.minecraft.network.chat.Component;
@@ -24,9 +25,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * The {@code MixinLivingEntity} class modifies the behavior of {@link LivingEntity} to integrate
- * custom friendship, chat, and death message mechanics. It prevents friendly entities from targeting players,
- * generates contextual chat messages on attacks, and broadcasts custom death messages for named entities.
+ * The {@code MixinLivingEntity} class modifies the behavior of
+ * {@link LivingEntity} to integrate
+ * custom friendship, chat, and death message mechanics. It prevents friendly
+ * entities from targeting players,
+ * generates contextual chat messages on attacks, and broadcasts custom death
+ * messages for named entities.
  */
 @Mixin(LivingEntity.class)
 public class MixinLivingEntity {
@@ -52,7 +56,8 @@ public class MixinLivingEntity {
     @Inject(method = "hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z", at = @At("RETURN"))
     private void onDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         if (!cir.getReturnValue()) {
-            // If damage method returned false, it means the damage was not applied (possibly due to invulnerability).
+            // If damage method returned false, it means the damage was not applied
+            // (possibly due to invulnerability).
             return;
         }
 
@@ -62,11 +67,14 @@ public class MixinLivingEntity {
 
         // If PLAYER attacks MOB then
         if (attacker instanceof Player && thisEntity instanceof Mob && !thisEntity.isDeadOrDying()) {
-            // Generate attacked message (only if the previous user message was not an attacked message)
-            // We don't want to constantly generate messages during a prolonged, multi-damage event
+            // Generate attacked message (only if the previous user message was not an
+            // attacked message)
+            // We don't want to constantly generate messages during a prolonged,
+            // multi-damage event
             ServerPlayer player = (ServerPlayer) attacker;
             EntityChatData chatData = getChatData(thisEntity);
-            if (!chatData.characterSheet.isEmpty() && chatData.auto_generated < ChatDataManager.MAX_AUTOGENERATE_RESPONSES) {
+            if (!chatData.characterSheet.isEmpty()
+                    && chatData.auto_generated < ChatDataManager.MAX_AUTOGENERATE_RESPONSES) {
                 // Only auto-generate a response to being attacked if chat data already exists
                 // and this is the first attack event.
                 ItemStack weapon = player.getMainHandItem();
@@ -76,8 +84,9 @@ public class MixinLivingEntity {
                 boolean isIndirect = attacker != null && attacker != source.getDirectEntity();
                 String directness = isIndirect ? "indirectly" : "directly";
 
-                String attackedMessage = "<" + player.getName().getString() + " attacked you " + directness + " with " + weaponName + ">";
-                ServerPackets.generate_chat("N/A", chatData, player, (Mob) thisEntity, attackedMessage, true);
+                String attackedMessage = "<" + player.getName().getString() + " attacked you " + directness + " with "
+                        + weaponName + ">";
+                EventQueueManager.addUserMessage(thisEntity, "N/A", player, attackedMessage, true);
             }
         }
     }
@@ -103,7 +112,7 @@ public class MixinLivingEntity {
                 // Get the original death message
                 Component deathMessage = entity.getCombatTracker().getDeathMessage();
                 // Broadcast the death message to all players in the world
-                ServerPackets.BroadcastMessage(deathMessage);
+                // ServerPackets.BroadcastMessage(deathMessage);
             }
         }
     }

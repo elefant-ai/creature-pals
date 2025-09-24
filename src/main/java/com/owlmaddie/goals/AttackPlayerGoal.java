@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.goals;
 
 import com.owlmaddie.controls.DamageHelper;
@@ -20,13 +20,19 @@ import net.minecraft.world.phys.Vec3;
 import static com.owlmaddie.network.ServerPackets.ATTACK_PARTICLE;
 
 /**
- * The {@code AttackPlayerGoal} class instructs a Mob Entity to show aggression towards a target Entity.
- * For passive entities like chickens (or hostile entities in creative mode), damage is simulated with particles.
+ * The {@code AttackPlayerGoal} class instructs a Mob Entity to show aggression
+ * towards a target Entity.
+ * For passive entities like chickens (or hostile entities in creative mode),
+ * damage is simulated with particles.
  */
 public class AttackPlayerGoal extends PlayerBaseGoal {
     protected final Mob attackerEntity;
     protected final double speed;
-    protected enum EntityState { MOVING_TOWARDS_PLAYER, IDLE, CHARGING, ATTACKING, LEAPING }
+
+    protected enum EntityState {
+        MOVING_TOWARDS_PLAYER, IDLE, CHARGING, ATTACKING, LEAPING
+    }
+
     protected EntityState currentState = EntityState.IDLE;
     protected int cooldownTimer = 0;
     protected final int CHARGE_TIME = 12; // Time before leaping / attacking
@@ -73,7 +79,8 @@ public class AttackPlayerGoal extends PlayerBaseGoal {
 
         // Check if it has native attacks but can't target (e.g., creative mode)
         LivingEntity livingAttackerEntity = this.attackerEntity;
-        boolean hasNativeAttacksButCannotTarget = isNearby && hasNativeAttacks() && !livingAttackerEntity.canAttack(this.targetEntity);
+        boolean hasNativeAttacksButCannotTarget = isNearby && hasNativeAttacks()
+                && !livingAttackerEntity.canAttack(this.targetEntity);
 
         // Return true if either condition is met
         return isNearbyAndNoNativeAttacks || hasNativeAttacksButCannotTarget;
@@ -93,14 +100,16 @@ public class AttackPlayerGoal extends PlayerBaseGoal {
             this.targetEntity.setLastHurtByMob(this.attackerEntity);
         }
 
-        // For passive entities (or hostile in creative mode), apply minimal damage to simulate a 'leap' / 'melee' attack
+        // For passive entities (or hostile in creative mode), apply minimal damage to
+        // simulate a 'leap' / 'melee' attack
         DamageHelper.applyLeapDamage(attackerEntity, targetEntity, 1.0F);
 
         // Play damage sound
         this.attackerEntity.playSound(SoundEvents.PLAYER_HURT, 1F, 1F);
 
         // Spawn red particles to simulate 'injury'
-        int numParticles = ThreadLocalRandom.current().nextInt(2, 7);  // Random number between 2 (inclusive) and 7 (exclusive)
+        int numParticles = ThreadLocalRandom.current().nextInt(2, 7); // Random number between 2 (inclusive) and 7
+                                                                      // (exclusive)
         ((ServerLevel) this.attackerEntity.level()).sendParticles((ParticleOptions) ATTACK_PARTICLE,
                 this.targetEntity.getX(), this.targetEntity.getY(0.5D), this.targetEntity.getZ(),
                 numParticles, 0.5, 0.5, 0.1, 0.4);
@@ -142,7 +151,8 @@ public class AttackPlayerGoal extends PlayerBaseGoal {
 
             case LEAPING:
                 // Leap towards the player
-                Vec3 leapDirection = new Vec3(this.targetEntity.getX() - this.attackerEntity.getX(), 0.1D, this.targetEntity.getZ() - this.attackerEntity.getZ()).normalize().scale(1.0);
+                Vec3 leapDirection = new Vec3(this.targetEntity.getX() - this.attackerEntity.getX(), 0.1D,
+                        this.targetEntity.getZ() - this.attackerEntity.getZ()).normalize().scale(1.0);
                 this.attackerEntity.setDeltaMovement(leapDirection);
                 this.attackerEntity.hurtMarked = true;
 

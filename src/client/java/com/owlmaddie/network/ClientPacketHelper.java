@@ -1,6 +1,5 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC – unauthorized use prohibited
 package com.owlmaddie.network;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -11,12 +10,13 @@ import net.minecraft.server.level.ServerPlayer;
 
 /**
  * 1.20.4-compatible wrapper around Fabric’s networking helpers.
- * Only the methods used by CreatureChat today are exposed;
+ * Only the methods used by CreaturePals today are exposed;
  * add or adjust when you upgrade to 1.20.5+.
  */
 public final class ClientPacketHelper {
 
-    private ClientPacketHelper() {}  // no instances
+    private ClientPacketHelper() {
+    } // no instances
 
     /* ---------- CLIENT → SERVER ---------- */
 

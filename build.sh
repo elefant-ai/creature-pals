@@ -24,6 +24,7 @@ VERSIONS=$(cat <<'EOF'
 1.21.5  1.21.5+build.1     0.16.14    1.11-SNAPSHOT   0.128.1+1.21.5
 1.21.6  1.21.6+build.1     0.16.14    1.11-SNAPSHOT   0.128.2+1.21.6
 1.21.7  1.21.7+build.6     0.16.14    1.11-SNAPSHOT   0.128.2+1.21.7
+1.21.8  1.21.8+build.1     0.16.14    1.11-SNAPSHOT   0.131.0+1.21.8
 EOF
 )
 
@@ -64,7 +65,7 @@ EOD
 
   ./gradlew build -x test -x validateAccessWidener --build-cache --parallel
   find build/libs -name '*sources*.jar' -delete
-  mv build/libs/creaturechat-*.jar .
+  mv build/libs/creaturepals-*.jar .
 
   # Safe Forge/NeoForge packaging
   case "$mc_version" in
@@ -74,7 +75,7 @@ EOD
   esac
 
   if [[ -n "$suffix" ]]; then
-    forge_jars=(creaturechat-*+"$mc_version".jar)
+    forge_jars=(creaturepals-*+"$mc_version".jar)
     if (( ${#forge_jars[@]} )); then
       jar="${forge_jars[0]}"
       cp "$jar" "${jar%.jar}-$suffix.jar"
@@ -82,7 +83,7 @@ EOD
       zip -r "${jar%.jar}-$suffix.jar" "${suffix^^}"
       rm "${suffix^^}"
     else
-      echo "Warning: no jar matched for $suffix packaging (creaturechat-*+$mc_version.jar)" >&2
+      echo "Warning: no jar matched for $suffix packaging (creaturepals-*+$mc_version.jar)" >&2
     fi
   fi
 

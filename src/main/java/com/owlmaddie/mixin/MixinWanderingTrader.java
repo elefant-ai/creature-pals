@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.mixin;
 
 import com.owlmaddie.chat.ChatDataManager;
@@ -14,11 +14,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Prevents WanderingTraderEntity from despawning if it has chat data or a character sheet.
+ * Prevents WanderingTraderEntity from despawning if it has chat data or a
+ * character sheet.
  */
 @Mixin(WanderingTrader.class)
 public abstract class MixinWanderingTrader {
-    private static final Logger LOGGER = LoggerFactory.getLogger("creaturechat");
+    private static final Logger LOGGER = LoggerFactory.getLogger("creaturepals");
 
     @Inject(method = "maybeDespawn", at = @At("HEAD"), cancellable = true)
     private void preventTraderDespawn(CallbackInfo ci) {
@@ -27,7 +28,8 @@ public abstract class MixinWanderingTrader {
         // Get chat data for this trader
         EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(trader.getStringUUID());
 
-        // If the character sheet is not empty, cancel the function to prevent despawning
+        // If the character sheet is not empty, cancel the function to prevent
+        // despawning
         if (!chatData.characterSheet.isEmpty()) {
             ci.cancel();
         }

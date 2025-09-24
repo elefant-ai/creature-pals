@@ -1,10 +1,11 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.mixin;
 
 import com.owlmaddie.chat.ChatDataManager;
 import com.owlmaddie.chat.EntityChatData;
+import com.owlmaddie.chat.EventQueueManager;
 import com.owlmaddie.chat.PlayerData;
 import com.owlmaddie.network.ServerPackets;
 import net.minecraft.server.level.ServerPlayer;
@@ -23,7 +24,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * The {@code MixinMobEntity} mixin class exposes the goalSelector field from the MobEntity class.
+ * The {@code MixinMobEntity} mixin class exposes the goalSelector field from
+ * the MobEntity class.
  */
 @Mixin(Mob.class)
 public class MixinMobEntity {
@@ -43,7 +45,8 @@ public class MixinMobEntity {
         ItemStack itemStack = player.getItemInHand(hand);
         Mob thisEntity = (Mob) (Object) this;
 
-        // Don't interact with Villagers (avoid issues with trade UI) OR Tameable (i.e. sit / no-sit)
+        // Don't interact with Villagers (avoid issues with trade UI) OR Tameable (i.e.
+        // sit / no-sit)
         if (thisEntity instanceof Villager || thisEntity instanceof TamableAnimal) {
             return;
         }
@@ -88,8 +91,10 @@ public class MixinMobEntity {
                 String giveItemMessage = "<" + serverPlayer.getName().getString() +
                         action_verb + "you " + itemCount + " " + itemName + ">";
 
-                if (!entityData.characterSheet.isEmpty() && entityData.auto_generated < chatDataManager.MAX_AUTOGENERATE_RESPONSES) {
-                    ServerPackets.generate_chat("N/A", entityData, serverPlayer, thisEntity, giveItemMessage, true);
+                if (!entityData.characterSheet.isEmpty()
+                        && entityData.auto_generated < chatDataManager.MAX_AUTOGENERATE_RESPONSES) {
+                    EventQueueManager.addUserMessage(thisEntity, "N/A", serverPlayer,
+                            giveItemMessage, true);
                 }
 
             } else if (itemStack.isEmpty() && playerData.friendship == 3) {

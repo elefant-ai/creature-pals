@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.utils;
 
 import java.util.UUID;
@@ -12,7 +12,7 @@ import java.util.Optional;
  */
 public class NbtCompoundHelper {
     public static void putUuid(CompoundTag nbt, String key, UUID uuid) {
-        nbt.putLongArray(key, new long[]{
+        nbt.putLongArray(key, new long[] {
                 uuid.getMostSignificantBits(),
                 uuid.getLeastSignificantBits()
         });

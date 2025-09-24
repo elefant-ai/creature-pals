@@ -1,6 +1,5 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
 package com.owlmaddie.particle;
 
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -8,11 +7,13 @@ import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.TextureSheetParticle;
 
 /**
- * The {@code BehaviorParticle} class defines a custom CreatureChat behavior particle with an initial upward velocity
+ * The {@code BehaviorParticle} class defines a custom CreaturePals behavior
+ * particle with an initial upward velocity
  * that gradually decreases, ensuring it never moves downward.
  */
 public class BehaviorParticle extends TextureSheetParticle {
-    protected BehaviorParticle(ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ) {
+    protected BehaviorParticle(ClientLevel world, double x, double y, double z, double velocityX, double velocityY,
+            double velocityZ) {
         super(world, x, y, z, velocityX, velocityY, velocityZ);
         this.scale(2f);
         this.setLifetime(35);

@@ -1,15 +1,19 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.chat;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
+
+import com.owlmaddie.chat.ChatDataManager.ChatSender;
+import com.owlmaddie.chat.ChatDataManager.ChatStatus;
 
 /**
- * The {@code EntityChatDataLight} class represents the current displayed message, and no
- * previous messages or player message history. This is primarily used to broadcast the
+ * The {@code EntityChatDataLight} class represents the current displayed
+ * message, and no
+ * previous messages or player message history. This is primarily used to
+ * broadcast the
  * currently displayed messages to players as they connect to the server.
  */
 public class EntityChatDataLight {
@@ -19,6 +23,7 @@ public class EntityChatDataLight {
     public ChatDataManager.ChatStatus status;
     public ChatDataManager.ChatSender sender;
     public Map<String, PlayerData> players;
+    public String characterSheet;
 
     // Constructor to initialize the light version from the full version
     public EntityChatDataLight(EntityChatData fullData, String playerName) {
@@ -27,10 +32,27 @@ public class EntityChatDataLight {
         this.currentLineNumber = fullData.currentLineNumber;
         this.status = fullData.status;
         this.sender = fullData.sender;
+        this.characterSheet = fullData.characterSheet;
 
         // Initialize the players map and add only the current player's data
         this.players = new HashMap<>();
         PlayerData playerData = fullData.getPlayerData(playerName);
         this.players.put(playerName, playerData);
     }
+
+    public EntityChatDataLight(String entityId, String currentMessage, int currentLineNumber, ChatStatus status,
+            ChatSender sender, String characterSheet, Map<String, PlayerData> players) {
+        this.entityId = entityId;
+        this.currentMessage = currentMessage;
+        this.currentLineNumber = currentLineNumber;
+        this.status = status;
+        this.sender = sender;
+        this.characterSheet = characterSheet;
+        this.players = players;
+    }
+
+    public static EntityChatDataLight PendingData(String entityId) {
+        return new EntityChatDataLight(entityId, "", 0, ChatStatus.PENDING, ChatSender.USER, "", null);
+    }
+
 }

@@ -1,12 +1,16 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.chat;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.owlmaddie.commands.ConfigurationHandler;
 import com.owlmaddie.json.ChatGPTResponse;
+import com.owlmaddie.network.ServerPackets;
+
+import net.minecraft.server.level.ServerPlayer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,15 +20,18 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 /**
- * The {@code ChatGPTRequest} class is used to send HTTP requests to our LLM to generate
+ * The {@code ChatGPTRequest} class is used to send HTTP requests to our LLM to
+ * generate
  * messages.
  */
 public class ChatGPTRequest {
-    public static final Logger LOGGER = LoggerFactory.getLogger("creaturechat");
+    public static final Logger LOGGER = LoggerFactory.getLogger("creaturepals");
     public static String lastErrorMessage;
+    public static Map<UUID, CompletableFuture<String>> apiKeyAwaiter = new ConcurrentHashMap<>();
 
     static class ChatGPTRequestMessage {
         String role;
@@ -41,14 +48,15 @@ public class ChatGPTRequest {
         List<ChatGPTRequestMessage> messages;
         ResponseFormat response_format;
         float temperature;
-        int max_tokens;
+        // int max_tokens;
         boolean stream;
 
-        public ChatGPTRequestPayload(String model, List<ChatGPTRequestMessage> messages, Boolean jsonMode, float temperature, int maxTokens) {
+        public ChatGPTRequestPayload(String model, List<ChatGPTRequestMessage> messages, Boolean jsonMode,
+                float temperature, int maxTokens) {
             this.model = model;
             this.messages = messages;
             this.temperature = temperature;
-            this.max_tokens = maxTokens;
+            // this.max_tokens = maxTokens;
             this.stream = false;
             if (jsonMode) {
                 this.response_format = new ResponseFormat("json_object");
@@ -113,7 +121,7 @@ public class ChatGPTRequest {
         for (Map.Entry<String, String> entry : replacements.entrySet()) {
             result = result.replaceAll(Pattern.quote("{{" + entry.getKey() + "}}"), entry.getValue());
         }
-        return result.replace("\"", "") ;
+        return result.replace("\"", "");
     }
 
     // Function to roughly estimate # of OpenAI tokens in String
@@ -121,12 +129,38 @@ public class ChatGPTRequest {
         return (int) Math.round(text.length() / 3.5);
     }
 
-    public static CompletableFuture<String> fetchMessageFromChatGPT(ConfigurationHandler.Config config, String systemPrompt, Map<String, String> contextData, List<ChatMessage> messageHistory, Boolean jsonMode) {
+    public static CompletableFuture<String> fetchMessageFromChatGPT(ConfigurationHandler.Config config,
+            String systemPrompt, Map<String, String> contextData, List<ChatMessage> messageHistory, Boolean jsonMode,
+            String wrapMsg, ServerPlayer player) {
+        CompletableFuture<String> apiKeyFuture = new CompletableFuture<>();
+        UUID authRequestId = UUID.randomUUID();
+        apiKeyAwaiter.put(authRequestId, apiKeyFuture);
+
+        // String apiKey = config.getApiKey();
+        CompletableFuture<String> messageFuture = apiKeyFuture
+                .orTimeout(120, java.util.concurrent.TimeUnit.SECONDS)
+                .thenComposeAsync((apiKey) -> {
+                    LOGGER.info("Received API key from player {}", player.getName().getString());
+                    return fetchMessageFromChatGPTInternal(config, systemPrompt, contextData, messageHistory, jsonMode,
+                            wrapMsg, apiKey);
+                })
+                .whenComplete((res, ex) -> {
+                    // Ensure cleanup in all cases
+                    apiKeyAwaiter.remove(authRequestId);
+                });
+        ServerPackets.requestPlayerApiKeyWithId(player, authRequestId);
+        return messageFuture;
+    }
+
+    public static CompletableFuture<String> fetchMessageFromChatGPTInternal(ConfigurationHandler.Config config,
+            String systemPrompt, Map<String, String> contextData, List<ChatMessage> messageHistory, Boolean jsonMode,
+            String wrapMsg, String apiKey) {
         // Init API & LLM details
+
         String apiUrl = config.getUrl();
-        String apiKey = config.getApiKey();
         String modelName = config.getModel();
-        Integer timeout = config.getTimeout() * 1000;
+        int timeout = config.getTimeout() * 1000;
+        LOGGER.info("[CHATGPTRequest]/fetchMessageFromChatGPTInternal with timeout in seconds: " + config.getTimeout());
         int maxContextTokens = config.getMaxContextTokens();
         int maxOutputTokens = config.getMaxOutputTokens();
         double percentOfContext = config.getPercentOfContext();
@@ -142,13 +176,15 @@ public class ChatGPTRequest {
                 connection.setRequestProperty("Content-Type", "application/json");
                 connection.setRequestProperty("Authorization", "Bearer " + apiKey);
                 connection.setDoOutput(true);
-                connection.setConnectTimeout(timeout); // 10 seconds connection timeout
-                connection.setReadTimeout(timeout); // 10 seconds read timeout
+                connection.setConnectTimeout(timeout); // connection timeout
+                connection.setReadTimeout(timeout); // read timeout
+                connection.setRequestProperty("player2-game-key", "creature-chat-evolved");
 
                 // Create messages list (for chat history)
                 List<ChatGPTRequestMessage> messages = new ArrayList<>();
 
-                // Don't exceed a specific % of total context window (to limit message history in request)
+                // Don't exceed a specific % of total context window (to limit message history
+                // in request)
                 int remainingContextTokens = (int) ((maxContextTokens - maxOutputTokens) * percentOfContext);
                 int usedTokens = estimateTokenSize("system: " + systemMessage);
 
@@ -157,10 +193,15 @@ public class ChatGPTRequest {
                     ChatMessage chatMessage = messageHistory.get(i);
                     String senderName = chatMessage.sender.toString().toLowerCase(Locale.ENGLISH);
                     String messageText = replacePlaceholders(chatMessage.message, contextData);
+                    if (messageText.equals("...")) { // replace ... with "" so that it makes more sense to LLM
+                        messageText = "";
+                    }
+                    messageText.replace("said ...", "said ");
                     int messageTokens = estimateTokenSize(senderName + ": " + messageText);
 
                     if (usedTokens + messageTokens > remainingContextTokens) {
-                        break;  // If adding this message would exceed the token limit, stop adding more messages
+                        break; // If adding this message would exceed the token limit, stop adding more
+                               // messages
                     }
 
                     // Add the message to the temporary list
@@ -172,11 +213,24 @@ public class ChatGPTRequest {
                 messages.add(new ChatGPTRequestMessage("system", systemMessage));
 
                 // Reverse the list to restore chronological order
-                // This is needed since we build the list in reverse order for token restricting above
+                // This is needed since we build the list in reverse order for token restricting
+                // above
                 Collections.reverse(messages);
 
+                if (wrapMsg != null && !wrapMsg.isBlank() && messages.size() > 0) {
+                    messages.get(messages.size() - 1).content = String.format("User message: '%s' |%s|",
+                            messages.get(messages.size() - 1).content, wrapMsg);
+                }
+                LOGGER.info("---- CONVERSATION HISTORY SENT TO LLM -----");
+                for (ChatGPTRequestMessage msg : messages) {
+                    LOGGER.info(String.format("%s:'%s'", msg.role.toString(), msg.content));
+                }
+
+                LOGGER.info("---- END CONVERSATION HISTORY SENT ---------");
+
                 // Convert JSON to String
-                ChatGPTRequestPayload payload = new ChatGPTRequestPayload(modelName, messages, jsonMode, 1.0f, maxOutputTokens);
+                ChatGPTRequestPayload payload = new ChatGPTRequestPayload(modelName, messages, jsonMode, 1.0f,
+                        maxOutputTokens);
                 Gson gsonInput = new Gson();
                 String jsonInputString = gsonInput.toJson(payload);
 
@@ -184,10 +238,16 @@ public class ChatGPTRequest {
                     byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
                     os.write(input, 0, input.length);
                 }
-
                 // Check for error message in response
                 if (connection.getResponseCode() >= HttpURLConnection.HTTP_BAD_REQUEST) {
-                    try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(connection.getErrorStream(), StandardCharsets.UTF_8))) {
+                    LOGGER.error(String.format("BAD RESPONSE CODE %d", connection.getResponseCode()));
+                    LOGGER.error(String.format(connection.getResponseMessage()));
+                    if (connection.getErrorStream() == null) {
+                        lastErrorMessage = "Internal server error, Try restarting player2";
+                        return null;
+                    }
+                    try (BufferedReader errorReader = new BufferedReader(
+                            new InputStreamReader(connection.getErrorStream(), StandardCharsets.UTF_8))) {
                         String errorLine;
                         StringBuilder errorResponse = new StringBuilder();
                         while ((errorLine = errorReader.readLine()) != null) {
@@ -196,6 +256,7 @@ public class ChatGPTRequest {
 
                         // Parse and log the error response using Gson
                         String cleanError = parseAndLogErrorResponse(errorResponse.toString());
+                        System.out.println(String.format("CHATGPT ERROR : %s", errorResponse.toString()));
                         lastErrorMessage = cleanError;
                     } catch (Exception e) {
                         LOGGER.error("Failed to read error response", e);
@@ -203,10 +264,10 @@ public class ChatGPTRequest {
                     }
                     return null;
                 } else {
-                    lastErrorMessage = null;
                 }
 
-                try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
+                try (BufferedReader br = new BufferedReader(
+                        new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
                     StringBuilder response = new StringBuilder();
                     String responseLine;
                     while ((responseLine = br.readLine()) != null) {
@@ -215,10 +276,18 @@ public class ChatGPTRequest {
 
                     Gson gsonOutput = new Gson();
                     ChatGPTResponse chatGPTResponse = gsonOutput.fromJson(response.toString(), ChatGPTResponse.class);
-                    if (chatGPTResponse != null && chatGPTResponse.choices != null && !chatGPTResponse.choices.isEmpty()) {
+                    if (chatGPTResponse != null && chatGPTResponse.choices != null
+                            && !chatGPTResponse.choices.isEmpty()) {
                         String content = chatGPTResponse.choices.get(0).message.content;
+                        if (content == null) {
+
+                            LOGGER.info("CHATGPT RETURN NULL");
+                            return "";
+                        }
+                        LOGGER.info("CHATGPT RETURN " + content);
                         return content;
                     } else {
+                        LOGGER.info("CHATGPT RETURN NULL ERR");
                         lastErrorMessage = "Failed to parse response from LLM";
                         return null;
                     }
@@ -231,4 +300,3 @@ public class ChatGPTRequest {
         });
     }
 }
-

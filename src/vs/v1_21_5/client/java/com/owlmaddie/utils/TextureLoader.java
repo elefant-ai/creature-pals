@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.utils;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -20,32 +20,35 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 
 /**
- * The {@code TextureLoader} class registers and returns texture identifiers for resources
- * contained for this mod. UI and Entity icons. Missing textures are logged once.
+ * The {@code TextureLoader} class registers and returns texture identifiers for
+ * resources
+ * contained for this mod. UI and Entity icons. Missing textures are logged
+ * once.
  * Modified for 1.21.5.
  */
 public class TextureLoader {
-    private static final Logger LOGGER = LoggerFactory.getLogger("creaturechat");
+    private static final Logger LOGGER = LoggerFactory.getLogger("creaturepals");
     private static final Set<String> missing = new HashSet<>();
     public static GpuTexture lastTexture = null;
     public static ResourceLocation lastTextureId = null;
 
-    public TextureLoader() {}
-
-    /**
-     * Load and bind a UI texture (assets/creaturechat/textures/ui/{name}.png).
-     * Returns the Identifier if found, or null if missing.
-     */
-    public ResourceLocation GetUI(String name) {
-        return load(new ResourceLocation("creaturechat", "textures/ui/" + name + ".png"));
+    public TextureLoader() {
     }
 
     /**
-     * Load and bind an entity texture (assets/creaturechat/{texturePath}).
+     * Load and bind a UI texture (assets/creaturepals/textures/ui/{name}.png).
+     * Returns the Identifier if found, or null if missing.
+     */
+    public ResourceLocation GetUI(String name) {
+        return load(new ResourceLocation("creaturepals", "textures/ui/" + name + ".png"));
+    }
+
+    /**
+     * Load and bind an entity texture (assets/creaturepals/{texturePath}).
      * Returns the Identifier if found, or falls back to not_found.png.
      */
     public ResourceLocation GetEntity(String texturePath) {
-        ResourceLocation id = new ResourceLocation("creaturechat", texturePath);
+        ResourceLocation id = new ResourceLocation("creaturepals", texturePath);
         ResourceManager rm = Minecraft.getInstance().getResourceManager();
         if (rm.getResource(id).isPresent()) {
             return load(id);
@@ -53,7 +56,7 @@ public class TextureLoader {
             if (missing.add(texturePath)) {
                 LOGGER.info("Missing texture: {}", texturePath);
             }
-            return load(new ResourceLocation("creaturechat", "textures/entity/not_found.png"));
+            return load(new ResourceLocation("creaturepals", "textures/entity/not_found.png"));
         }
     }
 

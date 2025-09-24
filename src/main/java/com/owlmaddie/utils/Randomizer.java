@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.utils;
 
 import java.util.Arrays;
@@ -8,11 +8,15 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * The {@code Randomizer} class provides easy functions for generating a variety of different random numbers
+ * The {@code Randomizer} class provides easy functions for generating a variety
+ * of different random numbers
  * and phrases used by this mod.
  */
 public class Randomizer {
-    public enum RandomType { NO_RESPONSE, ERROR, ADJECTIVE, SPEAKING_STYLE, CLASS, ALIGNMENT }
+    public enum RandomType {
+        NO_RESPONSE, ERROR, ADJECTIVE, SPEAKING_STYLE, CLASS, ALIGNMENT
+    }
+
     private static List<String> noResponseMessages = Arrays.asList(
             "<no response>",
             "<silence>",
@@ -37,30 +41,28 @@ public class Randomizer {
             "<peers over your shoulder>",
             "<fakes a smile>",
             "<mutters under breath>",
-            "<counts imaginary stars>"
-    );
+            "<counts imaginary stars>");
     private static List<String> errorResponseMessages = Arrays.asList(
-            "Seems like my words got lost in the End. Check out http://discord.creaturechat.com for clues!",
-            "Oops! My speech bubble popped. Need help? Visit http://discord.creaturechat.com",
-            "I might've eaten a bad Command Block. Help me out at http://discord.creaturechat.com!",
-            "My words are on strike. More info? http://discord.creaturechat.com",
-            "I think a Creeper blew up my script. Instructions? http://discord.creaturechat.com",
-            "BRB, asking a villager for directions to http://discord.creaturechat.com",
-            "It’s not you, it’s my API key. Let's regroup at http://discord.creaturechat.com",
-            "I tried to speak, but it was a critical miss. Help at http://discord.creaturechat.com",
-            "Words are hard. Come chat at http://discord.creaturechat.com",
-            "I must've left my responses in my other pants. See http://discord.creaturechat.com",
-            "Shh... I’m hiding from an invalid API key. Join the hunt at http://discord.creaturechat.com",
-            "I’d tell you, but then I’d have to respawn. Meet me at http://discord.creaturechat.com",
-            "Error 404: Response not found. Maybe it’s at http://discord.creaturechat.com?",
-            "I'm speechless, literally. Let's troubleshoot at http://discord.creaturechat.com",
-            "Looks like my connection got lost in the Nether. Can you help? http://discord.creaturechat.com",
-            "I forgot what I was saying, but http://discord.creaturechat.com remembers.",
-            "Are my words mining without a pickaxe? Dig up some help at http://discord.creaturechat.com",
-            "Sorry, my parrot ate the response. Teach it better at http://discord.creaturechat.com",
-            "My magic mirror says: 'Better answers found at http://discord.creaturechat.com'",
-            "This message is temporarily out of order. Order yours at http://discord.creaturechat.com"
-    );
+            "Seems like my words got lost in the End. Check out https://player2.game/discord for clues!",
+            "Oops! My speech bubble popped. Need help? Visit https://player2.game/discord",
+            "I might've eaten a bad Command Block. Help me out at https://player2.game/discord!",
+            "My words are on strike. More info? https://player2.game/discord",
+            "I think a Creeper blew up my script. Instructions? https://player2.game/discord",
+            "BRB, asking a villager for directions to https://player2.game/discord",
+            "It’s not you, it’s my API key. Let's regroup at https://player2.game/discord",
+            "I tried to speak, but it was a critical miss. Help at https://player2.game/discord",
+            "Words are hard. Come chat at https://player2.game/discord",
+            "I must've left my responses in my other pants. See https://player2.game/discord",
+            "Shh... I’m hiding from an invalid API key. Join the hunt at https://player2.game/discord",
+            "I’d tell you, but then I’d have to respawn. Meet me at https://player2.game/discord",
+            "Error 404: Response not found. Maybe it’s at https://player2.game/discord?",
+            "I'm speechless, literally. Let's troubleshoot at https://player2.game/discord",
+            "Looks like my connection got lost in the Nether. Can you help? https://player2.game/discord",
+            "I forgot what I was saying, but https://player2.game/discord remembers.",
+            "Are my words mining without a pickaxe? Dig up some help at https://player2.game/discord",
+            "Sorry, my parrot ate the response. Teach it better at https://player2.game/discord",
+            "My magic mirror says: 'Better answers found at https://player2.game/discord'",
+            "This message is temporarily out of order. Order yours at https://player2.game/discord");
     private static List<String> characterAdjectives = Arrays.asList(
             "mystical", "fiery", "ancient", "cursed", "ethereal", "clumsy", "stealthy",
             "legendary", "toxic", "enigmatic", "celestial", "rambunctious", "shadowy",
@@ -78,8 +80,7 @@ public class Randomizer {
             "unpredictable", "wildcard", "stuttering", "hypochondriac", "hypocritical",
             "optimistic", "overconfident", "jumpy", "brief", "flighty", "visionary", "adorable",
             "sparkly", "bubbly", "unstable", "sad", "angry", "bossy", "altruistic", "quirky",
-            "nostalgic", "emotional", "enthusiastic", "unusual", "conspirator", "traitorous"
-    );
+            "nostalgic", "emotional", "enthusiastic", "unusual", "conspirator", "traitorous");
     private static List<String> speakingStyles = Arrays.asList(
             "formal", "casual", "eloquent", "blunt", "humorous", "sarcastic", "mysterious",
             "cheerful", "melancholic", "authoritative", "nervous", "whimsical", "grumpy",
@@ -92,8 +93,7 @@ public class Randomizer {
             "hipster", "mobster", "angry", "heroic", "disagreeable", "minimalist",
             "scientific", "bureaucratic", "DJ", "military", "shy", "tsundere", "theater kid",
             "boomer", "goth", "surfer", "detective noir", "stupid", "auctioneer", "exaggerated British",
-            "corporate jargon", "motivational speaker", "fast-talking salesperson", "slimy"
-    );
+            "corporate jargon", "motivational speaker", "fast-talking salesperson", "slimy");
     private static List<String> classes = Arrays.asList(
             "warrior", "mage", "archer", "rogue", "paladin", "necromancer", "bard", "lorekeeper",
             "sorcerer", "ranger", "cleric", "berserker", "alchemist", "summoner", "shaman",
@@ -106,13 +106,11 @@ public class Randomizer {
             "librarian", "blacksmith", "architect", "trapper", "baker", "mineralogist",
             "beekeeper", "hermit", "farlander", "void searcher", "end explorer", "archeologist",
             "hero", "villain", "mercenary", "guardian", "rebel", "paragon",
-            "antagonist", "avenger", "seeker", "mystic", "outlaw"
-    );
+            "antagonist", "avenger", "seeker", "mystic", "outlaw");
     private static List<String> alignments = Arrays.asList(
             "lawful good", "neutral good", "chaotic good",
             "lawful neutral", "true neutral", "chaotic neutral",
-            "lawful evil", "neutral evil", "chaotic evil"
-    );
+            "lawful evil", "neutral evil", "chaotic evil");
 
     // Get random no response message
     public static String getRandomMessage(RandomType messageType) {

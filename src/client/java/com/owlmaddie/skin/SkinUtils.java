@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.skin;
 
 import com.mojang.blaze3d.platform.NativeImage;
@@ -9,7 +9,8 @@ import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * SkinUtils contains functions to check for certain black and white pixel values in a skin, to determine
+ * SkinUtils contains functions to check for certain black and white pixel
+ * values in a skin, to determine
  * if the skin contains a custom hidden icon to show in the player chat message.
  */
 public class SkinUtils {
@@ -35,7 +36,8 @@ public class SkinUtils {
             }
         }
 
-        // If it's still loading, or not a PlayerSkinTexture, or no NativeImage loaded yet
+        // If it's still loading, or not a PlayerSkinTexture, or no NativeImage loaded
+        // yet
         return false;
     }
 }

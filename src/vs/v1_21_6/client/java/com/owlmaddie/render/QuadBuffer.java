@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.render;
 
 import com.mojang.blaze3d.pipeline.BlendFunction;
@@ -24,8 +24,10 @@ import java.util.OptionalInt;
 import java.util.function.Supplier;
 
 /**
- * Wrapper for Tessellator/BufferBuilder. Since the API changes between different versions of Minecraft,
- * this wrapper helps standardize the rendering/drawing calls. This is modified for Minecraft 1.21.6.
+ * Wrapper for Tessellator/BufferBuilder. Since the API changes between
+ * different versions of Minecraft,
+ * this wrapper helps standardize the rendering/drawing calls. This is modified
+ * for Minecraft 1.21.6.
  */
 @Environment(EnvType.CLIENT)
 public final class QuadBuffer {
@@ -43,12 +45,13 @@ public final class QuadBuffer {
             .buildSnippet();
 
     private static final RenderPipeline QUAD_PIPELINE = RenderPipeline.builder(QUAD_SNIPPET)
-            .withLocation("creaturechat/quad") // arbitrary ID
+            .withLocation("creaturepals/quad") // arbitrary ID
             .withDepthBias(3.0f, 3.0f) // mimic polygonOffset
             .withBlend(BlendFunction.TRANSLUCENT) // vanilla style alpha blending
             .build();
 
-    private QuadBuffer() {}
+    private QuadBuffer() {
+    }
 
     // begin
     public QuadBuffer begin() {
@@ -97,13 +100,15 @@ public final class QuadBuffer {
     }
 
     public void draw() {
-        if (buf == null) return;
+        if (buf == null)
+            return;
 
         try (MeshData meshData = buf.buildOrThrow()) {
             buf = null; // always clear reference
 
             GpuTextureView gpuTex = TextureLoader.lastTextureView;
-            if (gpuTex == null) return;
+            if (gpuTex == null)
+                return;
 
             CommandEncoder encoder = RenderSystem.getDevice().createCommandEncoder();
             var vb = DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP
@@ -123,13 +128,12 @@ public final class QuadBuffer {
             try (RenderPass pass = encoder.createRenderPass(
                     passName,
                     fb.getColorTextureView(), OptionalInt.empty(),
-                    fb.getDepthTextureView(), OptionalDouble.empty()
-            )) {
+                    fb.getDepthTextureView(), OptionalDouble.empty())) {
                 pass.bindSampler("Sampler0", gpuTex);
                 pass.setVertexBuffer(0, vb);
                 pass.setIndexBuffer(ib, it);
                 pass.setPipeline(QUAD_PIPELINE);
-                pass.drawIndexed(0, 0,  meshData.drawState().indexCount(), 1);
+                pass.drawIndexed(0, 0, meshData.drawState().indexCount(), 1);
             }
 
         } catch (IllegalStateException e) {
