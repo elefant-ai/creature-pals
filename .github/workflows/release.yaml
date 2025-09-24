@@ -83,7 +83,7 @@ jobs:
           tag_name: ${{ env.tag }}
           name: Creature Pals ${{ env.tag }}
           body: |
-            To download, install [Player2 app](https://player2.game/), install fabric, the fabric API, then drag the jar file into your mod folder
+            To download:\n## Prerequisites\n- Fabric: fabric API, \n- Forge/Neoforge: Sinytra Connector, Forgified Fabric API
           files: build/outputs/creaturepals-*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
