@@ -1,0 +1,89 @@
+name: Auto release builds
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:                
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Get version and release variables
+        id: version
+        run: |
+          version=$(grep "^mod_version=" gradle.properties | cut -d= -f2)
+          echo "Current version: $version"
+          base=$(echo "$version" | cut -d. -f1,2)
+          patch=$(echo "$version" | cut -d. -f3 | tr -d '\r' | tr -d ' ')
+          next_patch=$((patch + 1))
+          new_version="${base}.${next_patch}"
+          echo "New version: $new_version"
+          # for other blocks now:
+          # 1) ${{ env.tag }} evaluates to "v1.0.3"
+          # 2) ${{ env.version }} evaluates to "1.0.3"
+          echo "tag=v${new_version}" >> "$GITHUB_ENV"
+          echo "version=${new_version}" >> "$GITHUB_ENV"
+
+      - name: Update Gradle version
+        run: |
+          # actually change  "mod_version=x.y.z" -> "mod_version=x.y.z+1" in gradle.properties
+          sed -i "s/^mod_version=.*/mod_version=${{ env.version }}/" gradle.properties
+          echo "Bumped version to ${{ env.version }}"
+      
+      - name: Gradle perms
+        run: chmod +x ./gradlew
+
+      - name: Build all versions
+        run: ./gradlew buildAllVersions
+      
+      - name: Change gradle file, branch, and push 
+        id: commit
+        run: |
+          branch="action/release-to-${{ env.tag }}"
+
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+
+          git checkout -b "$branch"
+          git add gradle.properties
+          git commit -m "change version v${{ env.version }}"
+          if git ls-remote --heads origin "$branch" | grep -q "$branch"; then
+            echo "Branch '$branch' already exists on remote. Skipping push."
+          else
+            git push origin "$branch"
+          fi 
+
+          
+
+          # will use branch in other blocks
+          echo "branch=$branch" >> "$GITHUB_ENV"
+      - name: Create PR using GitHub CLI
+        run: |
+          gh pr create \
+            --title "Release for ${{ env.tag }}" \
+            --body "Auto-generated PR from release to change the version in \`gradle.properties\`" \
+            --base develop \
+            --head ${{ env.branch }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Release and upload
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.tag }}
+          name: Creature Pals ${{ env.tag }}
+          body: |
+            To download, install [Player2 app](https://player2.game/), install fabric, the fabric API, then drag the jar file into your mod folder
+          files: build/outputs/creaturepals-*.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
