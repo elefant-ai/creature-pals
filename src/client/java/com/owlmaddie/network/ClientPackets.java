@@ -321,6 +321,13 @@ public class ClientPackets {
                         });
                     }
                 });
+        ClientPacketHelper.registerReceiver(ServerPackets.PACKET_S2C_SET_TTS,
+                (client, handler, buffer, responseSender) -> {
+                    boolean status = buffer.readBoolean();
+                    client.execute(() -> {
+                        TTS.enabled = status;
+                    });
+                });
 
     }
 

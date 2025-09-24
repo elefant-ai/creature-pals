@@ -96,6 +96,8 @@ public class ServerPackets {
             "packet_s2c_player_status");
     public static final ResourceLocation PACKET_S2C_UNAUTH_ERR = new ResourceLocation("creaturepals",
             "packet_s2c_unauth_err");
+    public static final ResourceLocation PACKET_S2C_SET_TTS = new ResourceLocation("creaturepals",
+            "packet_s2c_set_tts");
 
     public static final ParticleType<?> HEART_SMALL_PARTICLE = Particles.HEART_SMALL_PARTICLE;
     public static final ParticleType<?> HEART_BIG_PARTICLE = Particles.HEART_BIG_PARTICLE;
@@ -454,6 +456,13 @@ public class ServerPackets {
                     + serverPlayer.getDisplayName().getString() + " | isChatOpen: " + isChatOpen);
             PacketHelper.send(serverPlayer, PACKET_S2C_PLAYER_STATUS, buffer);
         }
+    }
+
+    public static void SendTTSStatus(ServerPlayer player, boolean tts) {
+        FriendlyByteBuf buf = BufferHelper.create();
+        buf.writeBoolean(tts);
+
+        PacketHelper.send(player, PACKET_S2C_SET_TTS, buf);
     }
 
     public static void BroadcastUnauthErr(ServerPlayer player) {
