@@ -1,6 +1,5 @@
 package com.owlmaddie.chat;
 
-
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
@@ -9,22 +8,23 @@ import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import org.apache.commons.lang3.function.TriConsumer;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.owlmaddie.chat.ChatDataManager.ChatSender;
 import com.owlmaddie.commands.ConfigurationHandler;
 import com.owlmaddie.network.ServerPackets;
+import com.owlmaddie.network.PacketHelper.TriConsumer;
 import com.owlmaddie.utils.ServerEntityFinder;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 
-
 public class EventQueueData {
     public static final Logger LOGGER = LoggerFactory.getLogger("creaturepals");
-    private static long waitTimeAfterError = 10_000_000_000L; // wait 10 sec after err before doing any polling
+    private static long waitTimeAfterError = 20_000_000_000L; // wait 10 sec after err before doing any polling
 
     private String entityId;
     private Entity entity;
@@ -189,18 +189,25 @@ public class EventQueueData {
         ChatGPTRequest.fetchMessageFromChatGPT(config, promptText, contextData,
                 List.of(new ChatMessage(greetingMessage.userMessage, ChatSender.USER,
                         this.player.getName().getString())),
-                false, "")
+                false, "", player)
                 .thenAccept(char_sheet -> {
-                    try {
-                        if (char_sheet == null) {
-                            throw new RuntimeException(
-                                    ChatGPTRequest.lastErrorMessage + "(gen character sheet)");
+                    ServerPackets.serverInstance.execute(() -> {
+                        try {
+                            if (char_sheet == null) {
+                                throw new RuntimeException(
+                                        ChatGPTRequest.lastErrorMessage + "(gen character sheet)");
+                            }
+                            LOGGER.info("Generated Character sheet:" + char_sheet);
+                            onCharacterSheet.accept(char_sheet);
+                        } catch (Exception e) {
+                            onError.accept(e.getMessage() != null ? e.getMessage() : "");
                         }
-                        LOGGER.info("Generated Character sheet:" + char_sheet);
-                        onCharacterSheet.accept(char_sheet);
-                    } catch (Exception e) {
-                        onError.accept(e.getMessage() != null ? e.getMessage() : "");
-                    }
+                    });
+                }).exceptionally(ex -> {
+                    ServerPackets.serverInstance.execute(() -> {
+                        onError.accept(ex != null && ex.getMessage() != null ? ex.getMessage() : "");
+                    });
+                    return null;
                 });
     }
 
@@ -231,9 +238,14 @@ public class EventQueueData {
     // addMessage(toAdd);
     // }
 
+    @Nullable
+    public ServerPlayer getPlayer() {
+        return player;
+    }
+
     public boolean shouldDelete() {
         if (player != null) {
-            return ServerEntityFinder.getEntityByUUID(player.level(),
+            return ServerEntityFinder.getEntityByUUID((ServerLevel) player.level(),
                     UUID.fromString(entityId)) == null || !entity.isAlive();
         }
         return false;

@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.message;
 
 import org.slf4j.Logger;
@@ -12,8 +12,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * The {@code MessageParser} class parses out behaviors that are included in messages, and outputs
- * a {@code ParsedMessage} result, which separates the cleaned message and the included behaviors.
+ * The {@code MessageParser} class parses out behaviors that are included in
+ * messages, and outputs
+ * a {@code ParsedMessage} result, which separates the cleaned message and the
+ * included behaviors.
  */
 public class MessageParser {
     public static final Logger LOGGER = LoggerFactory.getLogger("creaturepals");
@@ -22,7 +24,9 @@ public class MessageParser {
         LOGGER.debug("Parsing message: {}", input);
         StringBuilder cleanedMessage = new StringBuilder();
         List<Behavior> behaviors = new ArrayList<>();
-        Pattern pattern = Pattern.compile("[<*](FOLLOW|LEAD|FLEE|ATTACK|PROTECT|FRIENDSHIP|UNFOLLOW|UNLEAD|UNPROTECT|UNFLEE)[:\\s]*(\\s*[+-]?\\d+)?[>*]", Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile(
+                "[<*](FOLLOW|LEAD|FLEE|ATTACK|PROTECT|FRIENDSHIP|UNFOLLOW|UNLEAD|UNPROTECT|UNFLEE)[:\\s]*(\\s*[+-]?\\d+)?[>*]",
+                Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(input);
 
         while (matcher.find()) {

@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.ui;
 
 import com.owlmaddie.render.BlendHelper;
@@ -12,7 +12,8 @@ import net.minecraft.resources.ResourceLocation;
 
 /**
  * Create an image‐only button that swaps between normal/hover textures.
- * Version‐specific subclasses just override the rendering hook. Modified for Minecraft 1.21.2.
+ * Version‐specific subclasses just override the rendering hook. Modified for
+ * Minecraft 1.21.2.
  */
 public class ButtonHelper {
 
@@ -22,8 +23,7 @@ public class ButtonHelper {
             ResourceLocation normalTex,
             ResourceLocation hoverTex,
             Button.OnPress onPress,
-            Button.CreateNarration narrate
-    ) {
+            Button.CreateNarration narrate) {
         return new Button(x, y, width, height, Component.empty(), onPress, narrate) {
             @Override
             protected void renderWidget(GuiGraphics ctx, int mouseX, int mouseY, float delta) {
@@ -36,17 +36,26 @@ public class ButtonHelper {
 
                 // draw from the GUI atlas, sampling just this sprite’s region
                 ctx.blit(
-                        RenderType::guiTextured,  // supplies the atlas layer for this sprite
-                        tex,                          // your sprite ID
-                        getX(), getY(),               // on-screen position
-                        0f, 0f,                       // u,v origin
-                        width, height,                // region size
-                        width, height                 // atlas size = region size
+                        RenderType::guiTextured, // supplies the atlas layer for this sprite
+                        tex, // your sprite ID
+                        getX(), getY(), // on-screen position
+                        0f, 0f, // u,v origin
+                        width, height, // region size
+                        width, height // atlas size = region size
                 );
 
                 // restore default blending
                 BlendHelper.disableBlend();
             }
         };
+    }
+
+    public static Button createTextButton(
+            String text,
+            int x, int y,
+            int width, int height,
+            Button.OnPress onPress) {
+        Button output = Button.builder(Component.literal(text), onPress).pos(x, y).size(width, height).build();
+        return output;
     }
 }

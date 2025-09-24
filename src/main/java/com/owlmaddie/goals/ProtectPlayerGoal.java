@@ -1,13 +1,14 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.goals;
 
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 
 /**
- * The {@code ProtectPlayerGoal} class instructs a Mob Entity to show aggression towards any attacker
+ * The {@code ProtectPlayerGoal} class instructs a Mob Entity to show aggression
+ * towards any attacker
  * of the current player.
  */
 public class ProtectPlayerGoal extends AttackPlayerGoal {
@@ -24,7 +25,8 @@ public class ProtectPlayerGoal extends AttackPlayerGoal {
     public boolean canUse() {
         LivingEntity lastAttackedByEntity = this.protectedEntity.getLastAttacker();
         int i = this.protectedEntity.getLastHurtByMobTimestamp();
-        if (i != this.lastAttackedTime && lastAttackedByEntity != null && !this.attackerEntity.equals(lastAttackedByEntity)) {
+        if (i != this.lastAttackedTime && lastAttackedByEntity != null
+                && !this.attackerEntity.equals(lastAttackedByEntity)) {
             // Set target to attack
             this.lastAttackedTime = i;
             this.targetEntity = lastAttackedByEntity;

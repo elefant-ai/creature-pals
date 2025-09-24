@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.network;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -19,25 +19,29 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class ClientPacketHelper {
 
-    private ClientPacketHelper() {}   // no instantiation
+    private ClientPacketHelper() {
+    } // no instantiation
 
     // Id-and-codec cache
-    private static final Map<ResourceLocation, CustomPacketPayload.Type<LegacyPayload>> IDS =
-            new ConcurrentHashMap<>();
+    private static final Map<ResourceLocation, CustomPacketPayload.Type<LegacyPayload>> IDS = new ConcurrentHashMap<>();
 
     // obtain (and lazily register) the payload id for this channel
     private static CustomPacketPayload.Type<LegacyPayload> idOf(ResourceLocation ch) {
         return IDS.computeIfAbsent(ch, key -> {
-            var pid   = LegacyPayload.idFor(key);
+            var pid = LegacyPayload.idFor(key);
             var codec = LegacyPayload.codec(pid);
 
             /* register C2S – ignore if it’s been done already */
-            try { PayloadTypeRegistry.playC2S().register(pid, codec);
-            } catch (IllegalArgumentException ignored) { /* duplicate, fine */ }
+            try {
+                PayloadTypeRegistry.playC2S().register(pid, codec);
+            } catch (IllegalArgumentException ignored) {
+                /* duplicate, fine */ }
 
             /* register S2C – same guard */
-            try { PayloadTypeRegistry.playS2C().register(pid, codec);
-            } catch (IllegalArgumentException ignored) { /* duplicate, fine */ }
+            try {
+                PayloadTypeRegistry.playS2C().register(pid, codec);
+            } catch (IllegalArgumentException ignored) {
+                /* duplicate, fine */ }
 
             return pid;
         });
@@ -47,9 +51,9 @@ public final class ClientPacketHelper {
     @FunctionalInterface
     public interface ClientHandler {
         void receive(Minecraft client,
-                     ClientPacketListener handler,
-                     FriendlyByteBuf buffer,
-                     PacketSender responseSender);
+                ClientPacketListener handler,
+                FriendlyByteBuf buffer,
+                PacketSender responseSender);
     }
 
     // Send helpers

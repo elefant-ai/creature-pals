@@ -1,14 +1,16 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.chat;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import com.owlmaddie.chat.ChatGPTRequest.ChatGPTRequestMessage;
-import com.owlmaddie.chat.ChatGPTRequest.ChatGPTRequestPayload;
 import com.owlmaddie.commands.ConfigurationHandler;
 import com.owlmaddie.json.ChatGPTResponse;
+import com.owlmaddie.network.ServerPackets;
+
+import net.minecraft.server.level.ServerPlayer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +20,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 /**
@@ -28,6 +31,7 @@ import java.util.regex.Pattern;
 public class ChatGPTRequest {
     public static final Logger LOGGER = LoggerFactory.getLogger("creaturepals");
     public static String lastErrorMessage;
+    public static Map<UUID, CompletableFuture<String>> apiKeyAwaiter = new ConcurrentHashMap<>();
 
     static class ChatGPTRequestMessage {
         String role;
@@ -127,13 +131,36 @@ public class ChatGPTRequest {
 
     public static CompletableFuture<String> fetchMessageFromChatGPT(ConfigurationHandler.Config config,
             String systemPrompt, Map<String, String> contextData, List<ChatMessage> messageHistory, Boolean jsonMode,
-            String wrapMsg) {
+            String wrapMsg, ServerPlayer player) {
+        CompletableFuture<String> apiKeyFuture = new CompletableFuture<>();
+        UUID authRequestId = UUID.randomUUID();
+        apiKeyAwaiter.put(authRequestId, apiKeyFuture);
+
+        // String apiKey = config.getApiKey();
+        CompletableFuture<String> messageFuture = apiKeyFuture
+                .orTimeout(120, java.util.concurrent.TimeUnit.SECONDS)
+                .thenComposeAsync((apiKey) -> {
+                    LOGGER.info("Received API key from player {}", player.getName().getString());
+                    return fetchMessageFromChatGPTInternal(config, systemPrompt, contextData, messageHistory, jsonMode,
+                            wrapMsg, apiKey);
+                })
+                .whenComplete((res, ex) -> {
+                    // Ensure cleanup in all cases
+                    apiKeyAwaiter.remove(authRequestId);
+                });
+        ServerPackets.requestPlayerApiKeyWithId(player, authRequestId);
+        return messageFuture;
+    }
+
+    public static CompletableFuture<String> fetchMessageFromChatGPTInternal(ConfigurationHandler.Config config,
+            String systemPrompt, Map<String, String> contextData, List<ChatMessage> messageHistory, Boolean jsonMode,
+            String wrapMsg, String apiKey) {
         // Init API & LLM details
+
         String apiUrl = config.getUrl();
-        String apiKey = config.getApiKey();
         String modelName = config.getModel();
-        Integer timeout = config.getTimeout() * 1000;
-        LOGGER.info("[CHATGPTRequest]/fetchMessageFromChatGPT with timeout in seconds: " + config.getTimeout());
+        int timeout = config.getTimeout() * 1000;
+        LOGGER.info("[CHATGPTRequest]/fetchMessageFromChatGPTInternal with timeout in seconds: " + config.getTimeout());
         int maxContextTokens = config.getMaxContextTokens();
         int maxOutputTokens = config.getMaxOutputTokens();
         double percentOfContext = config.getPercentOfContext();
@@ -254,10 +281,10 @@ public class ChatGPTRequest {
                         String content = chatGPTResponse.choices.get(0).message.content;
                         if (content == null) {
 
-                        LOGGER.info("CHATGPT RETURN NULL");
+                            LOGGER.info("CHATGPT RETURN NULL");
                             return "";
                         }
-                        LOGGER.info("CHATGPT RETURN "+ content);
+                        LOGGER.info("CHATGPT RETURN " + content);
                         return content;
                     } else {
                         LOGGER.info("CHATGPT RETURN NULL ERR");

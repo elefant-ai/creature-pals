@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.items;
 
 import java.util.*;
@@ -11,7 +11,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 
 /**
- * The {@code RarityItemCollector} class is used to find items & entities by rarity
+ * The {@code RarityItemCollector} class is used to find items & entities by
+ * rarity
  */
 public class RarityItemCollector {
 
@@ -31,7 +32,8 @@ public class RarityItemCollector {
         // Shuffle the list to randomize it
         Collections.shuffle(itemsOfSpecificRarity);
 
-        // If the quantity requested is more than the number of available items, return them all
+        // If the quantity requested is more than the number of available items, return
+        // them all
         if (quantity >= itemsOfSpecificRarity.size()) {
             return itemsOfSpecificRarity;
         }
@@ -41,8 +43,9 @@ public class RarityItemCollector {
     }
 
     /*
-    Categorize all entities and return a random list filtered by rarity. Rarity is calculated mostly with
-    Spawn Group, with a few manual exclusions.
+     * Categorize all entities and return a random list filtered by rarity. Rarity
+     * is calculated mostly with
+     * Spawn Group, with a few manual exclusions.
      */
     public static List<String> getEntitiesByRarity(Rarity rarity, int quantity) {
         List<String> categoryCommonEntities = new ArrayList<>();
@@ -88,7 +91,8 @@ public class RarityItemCollector {
         // Shuffle the list to randomize it
         Collections.shuffle(entitiesOfSpecificRarity);
 
-        // If the quantity requested is more than the number of available items, return them all
+        // If the quantity requested is more than the number of available items, return
+        // them all
         if (quantity >= entitiesOfSpecificRarity.size()) {
             return entitiesOfSpecificRarity;
         }
@@ -97,4 +101,3 @@ public class RarityItemCollector {
         return entitiesOfSpecificRarity.subList(0, quantity);
     }
 }
-

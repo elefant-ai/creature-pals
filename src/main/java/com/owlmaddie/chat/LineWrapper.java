@@ -1,13 +1,14 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.chat;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The {@code LineWrapper} class is used to wrap lines of text on the nearest space character
+ * The {@code LineWrapper} class is used to wrap lines of text on the nearest
+ * space character
  */
 public class LineWrapper {
 

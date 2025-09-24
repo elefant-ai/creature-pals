@@ -1,17 +1,14 @@
 package com.owlmaddie.chat;
 
 import static com.owlmaddie.network.ServerPackets.BroadcastEntityMessage;
-import static com.owlmaddie.network.ServerPackets.BroadcastMessage;
 import static com.owlmaddie.network.ServerPackets.serverInstance;
 
 import java.util.Optional;
-import java.util.Queue;
 import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.owlmaddie.Player2.TTS;
 import com.owlmaddie.chat.ChatDataManager.ChatSender;
 import com.owlmaddie.chat.ChatDataManager.ChatStatus;
 import com.owlmaddie.message.MessageParser;
@@ -25,7 +22,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
-
 
 // side effects that are broadcast to client or modify chatData
 public class ClientSideEffects {
@@ -46,9 +42,11 @@ public class ClientSideEffects {
         if (cleanedMessage.isEmpty()) {
             getChatData(UUID.fromString(entityId)).addMessage("...", ChatDataManager.ChatSender.ASSISTANT, player);
             BroadcastEntityMessage(new EntityChatDataLight(entityId, "...", 0, ChatStatus.DISPLAY, ChatSender.ASSISTANT,
-                    getChatData(UUID.fromString(entityId)).characterSheet, getChatData(UUID.fromString(entityId)).players));
+                    getChatData(UUID.fromString(entityId)).characterSheet,
+                    getChatData(UUID.fromString(entityId)).players));
         } else {
-            getChatData(UUID.fromString(entityId)).addMessage(uncleanEntityMessageResponse, ChatDataManager.ChatSender.ASSISTANT,
+            getChatData(UUID.fromString(entityId)).addMessage(uncleanEntityMessageResponse,
+                    ChatDataManager.ChatSender.ASSISTANT,
                     player);
             sendChatAsEntity(entityId, cleanedMessage, player, true);
         }
@@ -67,13 +65,15 @@ public class ClientSideEffects {
             throw new RuntimeException(
                     "Generated \"\" or \"N/A\" as a character name");
         }
-        String shortGreeting = Optional.ofNullable(getChatData(UUID.fromString(entityId)).getCharacterProp("short greeting"))
+        String shortGreeting = Optional
+                .ofNullable(getChatData(UUID.fromString(entityId)).getCharacterProp("short greeting"))
                 .filter(s -> !s.isEmpty())
                 .orElse(Randomizer.getRandomMessage(Randomizer.RandomType.NO_RESPONSE))
                 .replace("\n", " ");
         setNameOfEntity(entityId, characterName);
         if (shouldGreet) {
-            getChatData(UUID.fromString(entityId)).addMessage(shortGreeting, ChatDataManager.ChatSender.ASSISTANT, player);
+            getChatData(UUID.fromString(entityId)).addMessage(shortGreeting, ChatDataManager.ChatSender.ASSISTANT,
+                    player);
             sendChatAsEntity(entityId, shortGreeting, player, true);
         }
     }
@@ -113,6 +113,12 @@ public class ClientSideEffects {
                     "https://player2.game/discord");
             return;
         }
+        if (errMsg.contains("Unauthorized")) {
+            EventQueueManager.unauthError(player); // stop processing queues linked to this player.
+            ServerPackets.BroadcastUnauthErr(player);
+            sendChatAsEntity(entityId, "Please authorize to use AI features.", player, false);
+            return;
+        }
         sendChatAsEntity(entityId, errorMessage, player, false);
         LOGGER.error("After chat as ent ");
         getChatData(UUID.fromString(entityId)).status = ChatStatus.DISPLAY;
@@ -124,10 +130,11 @@ public class ClientSideEffects {
             boolean shouldBroadcast) {
         LOGGER.info("SIDEEFFECT/sendChatAsEntity entityId={} message={} ", entityId.toString(), message);
         ServerPackets.BroadcastEntityMessage(new EntityChatDataLight(entityId, message, 0, ChatStatus.DISPLAY,
-                ChatSender.ASSISTANT, getChatData(UUID.fromString(entityId)).characterSheet, getChatData(UUID.fromString(entityId)).players));
+                ChatSender.ASSISTANT, getChatData(UUID.fromString(entityId)).characterSheet,
+                getChatData(UUID.fromString(entityId)).players));
 
         LOGGER.info("Finding entity ");
-        Entity entity = ServerEntityFinder.getEntityByUUID(player.level(),
+        Entity entity = ServerEntityFinder.getEntityByUUID((ServerLevel) player.level(),
                 UUID.fromString(entityId));
         LOGGER.info("Custom name");
         if (entity == null || entity.getCustomName() == null) {
@@ -136,20 +143,20 @@ public class ClientSideEffects {
         String entityCustomName = entity.getCustomName().getString();
         LOGGER.info("Find entity Type");
         String entityType = entity.getType().toShortString();
-        
+
         LOGGER.info("player broadcast");
         if (shouldBroadcast) {
             ServerPackets.BroadcastMessage(Component.literal("<" + entityCustomName
                     + " the " + entityType + "> " + message));
         }
-        TTS.speak(message, UUID.fromString(entityId));
     }
 
     public static void setPending(String entityId) {
         LOGGER.info("SIDEEFFECT/setPending entityId={} ", entityId.toString());
         if (getChatData(UUID.fromString(entityId)).previousMessages.size() == 0) {
             ServerPackets.BroadcastEntityMessage(new EntityChatDataLight(entityId, "", 0, ChatStatus.PENDING,
-                    ChatSender.USER, getChatData(UUID.fromString(entityId)).characterSheet, getChatData(UUID.fromString(entityId)).players));
+                    ChatSender.USER, getChatData(UUID.fromString(entityId)).characterSheet,
+                    getChatData(UUID.fromString(entityId)).players));
             return;
         }
         setStatusUsingParamsFromChatData(entityId, ChatStatus.PENDING);
@@ -167,8 +174,10 @@ public class ClientSideEffects {
 
         // broadcast
         ServerPackets.BroadcastEntityMessage(
-                new EntityChatDataLight(entityId, topMessage.message, getChatData(UUID.fromString(entityId)).currentLineNumber, status,
-                        topMessage.sender, getChatData(UUID.fromString(entityId)).characterSheet, getChatData(UUID.fromString(entityId)).players));
+                new EntityChatDataLight(entityId, topMessage.message,
+                        getChatData(UUID.fromString(entityId)).currentLineNumber, status,
+                        topMessage.sender, getChatData(UUID.fromString(entityId)).characterSheet,
+                        getChatData(UUID.fromString(entityId)).players));
 
     }
 

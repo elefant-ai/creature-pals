@@ -10,13 +10,14 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
-import org.apache.commons.lang3.function.TriConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.owlmaddie.network.PacketHelper.TriConsumer;
 import com.owlmaddie.utils.ServerEntityFinder;
 
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -24,6 +25,7 @@ import net.minecraft.world.entity.player.Player;
 public class EventQueueManager {
     public static final Logger LOGGER = LoggerFactory.getLogger("creaturepals");
     private static boolean addingEntityQueues = false;
+    private static Set<ServerPlayer> unauthPlayers = new HashSet<>();
 
     private static class LLMCompleter {
         private boolean isProcessing = false;
@@ -81,6 +83,7 @@ public class EventQueueManager {
     private static Optional<String> getEntityIdToProcess(MinecraftServer server) {
         return queueData.values().stream()
                 .filter(EventQueueData::shouldProcess)
+                .filter((data) -> !unauthPlayers.contains(data.getPlayer()))
                 .max(Comparator.comparingInt(EventQueueData::getPriority))
                 .map(EventQueueData::getId);
     }
@@ -145,7 +148,8 @@ public class EventQueueManager {
             String entityId = iterator.next();
             boolean added = false;
             for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-                Entity cur = ServerEntityFinder.getEntityByUUID(player.level(), UUID.fromString(entityId));
+                Entity cur = ServerEntityFinder.getEntityByUUID((ServerLevel) player.level(),
+                        UUID.fromString(entityId));
                 if (cur != null) {
                     LOGGER.info("tryAddAllNewEntities entityId={}", entityId);
                     getOrCreateQueueData(entityId, cur);
@@ -172,7 +176,8 @@ public class EventQueueManager {
 
     public static void addUserMessage(Entity entity, String userLanguage, ServerPlayer player,
             String userMessage, boolean is_auto_message) {
-        LOGGER.info("Add user message entityID={}, playerID={}, message={} ", entity.getStringUUID(), player.getUUID(), userMessage);
+        LOGGER.info("Add user message entityID={}, playerID={}, message={} ", entity.getStringUUID(), player.getUUID(),
+                userMessage);
         EventQueueData q = getOrCreateQueueData(entity.getStringUUID(), entity);
         q.addUserMessage(entity, userLanguage, player, userMessage, is_auto_message);
     }
@@ -180,7 +185,7 @@ public class EventQueueManager {
     public static void addUserMessageToAllClose(String userLanguage, ServerPlayer player, String userMessage,
             boolean is_auto_message) {
         addingEntityQueues = true; // if dont have this, then will first create queue data and poll before
-        ServerEntityFinder.getCloseEntities(player.level(), player, 6).stream().filter(
+        ServerEntityFinder.getCloseEntities((ServerLevel) player.level(), player, 6).stream().filter(
                 (e) -> !(e instanceof Player)).forEach((e) -> {
                     LOGGER.info("Sending user msg={} to ent_id={}", userMessage, e.getStringUUID());
                     // adding user message.
@@ -188,6 +193,14 @@ public class EventQueueManager {
                     addUserMessage(e, userLanguage, player, userMessage, is_auto_message);
                 });
         addingEntityQueues = false;
+    }
+
+    public static void unauthError(ServerPlayer player) {
+        unauthPlayers.add(player);
+    }
+
+    public static void fixedAuthError(ServerPlayer player) {
+        unauthPlayers.remove(player);
     }
 
 }

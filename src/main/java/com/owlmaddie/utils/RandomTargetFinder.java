@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.utils;
 
 import java.util.Random;
@@ -12,7 +12,8 @@ import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * The {@code RandomTargetFinder} class generates random targets around an entity (the LEAD behavior uses this)
+ * The {@code RandomTargetFinder} class generates random targets around an
+ * entity (the LEAD behavior uses this)
  */
 public class RandomTargetFinder {
     private static final Random random = new Random();
@@ -26,7 +27,8 @@ public class RandomTargetFinder {
             Vec3 target = getTargetInDirection(entity, constrainedDirection, minDistance, maxDistance);
 
             if (entity instanceof PathfinderMob) {
-                Vec3 validTarget = LandRandomPos.getPosTowards((PathfinderMob) entity, (int) maxDistance, (int) maxDistance, target);
+                Vec3 validTarget = LandRandomPos.getPosTowards((PathfinderMob) entity, (int) maxDistance,
+                        (int) maxDistance, target);
 
                 if (validTarget != null && isWithinDistance(entityPos, validTarget, minDistance, maxDistance)) {
                     Path path = entity.getNavigation().createPath(validTarget.x, validTarget.y, validTarget.z, 4);
@@ -54,8 +56,10 @@ public class RandomTargetFinder {
     }
 
     private static Vec3 getConstrainedDirection(Vec3 initialDirection, double maxAngleOffset) {
-        double randomYawAngleOffset = (random.nextDouble() * Math.toRadians(maxAngleOffset)) - Math.toRadians(maxAngleOffset / 2);
-        double randomPitchAngleOffset = (random.nextDouble() * Math.toRadians(maxAngleOffset)) - Math.toRadians(maxAngleOffset / 2);
+        double randomYawAngleOffset = (random.nextDouble() * Math.toRadians(maxAngleOffset))
+                - Math.toRadians(maxAngleOffset / 2);
+        double randomPitchAngleOffset = (random.nextDouble() * Math.toRadians(maxAngleOffset))
+                - Math.toRadians(maxAngleOffset / 2);
 
         // Apply the yaw rotation (around the Y axis)
         double cosYaw = Math.cos(randomYawAngleOffset);

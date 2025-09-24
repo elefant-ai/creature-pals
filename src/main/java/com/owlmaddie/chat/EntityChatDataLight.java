@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.chat;
 
 import java.util.HashMap;
@@ -10,8 +10,10 @@ import com.owlmaddie.chat.ChatDataManager.ChatSender;
 import com.owlmaddie.chat.ChatDataManager.ChatStatus;
 
 /**
- * The {@code EntityChatDataLight} class represents the current displayed message, and no
- * previous messages or player message history. This is primarily used to broadcast the
+ * The {@code EntityChatDataLight} class represents the current displayed
+ * message, and no
+ * previous messages or player message history. This is primarily used to
+ * broadcast the
  * currently displayed messages to players as they connect to the server.
  */
 public class EntityChatDataLight {
@@ -37,7 +39,9 @@ public class EntityChatDataLight {
         PlayerData playerData = fullData.getPlayerData(playerName);
         this.players.put(playerName, playerData);
     }
-    public EntityChatDataLight(String entityId, String currentMessage, int currentLineNumber, ChatStatus status, ChatSender sender, String characterSheet, Map<String, PlayerData> players) {
+
+    public EntityChatDataLight(String entityId, String currentMessage, int currentLineNumber, ChatStatus status,
+            ChatSender sender, String characterSheet, Map<String, PlayerData> players) {
         this.entityId = entityId;
         this.currentMessage = currentMessage;
         this.currentLineNumber = currentLineNumber;
@@ -47,8 +51,8 @@ public class EntityChatDataLight {
         this.players = players;
     }
 
-    public static EntityChatDataLight PendingData(String entityId){
-        return  new EntityChatDataLight(entityId, "", 0, ChatStatus.PENDING, ChatSender.USER, "", null);
+    public static EntityChatDataLight PendingData(String entityId) {
+        return new EntityChatDataLight(entityId, "", 0, ChatStatus.PENDING, ChatSender.USER, "", null);
     }
 
 }

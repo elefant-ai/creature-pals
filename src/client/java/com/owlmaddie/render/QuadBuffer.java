@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.render;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -12,8 +12,10 @@ import net.fabricmc.api.Environment;
 import org.joml.Matrix4f;
 
 /**
- * Wrapper for Tessellator/BufferBuilder. Since the API changes between different versions of Minecraft,
- * this wrapper helps standardize the rendering/drawing calls, so we can override them in newer versions.
+ * Wrapper for Tessellator/BufferBuilder. Since the API changes between
+ * different versions of Minecraft,
+ * this wrapper helps standardize the rendering/drawing calls, so we can
+ * override them in newer versions.
  */
 @Environment(EnvType.CLIENT)
 public final class QuadBuffer {
@@ -22,7 +24,8 @@ public final class QuadBuffer {
     private final Tesselator tessellator = Tesselator.getInstance();
     private BufferBuilder buf;
 
-    private QuadBuffer() {}
+    private QuadBuffer() {
+    }
 
     // begin
     public QuadBuffer begin() {
@@ -56,9 +59,21 @@ public final class QuadBuffer {
         return this;
     }
 
-    public QuadBuffer texture(float u, float v)           { buf.uv(u, v);   return this; }
-    public QuadBuffer color(int r,int g,int b,int a)      { buf.color(r, g, b, a); return this; }
-    public QuadBuffer light(int packed)                   { buf.uv2(packed);   return this; }
+    public QuadBuffer texture(float u, float v) {
+        buf.uv(u, v);
+        return this;
+    }
+
+    public QuadBuffer color(int r, int g, int b, int a) {
+        buf.color(r, g, b, a);
+        return this;
+    }
+
+    public QuadBuffer light(int packed) {
+        buf.uv2(packed);
+        return this;
+    }
+
     public QuadBuffer overlay(int packed) {
         buf.overlayCoords(packed);
         buf.endVertex(); // immediately finalize
@@ -67,6 +82,6 @@ public final class QuadBuffer {
 
     // end & draw
     public void draw() {
-        tessellator.end();              // 1.20.x path
+        tessellator.end(); // 1.20.x path
     }
 }

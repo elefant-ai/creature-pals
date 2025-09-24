@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.render;
 
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -12,15 +12,17 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 
 /**
- * Helper to access the getTexture method of a renderer. This API changes in later versions of Minecraft, so we
+ * Helper to access the getTexture method of a renderer. This API changes in
+ * later versions of Minecraft, so we
  * are isolating it into a Helper. This was modififed for Minecraft 1.21.2+.
  */
 public final class EntityTextureHelper {
-    private EntityTextureHelper() {}
+    private EntityTextureHelper() {
+    }
 
     public static ResourceLocation getTexture(EntityRenderer<?, ?> renderer, Entity entity) {
         if (renderer instanceof LivingEntityRenderer livingRenderer
-                && entity   instanceof LivingEntity       living) {
+                && entity instanceof LivingEntity living) {
 
             // Get the generic EntityRenderState then downcast
             EntityRenderState rawState = livingRenderer.createRenderState(living, 0.0f);

@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.ui;
 
 import net.minecraft.client.gui.GuiGraphics;
@@ -11,24 +11,33 @@ import net.minecraft.resources.ResourceLocation;
 public class ButtonHelper {
   /**
    * Create an image‐only button that swaps between normal/hover textures.
-   * Version‐specific subclasses just override the rendering hook. Modified for Minecraft 1.20.3.
+   * Version‐specific subclasses just override the rendering hook. Modified for
+   * Minecraft 1.20.3.
    */
   public static Button createImageButton(
-          int x, int y,
-          int width, int height,
-          ResourceLocation normalTex,
-          ResourceLocation hoverTex,
-          Button.OnPress onPress,
-          Button.CreateNarration narrate
-  ) {
+      int x, int y,
+      int width, int height,
+      ResourceLocation normalTex,
+      ResourceLocation hoverTex,
+      Button.OnPress onPress,
+      Button.CreateNarration narrate) {
     return new Button(x, y, width, height, Component.empty(), onPress, narrate) {
       @Override
       protected void renderWidget(GuiGraphics ctx, int mouseX, int mouseY, float delta) {
         ResourceLocation tex = isHovered() ? hoverTex : normalTex;
         ctx.blit(tex, getX(), getY(), 0, 0,
-                width, height,
-                width, height);
+            width, height,
+            width, height);
       }
     };
+  }
+
+  public static Button createTextButton(
+      String text,
+      int x, int y,
+      int width, int height,
+      Button.OnPress onPress) {
+    Button output = Button.builder(Component.literal(text), onPress).pos(x, y).size(width, height).build();
+    return output;
   }
 }

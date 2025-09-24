@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.particle;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -13,16 +13,17 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
 /**
- * 1.21.5 override: use prevX/prevY/prevZ instead of the removed prevPosX/prevPosY/prevPosZ fields.
+ * 1.21.5 override: use prevX/prevY/prevZ instead of the removed
+ * prevPosX/prevPosY/prevPosZ fields.
  */
 public class LeadParticle extends TextureSheetParticle {
     private final SpriteSet spriteProvider;
 
     public LeadParticle(ClientLevel world,
-                        double x, double y, double z,
-                        double velocityX, double velocityY, double velocityZ,
-                        SpriteSet spriteProvider,
-                        double angle) {
+            double x, double y, double z,
+            double velocityX, double velocityY, double velocityZ,
+            SpriteSet spriteProvider,
+            double angle) {
         super(world, x, y, z, velocityX, velocityY, velocityZ);
         this.xd = 0;
         this.yd = 0;
@@ -55,15 +56,15 @@ public class LeadParticle extends TextureSheetParticle {
     public void render(VertexConsumer vertexConsumer, Camera camera, float tickDelta) {
         Vec3 cameraPos = camera.getPosition();
         // ← use prevX/Y/Z instead of prevPosX/Y/Z
-        float px = (float)(this.x - cameraPos.x());
-        float py = (float)(this.y - cameraPos.y());
-        float pz = (float)(this.z - cameraPos.z());
+        float px = (float) (this.x - cameraPos.x());
+        float py = (float) (this.y - cameraPos.y());
+        float pz = (float) (this.z - cameraPos.z());
 
         Vector3f[] verts = {
                 new Vector3f(-1, 0, -1),
-                new Vector3f(-1, 0,  1),
-                new Vector3f( 1, 0,  1),
-                new Vector3f( 1, 0, -1)
+                new Vector3f(-1, 0, 1),
+                new Vector3f(1, 0, 1),
+                new Vector3f(1, 0, -1)
         };
 
         float size = this.getQuadSize(tickDelta);
