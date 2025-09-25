@@ -82,8 +82,12 @@ jobs:
         with:
           tag_name: ${{ env.tag }}
           name: Creature Pals ${{ env.tag }}
-          body: |
-            To download:\n## Prerequisites\n- Fabric: fabric API, \n- Forge/Neoforge: Sinytra Connector, Forgified Fabric API
+          body: |-
+            To download:
+      
+            ## Prerequisites
+            - Fabric: Fabric API
+            - Forge/Neoforge: Sinytra Connector, Forgified Fabric API
           files: build/outputs/creaturepals-*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
