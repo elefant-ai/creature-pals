@@ -5,18 +5,19 @@ package com.owlmaddie.network;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.owlmaddie.chat.ChatDataManager;
+import com.owlmaddie.chat.ClientChatDataManager;
 import com.owlmaddie.chat.ChatDataManager.ChatSender;
 import com.owlmaddie.chat.ChatDataManager.ChatStatus;
 import com.owlmaddie.player2.TTS;
 import com.owlmaddie.player2.auth.OAuthThroughChat;
 import com.owlmaddie.player2.auth.Player2OAuthHandler;
-import com.owlmaddie.player2.auth.Player2StartupHandler;
-import com.owlmaddie.chat.EntityChatData;
+import com.owlmaddie.chat.EntityChatDataLight;
 import com.owlmaddie.chat.PlayerData;
 import com.owlmaddie.ui.BubbleRenderer;
 import com.owlmaddie.ui.PlayerMessageManager;
 import com.owlmaddie.utils.ClientEntityFinder;
 import com.owlmaddie.utils.Decompression;
+import com.owlmaddie.utils.SerializationGSON;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,11 +154,10 @@ public class ClientPackets {
                         }
 
                         // Get entity chat data for current entity & player
-                        ChatDataManager chatDataManager = ChatDataManager.getClientInstance();
-                        EntityChatData chatData = chatDataManager.getOrCreateChatData(entityId.toString());
+                        EntityChatDataLight chatData = ClientChatDataManager.getOrCreateChatData(entityId.toString());
 
                         // Add entity message
-                        if (!message.isEmpty()) {
+                        if (message != null && !message.isEmpty()) {
                             chatData.currentMessage = message;
                         }
                         chatData.currentLineNumber = line;
@@ -232,10 +232,10 @@ public class ClientPackets {
                             }
 
                             // Parse JSON and update client chat data
-                            Gson GSON = new Gson();
-                            Type type = new TypeToken<ConcurrentHashMap<String, EntityChatData>>() {
+                            Gson GSON = SerializationGSON.GSON;
+                            Type type = new TypeToken<ConcurrentHashMap<String, EntityChatDataLight>>() {
                             }.getType();
-                            ChatDataManager.getClientInstance().entityChatDataMap = GSON.fromJson(chatDataJSON, type);
+                            ClientChatDataManager.entityChatDataMap = GSON.fromJson(chatDataJSON, type);
 
                             // Clear receivedChunks for future use
                             receivedChunks.clear();
