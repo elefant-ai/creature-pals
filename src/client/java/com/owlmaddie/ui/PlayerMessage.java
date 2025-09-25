@@ -4,7 +4,7 @@
 package com.owlmaddie.ui;
 
 import com.owlmaddie.chat.ChatDataManager;
-import com.owlmaddie.chat.EntityChatData;
+import com.owlmaddie.chat.EntityChatDataLight;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * EntityChatData, but
  * much simpler.
  */
-public class PlayerMessage extends EntityChatData {
+public class PlayerMessage extends EntityChatDataLight {
     public AtomicInteger tickCountdown;
 
     public PlayerMessage(String playerId, String messageText, int ticks) {

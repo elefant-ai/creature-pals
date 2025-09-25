@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 package com.owlmaddie;
 
-import com.owlmaddie.chat.ChatDataManager;
+import com.owlmaddie.chat.ClientChatDataManager;
 import com.owlmaddie.network.ClientPackets;
 import com.owlmaddie.particle.CreatureParticleFactory;
 import com.owlmaddie.particle.LeadParticleFactory;
@@ -68,7 +68,7 @@ public class ClientInit implements ClientModInitializer {
         // changes worlds
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             // Clear or reset the ChatDataManager
-            ChatDataManager.getClientInstance().clearData();
+            ClientChatDataManager.clearData();
         });
     }
 }

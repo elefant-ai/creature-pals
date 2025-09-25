@@ -5,7 +5,8 @@ package com.owlmaddie.ui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.owlmaddie.chat.ChatDataManager;
-import com.owlmaddie.chat.EntityChatData;
+import com.owlmaddie.chat.ClientChatDataManager;
+import com.owlmaddie.chat.EntityChatDataLight;
 import com.owlmaddie.chat.PlayerData;
 import com.owlmaddie.render.BlendHelper;
 import com.owlmaddie.render.EntityTextureHelper;
@@ -556,10 +557,10 @@ public class BubbleRenderer {
             LocalPlayer player = Minecraft.getInstance().player;
 
             // Get chat message (if any)
-            EntityChatData chatData = null;
+            EntityChatDataLight chatData = null;
             PlayerData playerData = null;
             if (entity instanceof Mob) {
-                chatData = ChatDataManager.getClientInstance().getOrCreateChatData(entity.getStringUUID());
+                chatData = ClientChatDataManager.getOrCreateChatData(entity.getStringUUID());
                 if (chatData != null) {
                     playerData = chatData.getPlayerData(player.getDisplayName().getString());
                 }
