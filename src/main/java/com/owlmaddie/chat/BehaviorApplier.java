@@ -1,6 +1,5 @@
 package com.owlmaddie.chat;
 
-import com.owlmaddie.network.ServerPackets;
 import static com.owlmaddie.network.ServerPackets.*;
 // import static com.owlmaddie.network.ServerPackets.FOLLOW_ENEMY_PARTICLE;
 // import static com.owlmaddie.network.ServerPackets.LOGGER;
@@ -31,7 +30,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ExperienceOrb;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
@@ -96,6 +94,7 @@ public class BehaviorApplier {
                             ParticleEmitter.emitCreatureParticle((ServerLevel) entity.level(), entity, (ParticleOptions) FLEE_PARTICLE, 0.5, 1);
                         } else if (behavior.getName().equals("UNATTACK")) {
                             EntityBehaviorManager.removeGoal(entity, AttackPlayerGoal.class);
+                            AttackPlayerGoal.stopAttack(entity);
                         } else if (behavior.getName().equals("PROTECT")) {
                             if (playerData.friendship <= 0) {
                                 // force friendship to prevent entity from attacking player when protecting

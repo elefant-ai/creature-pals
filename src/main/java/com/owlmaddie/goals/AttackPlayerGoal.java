@@ -59,6 +59,7 @@ public class AttackPlayerGoal extends PlayerBaseGoal {
 
     @Override
     public void stop() {
+        stopAttack(attackerEntity);
     }
 
     private boolean isGoalActive() {
@@ -175,4 +176,13 @@ public class AttackPlayerGoal extends PlayerBaseGoal {
         cooldownTimer--;
     }
 
+    public static void stopAttack(Mob entity) {
+        entity.setTarget(null);
+        if (entity instanceof NeutralMob) {
+            NeutralMob n = (NeutralMob) entity;
+            n.setPersistentAngerTarget(null);
+            n.setRemainingPersistentAngerTime(0);
+        }
+
+    }
 }
