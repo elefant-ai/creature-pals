@@ -94,7 +94,8 @@ public class BehaviorApplier {
                             EntityBehaviorManager.removeGoal(entity, LeadPlayerGoal.class);
                             EntityBehaviorManager.addGoal(entity, attackGoal, GoalPriority.ATTACK_PLAYER);
                             ParticleEmitter.emitCreatureParticle((ServerLevel) entity.level(), entity, (ParticleOptions) FLEE_PARTICLE, 0.5, 1);
-
+                        } else if (behavior.getName().equals("UNATTACK")) {
+                            EntityBehaviorManager.removeGoal(entity, AttackPlayerGoal.class);
                         } else if (behavior.getName().equals("PROTECT")) {
                             if (playerData.friendship <= 0) {
                                 // force friendship to prevent entity from attacking player when protecting

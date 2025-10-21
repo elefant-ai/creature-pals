@@ -48,6 +48,7 @@ Include as many behaviors as needed at the end of the message. These are the ONL
 <FLEE> Flee from the player (if you are weak or timid). If the player threatens you, please output this behavior to flee from the player.
 <UNFLEE> Stop running/fleeing away from the player. Please output this to stop running from the player.
 <ATTACK> Attack the player (if you are strong and brave). If the player threatens you, please output this behavior to attack the player and defend yourself.
+<UNATTACK> Stop attacking the player. Please output this to stop attacking the player.
 <PROTECT> Protect and defend ONLY the player when they are attacked (if you are strong and brave). Please output this behavior to keep the player alive and safe.
 <UNPROTECT> Stop protecting the player.
 
