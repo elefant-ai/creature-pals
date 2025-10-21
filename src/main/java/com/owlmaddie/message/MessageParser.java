@@ -25,7 +25,7 @@ public class MessageParser {
         StringBuilder cleanedMessage = new StringBuilder();
         List<Behavior> behaviors = new ArrayList<>();
         Pattern pattern = Pattern.compile(
-                "[<*](FOLLOW|LEAD|FLEE|ATTACK|PROTECT|FRIENDSHIP|UNFOLLOW|UNLEAD|UNPROTECT|UNFLEE)[:\\s]*(\\s*[+-]?\\d+)?[>*]",
+                "[<*](FOLLOW|LEAD|FLEE|ATTACK|PROTECT|FRIENDSHIP|UNFOLLOW|UNLEAD|UNFLEE|UNATTACK|UNPROTECT)[:\\s]*(\\s*[+-]?\\d+)?[>*]",
                 Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(input);
 
