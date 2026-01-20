@@ -226,7 +226,7 @@ public class BehaviorTests {
 
                 // Fetch HTTP response from ChatGPT
                 CompletableFuture<String> future = ChatGPTRequest.fetchMessageFromChatGPT(
-                        config, promptText, contextData, entityTestData.previousMessages, false, "");
+                        config, promptText, contextData, entityTestData.previousMessages, false, "", null);
 
                 try {
                     String outputMessage = future.get(60 * 60, TimeUnit.SECONDS);

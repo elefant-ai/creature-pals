@@ -338,7 +338,7 @@ public class EntityChatData {
         ChatGPTRequest.fetchMessageFromChatGPT(config, promptText, contextData, previousMessages, false,
                 // "Reminder: Respond with a empty message only when \\\"\\\" you detect a lot
                 // of repetitive content in conversations (multiple byes, etc.)."
-                "", player)
+                "", Optional.of(player))
                 .thenAccept(ent_msg -> {
                     serverInstance.execute(() -> {
                         try {

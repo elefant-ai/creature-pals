@@ -54,6 +54,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import static com.owlmaddie.ModInit.LOGGER;
@@ -502,15 +503,19 @@ public class ServerPackets {
     public static UUID requestPlayerApiKey(ServerPlayer player) {
         UUID requestId = UUID.randomUUID();
         pendingAuthRequests.put(requestId, player.getUUID());
-        return requestPlayerApiKeyWithId(player, requestId);
+        return requestPlayerApiKeyWithId(Optional.of(player), requestId);
     }
 
-    public static UUID requestPlayerApiKeyWithId(ServerPlayer player, UUID requestId) {
+    public static UUID requestPlayerApiKeyWithId(Optional<ServerPlayer> player, UUID requestId) {
         FriendlyByteBuf buffer = BufferHelper.create();
         buffer.writeUtf(requestId.toString());
-        PacketHelper.send(player, PACKET_S2C_AUTH_REQUEST, buffer);
 
-        LOGGER.info("Sent API key request to '{}' with requestId={}", player.getGameProfile().getName(), requestId);
+        if (player.isPresent()) {
+            ServerPlayer realPlayer = player.get();
+            PacketHelper.send(realPlayer, PACKET_S2C_AUTH_REQUEST, buffer);
+            LOGGER.info("Sent API key request to '{}' with requestId={}", realPlayer.getGameProfile().getName(), requestId);
+
+        }
         return requestId;
     }
 

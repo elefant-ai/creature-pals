@@ -1,10 +1,6 @@
 package com.owlmaddie.chat;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -189,7 +185,7 @@ public class EventQueueData {
         ChatGPTRequest.fetchMessageFromChatGPT(config, promptText, contextData,
                 List.of(new ChatMessage(greetingMessage.userMessage, ChatSender.USER,
                         this.player.getName().getString())),
-                false, "", player)
+                false, "", Optional.of(player))
                 .thenAccept(char_sheet -> {
                     ServerPackets.serverInstance.execute(() -> {
                         try {

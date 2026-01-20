@@ -154,7 +154,7 @@ public class ChatGPTRequest {
 
     public static CompletableFuture<String> fetchMessageFromChatGPT(ConfigurationHandler.Config config,
             String systemPrompt, Map<String, String> contextData, List<ChatMessage> messageHistory, Boolean jsonMode,
-            String wrapMsg, ServerPlayer player) {
+            String wrapMsg, Optional<ServerPlayer> player) {
         CompletableFuture<String> apiKeyFuture = new CompletableFuture<>();
         UUID authRequestId = UUID.randomUUID();
         apiKeyAwaiter.put(authRequestId, apiKeyFuture);
@@ -163,7 +163,10 @@ public class ChatGPTRequest {
         CompletableFuture<String> messageFuture = apiKeyFuture
                 .orTimeout(120, java.util.concurrent.TimeUnit.SECONDS)
                 .thenComposeAsync((apiKey) -> {
-                    LOGGER.info("Received API key from player {}", player.getName().getString());
+                    if (player.isPresent()) {
+                        LOGGER.info("Received API key from player {}", player.get().getName().getString());
+
+                    }
                     return fetchMessageFromChatGPTInternal(config, systemPrompt, contextData, messageHistory, jsonMode,
                             wrapMsg, apiKey);
                 })

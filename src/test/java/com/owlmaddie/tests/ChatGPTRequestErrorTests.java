@@ -11,6 +11,7 @@ import com.owlmaddie.i18n.TR;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import net.minecraft.server.level.ServerPlayer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,9 +21,13 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
+import net.fabricmc.fabric.api.entity.FakePlayer;
+
+
 
 /**
  * Tests error handling in {@link ChatGPTRequest} for various HTTP and connection failures.
@@ -77,7 +82,7 @@ public class ChatGPTRequestErrorTests {
 
     private void executeRequest(ConfigurationHandler.Config config) {
         CompletableFuture<String> future = ChatGPTRequest.fetchMessageFromChatGPT(
-                config, "", new HashMap<>(), new ArrayList<>(), false, "");
+                config, "", new HashMap<>(), new ArrayList<>(), false, "", Optional.empty());
         future.join();
     }
 

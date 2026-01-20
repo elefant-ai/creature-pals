@@ -31,6 +31,8 @@ import java.util.UUID;
 public class ChatDataManager {
     // Use a static instance to manage our data globally
     private static final ChatDataManager SERVER_INSTANCE = new ChatDataManager(true);
+    private static final ChatDataManager CLIENT_INSTANCE = new ChatDataManager(false);
+
     public static final Logger LOGGER = LoggerFactory.getLogger("creaturepals");
     public static int MAX_CHAR_PER_LINE = 20;
     public static int DISPLAY_NUM_LINES = 3;
@@ -192,5 +194,10 @@ public class ChatDataManager {
             // Init empty chat data
             this.entityChatDataMap = new ConcurrentHashMap<>();
         }
+    }
+
+    // Method to get the global instance of the client data manager (synced from server)
+    public static ChatDataManager getClientInstance() {
+        return CLIENT_INSTANCE;
     }
 }
