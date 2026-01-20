@@ -37,7 +37,7 @@
 	"accessWidener": "creaturepals.accesswidener",
 	"depends": {
 		"fabricloader": ">=0.14.22",
-		"minecraft": "~1.21.7",
+		"minecraft": "~1.21.8",
 		"java": ">=17",
 		"fabric-api": "*"
 	}
