@@ -67,11 +67,6 @@ public class AttackPlayerGoal extends PlayerBaseGoal {
             return false;
         }
 
-        // Set the attack target (if not self)
-        if (!this.attackerEntity.equals(this.targetEntity)) {
-            this.attackerEntity.setTarget(this.targetEntity);
-        }
-
         // Is nearby to target
         boolean isNearby = this.attackerEntity.distanceToSqr(this.targetEntity) < MOVE_DISTANCE;
 
@@ -118,6 +113,11 @@ public class AttackPlayerGoal extends PlayerBaseGoal {
 
     @Override
     public void tick() {
+        // Set the attack target (if not self)
+        if (!this.attackerEntity.equals(this.targetEntity)) {
+            this.attackerEntity.setTarget(this.targetEntity);
+        }
+
         double squaredDistanceToPlayer = this.attackerEntity.distanceToSqr(this.targetEntity);
         this.attackerEntity.getLookControl().setLookAt(this.targetEntity, 30.0F, 30.0F);
 
