@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.network;
 
 import com.owlmaddie.chat.ChatDataManager;
@@ -157,8 +157,10 @@ public class ServerPackets {
                     TalkPlayerGoal talkGoal = new TalkPlayerGoal(player, entity, 3.5F);
                     EntityBehaviorManager.addGoal(entity, talkGoal, GoalPriority.TALK_PLAYER);
 
-                    LOGGER.info("ServerPackets/read_Next entityID={} lineNumber={} playerID={}", entityId, lineNumber, player.getUUID());
-                    EntityChatData chatData = ChatDataManager.getServerInstance().getOrCreateChatData(entity.getStringUUID());
+                    LOGGER.info("ServerPackets/read_Next entityID={} lineNumber={} playerID={}", entityId, lineNumber,
+                            player.getUUID());
+                    EntityChatData chatData = ChatDataManager.getServerInstance()
+                            .getOrCreateChatData(entity.getStringUUID());
                     LOGGER.info("Update read lines to " + lineNumber + " for: " + entity.getType().toString());
                     ClientSideEffects.setLineNumberUsingParamsFromChatData(entity.getStringUUID(), lineNumber);
                 }
@@ -171,7 +173,8 @@ public class ServerPackets {
             UUID entityId = UUID.fromString(buf.readUtf());
             String status_name = buf.readUtf(32767);
 
-            LOGGER.info("ServerPackets/setStatus entityID={} status={} playerID={}", entityId, status_name, player.getUUID());
+            LOGGER.info("ServerPackets/setStatus entityID={} status={} playerID={}", entityId, status_name,
+                    player.getUUID());
             // Ensure that the task is synced with the server thread
             server.execute(() -> {
                 Mob entity = (Mob) ServerEntityFinder.getEntityByUUID((ServerLevel) player.level(), entityId);
@@ -218,9 +221,10 @@ public class ServerPackets {
             String userLanguage = buf.readUtf(32767);
             Entity ent = ServerEntityFinder.getEntityByUUID(player.level(), entityId);
             String RHS = ent != null && ent.getCustomName() != null && !ent.getCustomName().equals("N/A")
-            ? "> (to " + ent.getCustomName().getString() + ") "
-            : "> ";
-            LOGGER.info("ServerPackets/sendChat entityID={} message={} playerID={}", entityId, message, player.getUUID());
+                    ? "> (to " + ent.getCustomName().getString() + ") "
+                    : "> ";
+            LOGGER.info("ServerPackets/sendChat entityID={} message={} playerID={}", entityId, message,
+                    player.getUUID());
             BroadcastMessage(Component.literal("<" + player.getName().getString() + RHS + message));
 
             // Ensure that the task is synced with the server thread
@@ -339,7 +343,6 @@ public class ServerPackets {
         }
     }
 
-
     // Writing a Map<String, PlayerData> to the buffer
     public static void writePlayerDataMap(FriendlyByteBuf buffer, Map<String, PlayerData> map) {
         buffer.writeInt(map.size()); // Write the size of the map
@@ -361,22 +364,22 @@ public class ServerPackets {
                 chatData.currentLineNumber, chatData.sender);
 
         // for (ServerLevel world : serverInstance.getAllLevels()) {
-            // Find Entity by UUID and update custom name
+        // Find Entity by UUID and update custom name
 
-                // Iterate over all players and send the packet
-                for (ServerPlayer player : serverInstance.getPlayerList().getPlayers()) {
-                    FriendlyByteBuf buffer = BufferHelper.create();
-                    buffer.writeUtf(chatData.entityId);
-                    buffer.writeUtf(chatData.currentMessage);
-                    buffer.writeInt(chatData.currentLineNumber);
-                    buffer.writeUtf(chatData.status.toString());
-                    buffer.writeUtf(chatData.sender.toString());
-                    writePlayerDataMap(buffer, chatData.players);
+        // Iterate over all players and send the packet
+        for (ServerPlayer player : serverInstance.getPlayerList().getPlayers()) {
+            FriendlyByteBuf buffer = BufferHelper.create();
+            buffer.writeUtf(chatData.entityId);
+            buffer.writeUtf(chatData.currentMessage);
+            buffer.writeInt(chatData.currentLineNumber);
+            buffer.writeUtf(chatData.status.toString());
+            buffer.writeUtf(chatData.sender.toString());
+            writePlayerDataMap(buffer, chatData.players);
 
-                    // Send message to player
-                    PacketHelper.send(player, PACKET_S2C_ENTITY_MESSAGE, buffer);
-                }
-            // break;
+            // Send message to player
+            PacketHelper.send(player, PACKET_S2C_ENTITY_MESSAGE, buffer);
+        }
+        // break;
         // }
         }
 

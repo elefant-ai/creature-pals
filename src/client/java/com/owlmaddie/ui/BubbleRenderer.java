@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.ui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -44,7 +44,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- * The {@code BubbleRenderer} class provides static methods to render the chat UI bubble, entity icons,
+ * The {@code BubbleRenderer} class provides static methods to render the chat
+ * UI bubble, entity icons,
  * text, friendship status, and other UI-related rendering code.
  */
 public class BubbleRenderer {
@@ -61,7 +62,8 @@ public class BubbleRenderer {
     private static int queryEntityDataCount = 0;
     private static List<Entity> relevantEntities;
 
-    public static void drawTextBubbleBackground(String base_name, PoseStack matrices, float x, float y, float width, float height, int friendship) {
+    public static void drawTextBubbleBackground(String base_name, PoseStack matrices, float x, float y, float width,
+            float height, int friendship) {
         // Set shader & texture
         ShaderHelper.setTexturedShader();
 
@@ -99,17 +101,22 @@ public class BubbleRenderer {
         BlendHelper.disableDepthTest();
     }
 
-    private static void drawTexturePart(PoseStack matrices, QuadBuffer buffer, float x, float y, float z, float width, float height) {
+    private static void drawTexturePart(PoseStack matrices, QuadBuffer buffer, float x, float y, float z, float width,
+            float height) {
         // Define the vertices with color, texture, light, and overlay
         Matrix4f matrix4f = matrices.last().pose();
 
         // Begin drawing quads with the correct vertex format
         buffer.begin();
 
-        buffer.vertex(matrix4f, x, y + height, z).color(255, 255, 255, 255).texture(0, 1).light(light).overlay(overlay);  // bottom left
-        buffer.vertex(matrix4f, x + width, y + height, z).color(255, 255, 255, 255).texture(1, 1).light(light).overlay(overlay);   // bottom right
-        buffer.vertex(matrix4f, x + width, y, z).color(255, 255, 255, 255).texture(1, 0).light(light).overlay(overlay);  // top right
-        buffer.vertex(matrix4f, x, y, z).color(255, 255, 255, 255).texture(0, 0).light(light).overlay(overlay); // top left
+        buffer.vertex(matrix4f, x, y + height, z).color(255, 255, 255, 255).texture(0, 1).light(light).overlay(overlay); // bottom
+                                                                                                                         // left
+        buffer.vertex(matrix4f, x + width, y + height, z).color(255, 255, 255, 255).texture(1, 1).light(light)
+                .overlay(overlay); // bottom right
+        buffer.vertex(matrix4f, x + width, y, z).color(255, 255, 255, 255).texture(1, 0).light(light).overlay(overlay); // top
+                                                                                                                        // right
+        buffer.vertex(matrix4f, x, y, z).color(255, 255, 255, 255).texture(0, 0).light(light).overlay(overlay); // top
+                                                                                                                // left
         buffer.draw();
     }
 
@@ -136,10 +143,14 @@ public class BubbleRenderer {
         // Begin drawing quads with the correct vertex format
         buffer.begin();
 
-        buffer.vertex(matrix4f, x, y + height, 0.0F).color(255, 255, 255, 255).texture(0, 1).light(light).overlay(overlay); // bottom left
-        buffer.vertex(matrix4f, x + width, y + height, 0.0F).color(255, 255, 255, 255).texture(1, 1).light(light).overlay(overlay); // bottom right
-        buffer.vertex(matrix4f, x + width, y, 0.0F).color(255, 255, 255, 255).texture(1, 0).light(light).overlay(overlay); // top right
-        buffer.vertex(matrix4f, x, y, 0.0F).color(255, 255, 255, 255).texture(0, 0).light(light).overlay(overlay); // top left
+        buffer.vertex(matrix4f, x, y + height, 0.0F).color(255, 255, 255, 255).texture(0, 1).light(light)
+                .overlay(overlay); // bottom left
+        buffer.vertex(matrix4f, x + width, y + height, 0.0F).color(255, 255, 255, 255).texture(1, 1).light(light)
+                .overlay(overlay); // bottom right
+        buffer.vertex(matrix4f, x + width, y, 0.0F).color(255, 255, 255, 255).texture(1, 0).light(light)
+                .overlay(overlay); // top right
+        buffer.vertex(matrix4f, x, y, 0.0F).color(255, 255, 255, 255).texture(0, 0).light(light).overlay(overlay); // top
+                                                                                                                   // left
         buffer.draw();
 
         // Disable blending and depth test
@@ -147,7 +158,8 @@ public class BubbleRenderer {
         BlendHelper.disableDepthTest();
     }
 
-    private static void drawFriendshipStatus(PoseStack matrices, float x, float y, float width, float height, int friendship) {
+    private static void drawFriendshipStatus(PoseStack matrices, float x, float y, float width, float height,
+            int friendship) {
         // dynamically calculate friendship ui image name
         String ui_icon_name = "friendship" + friendship;
 
@@ -174,10 +186,14 @@ public class BubbleRenderer {
         buffer.begin();
 
         float z = -0.01F;
-        buffer.vertex(matrix4f, x, y + height, z).color(255, 255, 255, 255).texture(0, 1).light(light).overlay(overlay);  // bottom left
-        buffer.vertex(matrix4f, x + width, y + height, z).color(255, 255, 255, 255).texture(1, 1).light(light).overlay(overlay);   // bottom right
-        buffer.vertex(matrix4f, x + width, y, z).color(255, 255, 255, 255).texture(1, 0).light(light).overlay(overlay);  // top right
-        buffer.vertex(matrix4f, x, y, z).color(255, 255, 255, 255).texture(0, 0).light(light).overlay(overlay); // top left
+        buffer.vertex(matrix4f, x, y + height, z).color(255, 255, 255, 255).texture(0, 1).light(light).overlay(overlay); // bottom
+                                                                                                                         // left
+        buffer.vertex(matrix4f, x + width, y + height, z).color(255, 255, 255, 255).texture(1, 1).light(light)
+                .overlay(overlay); // bottom right
+        buffer.vertex(matrix4f, x + width, y, z).color(255, 255, 255, 255).texture(1, 0).light(light).overlay(overlay); // top
+                                                                                                                        // right
+        buffer.vertex(matrix4f, x, y, z).color(255, 255, 255, 255).texture(0, 0).light(light).overlay(overlay); // top
+                                                                                                                // left
         buffer.draw();
 
         // Disable blending and depth test
@@ -190,12 +206,14 @@ public class BubbleRenderer {
         @SuppressWarnings("rawtypes")
         EntityRenderer renderer = EntityRendererAccessor.getEntityRenderer(entity);
         ResourceLocation skinId = EntityTextureHelper.getTexture(renderer, entity);
-        if (skinId == null) return;
+        if (skinId == null)
+            return;
 
         // Extract its path and map to your icon
-        String skinPath = skinId.getPath();  // e.g. "textures/entity/zombie/zombie.png"
+        String skinPath = skinId.getPath(); // e.g. "textures/entity/zombie/zombie.png"
         ResourceLocation iconId = textures.GetEntity(skinPath);
-        if (iconId == null) return;
+        if (iconId == null)
+            return;
 
         // Set shader & texture
         ShaderHelper.setTexturedShader();
@@ -217,10 +235,14 @@ public class BubbleRenderer {
         buffer.begin();
 
         float z = -0.01F;
-        buffer.vertex(matrix4f, x, y + height, z).color(255, 255, 255, 255).texture(0, 1).light(light).overlay(overlay);  // bottom left
-        buffer.vertex(matrix4f, x + width, y + height, z).color(255, 255, 255, 255).texture(1, 1).light(light).overlay(overlay);   // bottom right
-        buffer.vertex(matrix4f, x + width, y, z).color(255, 255, 255, 255).texture(1, 0).light(light).overlay(overlay);  // top right
-        buffer.vertex(matrix4f, x, y, z).color(255, 255, 255, 255).texture(0, 0).light(light).overlay(overlay); // top left
+        buffer.vertex(matrix4f, x, y + height, z).color(255, 255, 255, 255).texture(0, 1).light(light).overlay(overlay); // bottom
+                                                                                                                         // left
+        buffer.vertex(matrix4f, x + width, y + height, z).color(255, 255, 255, 255).texture(1, 1).light(light)
+                .overlay(overlay); // bottom right
+        buffer.vertex(matrix4f, x + width, y, z).color(255, 255, 255, 255).texture(1, 0).light(light).overlay(overlay); // top
+                                                                                                                        // right
+        buffer.vertex(matrix4f, x, y, z).color(255, 255, 255, 255).texture(0, 0).light(light).overlay(overlay); // top
+                                                                                                                // left
         buffer.draw();
 
         // Disable blending and depth test
@@ -233,7 +255,8 @@ public class BubbleRenderer {
         @SuppressWarnings("rawtypes")
         EntityRenderer renderer = EntityRendererAccessor.getEntityRenderer(entity);
         ResourceLocation playerTexture = EntityTextureHelper.getTexture(renderer, entity);
-        if (playerTexture == null) return;
+        if (playerTexture == null)
+            return;
 
         // Check for black and white pixels (using the Mixin-based check)
         boolean customSkinFound = PlayerCustomTexture.hasCustomIcon(playerTexture);
@@ -258,17 +281,17 @@ public class BubbleRenderer {
         if (customSkinFound) {
             // Hidden icon UV coordinates
             float[][] newCoordinates = {
-                    {0.0F, 0.0F, 8.0F, 8.0F, 0F, 0F},     // Row 1 left
-                    {24.0F, 0.0F, 32.0F, 8.0F, 8F, 0F},   // Row 1 middle
-                    {32.0F, 0.0F, 40.0F, 8.0F, 16F, 0F},  // Row 1 right
-                    {56.0F, 0.0F, 64.0F, 8.0F, 0F, 8F},   // Row 2 left
-                    {56.0F, 20.0F, 64.0F, 28.0F, 8F, 8F}, // Row 2 middle
-                    {36.0F, 16.0F, 44.0F, 20.0F, 16F, 8F},// Row 2 right top
-                    {56.0F, 16.0F, 64.0F, 20.0F, 16F, 12F},// Row 2 right bottom
-                    {56.0F, 28.0F, 64.0F, 36.0F, 0F, 16F}, // Row 3 left
-                    {56.0F, 36.0F, 64.0F, 44.0F, 8F, 16F}, // Row 3 middle
-                    {56.0F, 44.0F, 64.0F, 48, 16F, 16F},   // Row 3 top right
-                    {12.0F, 48.0F, 20.0F, 52, 16F, 20F},   // Row 3 bottom right
+                    { 0.0F, 0.0F, 8.0F, 8.0F, 0F, 0F }, // Row 1 left
+                    { 24.0F, 0.0F, 32.0F, 8.0F, 8F, 0F }, // Row 1 middle
+                    { 32.0F, 0.0F, 40.0F, 8.0F, 16F, 0F }, // Row 1 right
+                    { 56.0F, 0.0F, 64.0F, 8.0F, 0F, 8F }, // Row 2 left
+                    { 56.0F, 20.0F, 64.0F, 28.0F, 8F, 8F }, // Row 2 middle
+                    { 36.0F, 16.0F, 44.0F, 20.0F, 16F, 8F }, // Row 2 right top
+                    { 56.0F, 16.0F, 64.0F, 20.0F, 16F, 12F }, // Row 2 right bottom
+                    { 56.0F, 28.0F, 64.0F, 36.0F, 0F, 16F }, // Row 3 left
+                    { 56.0F, 36.0F, 64.0F, 44.0F, 8F, 16F }, // Row 3 middle
+                    { 56.0F, 44.0F, 64.0F, 48, 16F, 16F }, // Row 3 top right
+                    { 12.0F, 48.0F, 20.0F, 52, 16F, 20F }, // Row 3 bottom right
             };
             float scaleFactor = 0.77F;
 
@@ -342,7 +365,7 @@ public class BubbleRenderer {
     }
 
     private static void drawMessageText(Matrix4f matrix, List<String> lines, int starting_line, int ending_line,
-                                 MultiBufferSource immediate, float lineSpacing, int fullBright, float yOffset) {
+            MultiBufferSource immediate, float lineSpacing, int fullBright, float yOffset) {
         Font fontRenderer = Minecraft.getInstance().font;
         Matrix4f textMatrix = new Matrix4f(matrix).translate(0.0F, 0.0F, TEXT_Z_OFFSET);
         int currentLineIndex = 0; // We'll use this to track which line we're on
@@ -363,7 +386,7 @@ public class BubbleRenderer {
     }
 
     private static void drawEntityName(Entity entity, Matrix4f matrix, MultiBufferSource immediate,
-                                int fullBright, float yOffset, boolean truncate) {
+            int fullBright, float yOffset, boolean truncate) {
         Font fontRenderer = Minecraft.getInstance().font;
 
         // Get Name of entity
@@ -399,7 +422,8 @@ public class BubbleRenderer {
         // Get camera
         Camera camera = context.camera();
         Entity cameraEntity = camera.getEntity();
-        if (cameraEntity == null) return;
+        if (cameraEntity == null)
+            return;
         Level world = cameraEntity.level();
 
         // Calculate radius of entities
@@ -424,7 +448,8 @@ public class BubbleRenderer {
             // Get all entities
             List<Entity> nearbyEntities = world.getEntities(null, area);
 
-            // Filter to include only MobEntity & PlayerEntity but exclude any camera 1st person entity and any entities with passengers
+            // Filter to include only MobEntity & PlayerEntity but exclude any camera 1st
+            // person entity and any entities with passengers
             relevantEntities = nearbyEntities.stream()
                     .filter(entity -> (entity instanceof Mob || entity instanceof Player))
                     .filter(entity -> !entity.isVehicle())
@@ -478,10 +503,12 @@ public class BubbleRenderer {
                 float entityYawRadians = (float) Math.toRadians(entity.getViewYRot(partialTicks));
                 Vec3 forwardOffset = new Vec3(-Math.sin(entityYawRadians), 0.0, Math.cos(entityYawRadians));
 
-                // Calculate the forward offset based on the entity's yaw, scaled to 80% towards the front edge
+                // Calculate the forward offset based on the entity's yaw, scaled to 80% towards
+                // the front edge
                 Vec3 scaledForwardOffset = forwardOffset.scale(entity.getBbWidth() / 2.0 * 0.8);
 
-                // Calculate the position of the chat bubble: above the head and 80% towards the front
+                // Calculate the position of the chat bubble: above the head and 80% towards the
+                // front
                 bubblePosition = interpolatedEntityPos.add(scaledForwardOffset)
                         .add(0, entityHeight + paddingAboveEntity, 0);
             }
@@ -492,7 +519,8 @@ public class BubbleRenderer {
                     bubblePosition.z - interpolatedCameraPos.z);
 
             // Calculate the difference vector (from entity + padding above to camera)
-            Vec3 difference = interpolatedCameraPos.subtract(new Vec3(interpolatedEntityPos.x, interpolatedEntityPos.y + entityHeight + paddingAboveEntity, interpolatedEntityPos.z));
+            Vec3 difference = interpolatedCameraPos.subtract(new Vec3(interpolatedEntityPos.x,
+                    interpolatedEntityPos.y + entityHeight + paddingAboveEntity, interpolatedEntityPos.z));
 
             // Calculate the yaw angle
             double yaw = -(Math.atan2(difference.z, difference.x) + Math.PI / 2D);
@@ -508,7 +536,8 @@ public class BubbleRenderer {
 
             // Obtain the horizontal distance to the entity
             double horizontalDistance = Math.sqrt(difference.x * difference.x + difference.z * difference.z);
-            // Calculate the pitch angle based on the horizontal distance and the y difference
+            // Calculate the pitch angle based on the horizontal distance and the y
+            // difference
             double pitch = Math.atan2(difference.y, horizontalDistance);
 
             // Convert pitch to Quaternion
@@ -539,7 +568,8 @@ public class BubbleRenderer {
                 playerData = new PlayerData(); // no friendship needed for player messages
             }
 
-            float minTextHeight = (ChatDataManager.DISPLAY_NUM_LINES * (fontRenderer.lineHeight + lineSpacing)) + (DISPLAY_PADDING * 2);
+            float minTextHeight = (ChatDataManager.DISPLAY_NUM_LINES * (fontRenderer.lineHeight + lineSpacing))
+                    + (DISPLAY_PADDING * 2);
             float scaledTextHeight = 0;
 
             if (chatData != null) {
@@ -547,7 +577,8 @@ public class BubbleRenderer {
                 List<String> lines = chatData.getWrappedLines();
                 float linesDisplayed = 0;
                 int starting_line = chatData.currentLineNumber;
-                int ending_line = Math.min(chatData.currentLineNumber + ChatDataManager.DISPLAY_NUM_LINES, lines.size());
+                int ending_line = Math.min(chatData.currentLineNumber + ChatDataManager.DISPLAY_NUM_LINES,
+                        lines.size());
 
                 // Determine max line length
                 linesDisplayed = ending_line - starting_line;
@@ -578,12 +609,14 @@ public class BubbleRenderer {
                     // Draw 'pending' button
                     drawIcon("button-dot-" + animationFrame, matrices, -16, textHeaderHeight, 32, 17);
 
-                } else if (chatData.sender == ChatDataManager.ChatSender.ASSISTANT && chatData.status != ChatDataManager.ChatStatus.HIDDEN) {
+                } else if (chatData.sender == ChatDataManager.ChatSender.ASSISTANT
+                        && chatData.status != ChatDataManager.ChatStatus.HIDDEN) {
                     // Draw Entity (Custom Name)
                     drawEntityName(entity, matrix, immediate, fullBright, 24F + DISPLAY_PADDING, true);
 
                     // Draw text background (no smaller than 50F tall)
-                    drawTextBubbleBackground("text-top", matrices, -64, 0, 128, scaledTextHeight, playerData.friendship);
+                    drawTextBubbleBackground("text-top", matrices, -64, 0, 128, scaledTextHeight,
+                            playerData.friendship);
 
                     // Draw face icon of entity
                     drawEntityIcon(matrices, entity, -82, 7, 32, 32);
@@ -602,9 +635,11 @@ public class BubbleRenderer {
                     }
 
                     // Render each line of the text
-                    drawMessageText(matrix, lines, starting_line, ending_line, immediate, lineSpacing, fullBright, 40.0F + DISPLAY_PADDING);
+                    drawMessageText(matrix, lines, starting_line, ending_line, immediate, lineSpacing, fullBright,
+                            40.0F + DISPLAY_PADDING);
 
-                } else if (chatData.sender == ChatDataManager.ChatSender.ASSISTANT && chatData.status == ChatDataManager.ChatStatus.HIDDEN) {
+                } else if (chatData.sender == ChatDataManager.ChatSender.ASSISTANT
+                        && chatData.status == ChatDataManager.ChatStatus.HIDDEN) {
                     // Draw Entity (Custom Name)
                     drawEntityName(entity, matrix, immediate, fullBright, 24F + DISPLAY_PADDING, false);
 
@@ -620,18 +655,21 @@ public class BubbleRenderer {
                         drawIcon("button-chat", matrices, -16, textHeaderHeight, 32, 17);
                     }
 
-                } else if (chatData.sender == ChatDataManager.ChatSender.USER && chatData.status == ChatDataManager.ChatStatus.DISPLAY) {
+                } else if (chatData.sender == ChatDataManager.ChatSender.USER
+                        && chatData.status == ChatDataManager.ChatStatus.DISPLAY) {
                     // Draw Player Name
                     drawEntityName(entity, matrix, immediate, fullBright, 24F + DISPLAY_PADDING, true);
 
                     // Draw text background
-                    drawTextBubbleBackground("text-top-player", matrices, -64, 0, 128, scaledTextHeight, playerData.friendship);
+                    drawTextBubbleBackground("text-top-player", matrices, -64, 0, 128, scaledTextHeight,
+                            playerData.friendship);
 
                     // Draw face icon of player
                     drawPlayerIcon(matrices, entity, -75, 14, 18, 18);
 
                     // Render each line of the player's text
-                    drawMessageText(matrix, lines, starting_line, ending_line, immediate, lineSpacing, fullBright, 40.0F + DISPLAY_PADDING);
+                    drawMessageText(matrix, lines, starting_line, ending_line, immediate, lineSpacing, fullBright,
+                            40.0F + DISPLAY_PADDING);
                 }
 
             } else if (entity instanceof Player) {

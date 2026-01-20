@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.commands;
 
 import com.google.gson.Gson;
@@ -21,9 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The {@code ConfigurationHandler} class loads and saves configuration settings for this mod. It first
- * checks for a config file in the world save folder, and if not found, falls back to the root folder.
- * This allows for global/default settings, or optional server-specific settings.
+ * The {@code ConfigurationHandler} class loads and saves configuration settings
+ * for this mod. It first
+ * checks for a config file in the world save folder, and if not found, falls
+ * back to the root folder.
+ * This allows for global/default settings, or optional server-specific
+ * settings.
  */
 
 public class ConfigurationHandler {
@@ -34,12 +37,13 @@ public class ConfigurationHandler {
 
     public ConfigurationHandler(MinecraftServer server) {
         this.serverConfigPath = server.getWorldPath(LevelResource.ROOT).resolve("creaturepals.json");
-        this.defaultConfigPath = Paths.get(".", "creaturepals.json"); // Assumes the default location is the server root or a similar logical default
+        this.defaultConfigPath = Paths.get(".", "creaturepals.json"); // Assumes the default location is the server root
+                                                                      // or a similar logical default
     }
 
     public ConfigurationHandler() {
         this.serverConfigPath = Paths.get(".", "creaturepals.json");
-        this.defaultConfigPath = Paths.get(".", "creaturepals.json"); // Assumes the default location is the server root or a similar logical default
+        this.defaultConfigPath = Paths.get(".", "creaturepals.json");
     }
 
     public Config loadConfig() {
@@ -56,7 +60,8 @@ public class ConfigurationHandler {
             gson.toJson(config, writer);
             return true;
         } catch (IOException e) {
-            String errorMessage = "Error saving `creaturepals.json`. CreaturePals config was not saved. " + e.getMessage();
+            String errorMessage = "Error saving `creaturepals.json`. CreaturePals config was not saved. "
+                    + e.getMessage();
             LOGGER.error(errorMessage, e);
             ServerPackets.sendErrorToAllOps(ServerPackets.serverInstance, errorMessage);
             return false;
@@ -83,9 +88,16 @@ public class ConfigurationHandler {
         private List<String> whitelist = new ArrayList<>();
         private List<String> blacklist = new ArrayList<>();
         private String story = "";
+        private int maxPlayerAutoResponses = 10;
+        private int playerAutoCooldownSeconds = 3;
+        private int maxEntityAutoResponses = 3;
+        private int entityAutoCooldownSeconds = 3;
 
         // Getters and setters for existing fields
-        public String getApiKey() { return apiKey; }
+        public String getApiKey() {
+            return apiKey;
+        }
+
         public void setApiKey(String apiKey) {
             if (apiKey.startsWith("cc_") && apiKey.length() == 15) {
                 // Update URL if a CreatureChat API key is detected
@@ -97,35 +109,117 @@ public class ConfigurationHandler {
             this.apiKey = apiKey;
         }
 
-        public String getUrl() { return url; }
-        public void setUrl(String url) { this.url = url; }
+        public String getUrl() {
+            return url;
+        }
 
-        public String getModel() { return model; }
-        public void setModel(String model) { this.model = model; }
+        public void setUrl(String url) {
+            this.url = url;
+        }
 
-        public int getTimeout() { return timeout; }
-        public void setTimeout(int timeout) { this.timeout = timeout; }
+        public String getModel() {
+            return model;
+        }
 
-        public int getMaxContextTokens() { return maxContextTokens; }
-        public void setMaxContextTokens(int maxContextTokens) { this.maxContextTokens = maxContextTokens; }
+        public void setModel(String model) {
+            this.model = model;
+        }
 
-        public int getMaxOutputTokens() { return maxOutputTokens; }
-        public void setMaxOutputTokens(int maxOutputTokens) { this.maxOutputTokens = maxOutputTokens; }
+        public int getTimeout() {
+            return timeout;
+        }
 
-        public double getPercentOfContext() { return percentOfContext; }
-        public void setPercentOfContext(double percentOfContext) { this.percentOfContext = percentOfContext; }
+        public void setTimeout(int timeout) {
+            this.timeout = timeout;
+        }
 
-        public List<String> getWhitelist() { return whitelist; }
-        public void setWhitelist(List<String> whitelist) { this.whitelist = whitelist; }
+        public int getMaxContextTokens() {
+            return maxContextTokens;
+        }
 
-        public List<String> getBlacklist() { return blacklist; }
-        public void setBlacklist(List<String> blacklist) { this.blacklist = blacklist; }
+        public void setMaxContextTokens(int maxContextTokens) {
+            this.maxContextTokens = maxContextTokens;
+        }
 
-        public String getStory() { return story; }
-        public void setStory(String story) { this.story = story; }
+        public int getMaxOutputTokens() {
+            return maxOutputTokens;
+        }
+
+        public void setMaxOutputTokens(int maxOutputTokens) {
+            this.maxOutputTokens = maxOutputTokens;
+        }
+
+        public double getPercentOfContext() {
+            return percentOfContext;
+        }
+
+        public void setPercentOfContext(double percentOfContext) {
+            this.percentOfContext = percentOfContext;
+        }
+
+        public List<String> getWhitelist() {
+            return whitelist;
+        }
+
+        public void setWhitelist(List<String> whitelist) {
+            this.whitelist = whitelist;
+        }
+
+        public List<String> getBlacklist() {
+            return blacklist;
+        }
+
+        public void setBlacklist(List<String> blacklist) {
+            this.blacklist = blacklist;
+        }
+
+        public String getStory() {
+            return story;
+        }
+
+        public void setStory(String story) {
+            this.story = story;
+        }
 
         // Add getter and setter
-        public boolean getChatBubbles() { return chatBubbles; }
-        public void setChatBubbles(boolean chatBubblesEnabled) { this.chatBubbles = chatBubblesEnabled; }
+        public boolean getChatBubbles() {
+            return chatBubbles;
+        }
+
+        public void setChatBubbles(boolean chatBubblesEnabled) {
+            this.chatBubbles = chatBubblesEnabled;
+        }
+
+        public int getMaxPlayerAutoResponses() {
+            return maxPlayerAutoResponses;
+        }
+
+        public void setMaxPlayerAutoResponses(int maxPlayerAutoResponses) {
+            this.maxPlayerAutoResponses = maxPlayerAutoResponses;
+        }
+
+        public int getPlayerAutoCooldownSeconds() {
+            return playerAutoCooldownSeconds;
+        }
+
+        public void setPlayerAutoCooldownSeconds(int playerAutoCooldownSeconds) {
+            this.playerAutoCooldownSeconds = playerAutoCooldownSeconds;
+        }
+
+        public int getMaxEntityAutoResponses() {
+            return maxEntityAutoResponses;
+        }
+
+        public void setMaxEntityAutoResponses(int maxEntityAutoResponses) {
+            this.maxEntityAutoResponses = maxEntityAutoResponses;
+        }
+
+        public int getEntityAutoCooldownSeconds() {
+            return entityAutoCooldownSeconds;
+        }
+
+        public void setEntityAutoCooldownSeconds(int entityAutoCooldownSeconds) {
+            this.entityAutoCooldownSeconds = entityAutoCooldownSeconds;
+        }
     }
 }

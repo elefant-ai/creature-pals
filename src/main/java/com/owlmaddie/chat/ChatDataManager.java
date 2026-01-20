@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.chat;
 
 import com.google.gson.Gson;
@@ -23,8 +23,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.UUID;
 
 /**
- * The {@code ChatDataManager} class manages chat data for all entities. This class also helps
- * generate new messages, set entity goals, and other useful chat-related functions.
+ * The {@code ChatDataManager} class manages chat data for all entities. This
+ * class also helps
+ * generate new messages, set entity goals, and other useful chat-related
+ * functions.
  */
 public class ChatDataManager {
     // Use a static instance to manage our data globally
@@ -38,15 +40,15 @@ public class ChatDataManager {
     private static final Gson GSON = new Gson();
 
     public enum ChatStatus {
-        NONE,       // No chat status yet
-        PENDING,    // Chat is pending (e.g., awaiting response or processing)
-        DISPLAY,    // Chat is currently being displayed
-        HIDDEN,     // Chat is currently hidden
+        NONE, // No chat status yet
+        PENDING, // Chat is pending (e.g., awaiting response or processing)
+        DISPLAY, // Chat is currently being displayed
+        HIDDEN, // Chat is currently hidden
     }
 
     public enum ChatSender {
-        USER,      // A user chat message
-        ASSISTANT  // A GPT generated message
+        USER, // A user chat message
+        ASSISTANT // A GPT generated message
     }
 
     // HashMap to associate unique entity IDs with their chat data
@@ -67,7 +69,7 @@ public class ChatDataManager {
         if (server_only) {
             // Generate initial quest
             // TODO: Complete the quest flow
-            //generateQuest();
+            // generateQuest();
         }
     }
 
@@ -76,7 +78,8 @@ public class ChatDataManager {
         return SERVER_INSTANCE;
     }
 
-    // Method to get the global instance of the client data manager (synced from server)
+    // Method to get the global instance of the client data manager (synced from
+    // server)
     public static ChatDataManager getClientInstance() {
         return CLIENT_INSTANCE;
     }
@@ -121,7 +124,8 @@ public class ChatDataManager {
         return true;
     }
 
-    // Update the UUID in the map (i.e. bucketed entity and then released, changes their UUID)
+    // Update the UUID in the map (i.e. bucketed entity and then released, changes
+    // their UUID)
     public void updateUUID(String oldUUID, String newUUID) {
         EntityChatData data = entityChatDataMap.remove(oldUUID);
         if (data != null) {
@@ -141,7 +145,8 @@ public class ChatDataManager {
         try {
             // Create "light" version of entire chat data HashMap
             HashMap<String, EntityChatDataLight> lightVersionMap = new HashMap<>();
-            this.entityChatDataMap.forEach((name, entityChatData) -> lightVersionMap.put(name, entityChatData.toLightVersion(playerId)));
+            this.entityChatDataMap.forEach(
+                    (name, entityChatData) -> lightVersionMap.put(name, entityChatData.toLightVersion(playerId)));
             return SerializationGSON.GSON.toJson(lightVersionMap);
         } catch (Exception e) {
             // Handle exceptions
@@ -160,7 +165,8 @@ public class ChatDataManager {
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(saveFile), StandardCharsets.UTF_8)) {
             SerializationGSON.GSON.toJson(this.entityChatDataMap, writer);
         } catch (Exception e) {
-            String errorMessage = "Error saving `chatdata.json`. No CreaturePals chat history was saved! " + e.getMessage();
+            String errorMessage = "Error saving `chatdata.json`. No CreaturePals chat history was saved! "
+                    + e.getMessage();
             LOGGER.error(errorMessage, e);
             ServerPackets.sendErrorToAllOps(server, errorMessage);
         }
@@ -172,8 +178,10 @@ public class ChatDataManager {
         LOGGER.info("Loading chat data from " + loadFile.getAbsolutePath());
 
         if (loadFile.exists()) {
-            try (InputStreamReader reader = new InputStreamReader(new FileInputStream(loadFile), StandardCharsets.UTF_8)) {
-                Type type = new TypeToken<ConcurrentHashMap<String, EntityChatData>>(){}.getType();
+            try (InputStreamReader reader = new InputStreamReader(new FileInputStream(loadFile),
+                    StandardCharsets.UTF_8)) {
+                Type type = new TypeToken<ConcurrentHashMap<String, EntityChatData>>() {
+                }.getType();
                 this.entityChatDataMap = SerializationGSON.GSON.fromJson(reader, type);
 
                 // Clean up blank, temp entities in data

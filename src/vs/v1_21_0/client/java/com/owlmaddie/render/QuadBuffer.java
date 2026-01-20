@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.render;
 
 import net.fabricmc.api.EnvType;
@@ -17,8 +17,10 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import org.joml.Matrix4f;
 
 /**
- * Wrapper for Tessellator/BufferBuilder. Since the API changes between different versions of Minecraft,
- * this wrapper helps standardize the rendering/drawing calls. This is modified for Minecraft 1.21.0+.
+ * Wrapper for Tessellator/BufferBuilder. Since the API changes between
+ * different versions of Minecraft,
+ * this wrapper helps standardize the rendering/drawing calls. This is modified
+ * for Minecraft 1.21.0+.
  */
 @Environment(EnvType.CLIENT)
 public final class QuadBuffer {
@@ -26,7 +28,8 @@ public final class QuadBuffer {
 
     private BufferBuilder buf;
 
-    private QuadBuffer() {}
+    private QuadBuffer() {
+    }
 
     // begin
     public QuadBuffer begin() {

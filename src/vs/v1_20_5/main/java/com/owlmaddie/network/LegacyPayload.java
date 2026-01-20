@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.network;
 
 import io.netty.buffer.Unpooled;
@@ -11,7 +11,8 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * Payload for messages used by Minecraft 1.20.5+ compatibility. Previous versions did
+ * Payload for messages used by Minecraft 1.20.5+ compatibility. Previous
+ * versions did
  * not need a Payload.
  */
 public record LegacyPayload(CustomPacketPayload.Type<LegacyPayload> id, FriendlyByteBuf data)
@@ -33,8 +34,7 @@ public record LegacyPayload(CustomPacketPayload.Type<LegacyPayload> id, Friendly
 
         return StreamCodec.of(
                 // encoder (two-arg, returns void)
-                (RegistryFriendlyByteBuf buf, LegacyPayload p) ->
-                        buf.writeBytes(p.data()),
+                (RegistryFriendlyByteBuf buf, LegacyPayload p) -> buf.writeBytes(p.data()),
 
                 // decoder (one-arg, returns value)
                 (RegistryFriendlyByteBuf buf) -> {

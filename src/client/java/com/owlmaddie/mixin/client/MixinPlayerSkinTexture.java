@@ -1,6 +1,5 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
 package com.owlmaddie.mixin.client;
 
 import com.mojang.blaze3d.platform.NativeImage;
@@ -15,9 +14,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * The {@code MixinPlayerSkinTexture} class injects code into the PlayerSkinTexture class, to make a copy
- * of the player's skin native image, so we can later use it for pixel checking (black/white key) for
- * loading custom player icons in the unused UV coordinates of the player skin image.
+ * The {@code MixinPlayerSkinTexture} class injects code into the
+ * PlayerSkinTexture class, to make a copy
+ * of the player's skin native image, so we can later use it for pixel checking
+ * (black/white key) for
+ * loading custom player icons in the unused UV coordinates of the player skin
+ * image.
  */
 @Mixin(HttpTexture.class)
 public abstract class MixinPlayerSkinTexture extends SimpleTexture implements IPlayerSkinTexture {
@@ -46,10 +48,8 @@ public abstract class MixinPlayerSkinTexture extends SimpleTexture implements IP
                 source.format(),
                 source.getWidth(),
                 source.getHeight(),
-                false
-        );
+                false);
         copy.copyFrom(source);
         return copy;
     }
 }
-

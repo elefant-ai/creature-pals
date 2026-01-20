@@ -284,6 +284,8 @@ public class ChatGPTRequest {
                     }
                     return null;
                 } else {
+                    lastErrorMessage = null;
+                    lastErrorCode = 0;
                 }
                 InputStream inStream = connection.getInputStream();
                 if ("gzip".equalsIgnoreCase(connection.getContentEncoding())) {

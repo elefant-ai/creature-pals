@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.goals;
 
 import com.owlmaddie.network.ServerPackets;
@@ -18,7 +18,8 @@ import net.minecraft.world.entity.ai.goal.GoalSelector;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
 
 /**
- * The {@code EntityBehaviorManager} class now directly interacts with the goal selectors of entities
+ * The {@code EntityBehaviorManager} class now directly interacts with the goal
+ * selectors of entities
  * to manage goals, while avoiding concurrent modification issues.
  */
 public class EntityBehaviorManager {
@@ -53,7 +54,7 @@ public class EntityBehaviorManager {
 
         // Stop if running and remove each goal
         toBeRemoved.forEach(prioritizedGoal -> {
-            goalSelector.removeGoal(prioritizedGoal.getGoal());  // Remove the goal
+            goalSelector.removeGoal(prioritizedGoal.getGoal()); // Remove the goal
         });
     }
 
@@ -76,7 +77,8 @@ public class EntityBehaviorManager {
         boolean conflictExists = sortedGoals.stream()
                 .anyMatch(pg -> pg.getPriority() == newGoalPriority.getPriority());
 
-        // If there is a conflict, we need to shift priorities of this and all higher priorities.
+        // If there is a conflict, we need to shift priorities of this and all higher
+        // priorities.
         if (conflictExists) {
             int shiftPriority = newGoalPriority.getPriority();
             for (WrappedGoal pg : sortedGoals) {
@@ -84,7 +86,7 @@ public class EntityBehaviorManager {
                     // Remove the goal and increment its priority.
                     goalSelector.removeGoal(pg.getGoal());
                     goalSelector.addGoal(shiftPriority + 1, pg.getGoal());
-                    shiftPriority++;  // Update the shift priority for the next possible conflict.
+                    shiftPriority++; // Update the shift priority for the next possible conflict.
                 }
             }
 

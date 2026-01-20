@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.ui;
 
 import net.minecraft.client.gui.GuiGraphics;
@@ -19,8 +19,7 @@ public class ButtonHelper {
       ResourceLocation normalTex,
       ResourceLocation hoverTex,
       Button.OnPress onPress,
-      Button.CreateNarration narrate
-  ) {
+      Button.CreateNarration narrate) {
     return new Button(x, y, width, height, Component.empty(), onPress, narrate) {
       @Override
       public void renderWidget(GuiGraphics ctx, int mouseX, int mouseY, float delta) {

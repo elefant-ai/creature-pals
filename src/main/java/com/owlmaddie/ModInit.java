@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie;
 
 import com.owlmaddie.chat.EventQueueManager;
@@ -14,8 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@code ModInit} class initializes this mod on the server and defines all the server message
- * identifiers. It also listens for messages from the client, and has code to send
+ * The {@code ModInit} class initializes this mod on the server and defines all
+ * the server message
+ * identifiers. It also listens for messages from the client, and has code to
+ * send
  * messages to the client.
  */
 public class ModInit implements ModInitializer {

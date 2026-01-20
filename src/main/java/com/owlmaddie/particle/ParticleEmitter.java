@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.particle;
 
 import static com.owlmaddie.network.ServerPackets.*;
@@ -13,8 +13,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 
 /**
- * The {@code ParticleEmitter} class provides utility methods for emitting custom particles and sounds
- * around entities in the game. It calculates particle positions based on entity orientation
+ * The {@code ParticleEmitter} class provides utility methods for emitting
+ * custom particles and sounds
+ * around entities in the game. It calculates particle positions based on entity
+ * orientation
  * and triggers sound effects based on particle type and count.
  */
 public class ParticleEmitter {
@@ -24,20 +26,21 @@ public class ParticleEmitter {
      *
      * @param world          the server world to spawn particles in
      * @param entity         the entity to center the emission on
-     * @param particleEffect the particle effect to spawn (e.g., HEART_SMALL_PARTICLE)
+     * @param particleEffect the particle effect to spawn (e.g.,
+     *                       HEART_SMALL_PARTICLE)
      * @param spawnSize      the spread radius of the particles
      * @param count          how many particles to spawn
      */
     public static void emitCreatureParticle(ServerLevel world,
-                                            Entity entity,
-                                            ParticleOptions particleEffect,
-                                            double spawnSize,
-                                            int count) {
+            Entity entity,
+            ParticleOptions particleEffect,
+            double spawnSize,
+            int count) {
         // Calculate the offset so the particles appear above and in front of the entity
         float yaw = entity.getYHeadRot();
-        double offsetX = -Mth.sin(yaw * (float)(Math.PI / 180.0F)) * 0.9;
+        double offsetX = -Mth.sin(yaw * (float) (Math.PI / 180.0F)) * 0.9;
         double offsetY = entity.getBbHeight() + 0.5;
-        double offsetZ = Mth.cos(yaw * (float)(Math.PI / 180.0F)) * 0.9;
+        double offsetZ = Mth.cos(yaw * (float) (Math.PI / 180.0F)) * 0.9;
 
         double x = entity.getX() + offsetX;
         double y = entity.getY() + offsetY;

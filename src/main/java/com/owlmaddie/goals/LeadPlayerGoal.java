@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.goals;
 
 import com.owlmaddie.chat.ChatDataManager;
@@ -25,7 +25,8 @@ import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * The {@code LeadPlayerGoal} class instructs a Mob Entity to lead the player to a random location, consisting
+ * The {@code LeadPlayerGoal} class instructs a Mob Entity to lead the player to
+ * a random location, consisting
  * of many random waypoints. It supports PathAware and NonPathAware entities.
  */
 public class LeadPlayerGoal extends PlayerBaseGoal {
@@ -51,12 +52,14 @@ public class LeadPlayerGoal extends PlayerBaseGoal {
 
     @Override
     public boolean canUse() {
-        return super.canUse() && !foundWaypoint && this.entity.distanceToSqr(this.targetEntity) <= 16 * 16 && !foundWaypoint;
+        return super.canUse() && !foundWaypoint && this.entity.distanceToSqr(this.targetEntity) <= 16 * 16
+                && !foundWaypoint;
     }
 
     @Override
     public boolean canContinueToUse() {
-        return super.canUse() && !foundWaypoint && this.entity.distanceToSqr(this.targetEntity) <= 16 * 16 && !foundWaypoint;
+        return super.canUse() && !foundWaypoint && this.entity.distanceToSqr(this.targetEntity) <= 16 * 16
+                && !foundWaypoint;
     }
 
     @Override
@@ -83,7 +86,8 @@ public class LeadPlayerGoal extends PlayerBaseGoal {
 
                 ChatDataManager chatDataManager = ChatDataManager.getServerInstance();
                 EntityChatData chatData = chatDataManager.getOrCreateChatData(this.entity.getStringUUID());
-                if (!chatData.characterSheet.isEmpty()) {
+                if (!chatData.characterSheet.isEmpty()
+                        ) {
                     EventQueueManager.addUserMessage(entity, "N/A", (ServerPlayer) this.targetEntity,
                             arrivedMessage, true);
                 }
@@ -92,7 +96,8 @@ public class LeadPlayerGoal extends PlayerBaseGoal {
             // Stop navigation
             this.entity.getNavigation().stop();
 
-        } else if (this.currentTarget == null || this.entity.distanceToSqr(this.currentTarget) < 2 * 2 || ticksSinceLastWaypoint >= 20 * 10) {
+        } else if (this.currentTarget == null || this.entity.distanceToSqr(this.currentTarget) < 2 * 2
+                || ticksSinceLastWaypoint >= 20 * 10) {
             // Set next waypoint
             setNewTarget();
             moveToTarget();
@@ -106,13 +111,14 @@ public class LeadPlayerGoal extends PlayerBaseGoal {
     private void moveToTarget() {
         if (this.currentTarget != null) {
             if (this.entity instanceof PathfinderMob) {
-                 if (!this.entity.getNavigation().isInProgress()) {
-                     Path path = this.entity.getNavigation().createPath(this.currentTarget.x, this.currentTarget.y, this.currentTarget.z, 1);
-                     if (path != null) {
-                         LOGGER.debug("Start moving along path");
-                         this.entity.getNavigation().moveTo(path, this.speed);
-                     }
-                 }
+                if (!this.entity.getNavigation().isInProgress()) {
+                    Path path = this.entity.getNavigation().createPath(this.currentTarget.x, this.currentTarget.y,
+                            this.currentTarget.z, 1);
+                    if (path != null) {
+                        LOGGER.debug("Start moving along path");
+                        this.entity.getNavigation().moveTo(path, this.speed);
+                    }
+                }
             } else {
                 // Make the entity look at the player without moving towards them
                 LookControls.lookAtPosition(this.currentTarget, this.entity);
@@ -125,10 +131,12 @@ public class LeadPlayerGoal extends PlayerBaseGoal {
                 double currentSpeed = this.entity.getDeltaMovement().horizontalDistance();
 
                 // Gradually adjust speed towards the target speed
-                currentSpeed = Mth.approach((float) currentSpeed, (float) this.speed, (float) (0.005 * (this.speed / Math.max(currentSpeed, 0.1))));
+                currentSpeed = Mth.approach((float) currentSpeed, (float) this.speed,
+                        (float) (0.005 * (this.speed / Math.max(currentSpeed, 0.1))));
 
                 // Apply movement with the adjusted speed towards the target
-                Vec3 newVelocity = new Vec3(moveDirection.x * currentSpeed, moveDirection.y * currentSpeed, moveDirection.z * currentSpeed);
+                Vec3 newVelocity = new Vec3(moveDirection.x * currentSpeed, moveDirection.y * currentSpeed,
+                        moveDirection.z * currentSpeed);
 
                 this.entity.setDeltaMovement(newVelocity);
                 this.entity.hurtMarked = true;
@@ -153,8 +161,9 @@ public class LeadPlayerGoal extends PlayerBaseGoal {
         if (this.entity.level() instanceof ServerLevel) {
             ServerLevel serverWorld = (ServerLevel) this.entity.level();
 
-            // Pass the angle using the "speed" argument, with deltaX, deltaY, deltaZ set to 0
-            LeadParticleEffect effect = new LeadParticleEffect((float)angle);
+            // Pass the angle using the "speed" argument, with deltaX, deltaY, deltaZ set to
+            // 0
+            LeadParticleEffect effect = new LeadParticleEffect((float) angle);
             serverWorld.sendParticles(effect, position.x, position.y + 0.05, position.z, 1, 0, 0, 0, 0);
         }
     }
@@ -180,11 +189,12 @@ public class LeadPlayerGoal extends PlayerBaseGoal {
 
         // Emit particles along the ray from startRange to endRange
         double distance = start.distanceTo(end);
-        double startRange = Math.min(5, distance);;
+        double startRange = Math.min(5, distance);
+        ;
         double endRange = Math.min(startRange + 10, distance);
         for (double d = startRange; d <= endRange; d += 5) {
             Vec3 pos = start.add(direction.normalize().scale(d));
-            emitParticleAt(pos, Math.toRadians(minecraftYaw));  // Convert back to radians for rendering
+            emitParticleAt(pos, Math.toRadians(minecraftYaw)); // Convert back to radians for rendering
         }
     }
 }

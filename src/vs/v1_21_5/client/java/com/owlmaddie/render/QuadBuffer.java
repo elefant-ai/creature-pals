@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.render;
 
 import com.mojang.blaze3d.pipeline.BlendFunction;
@@ -23,8 +23,10 @@ import java.util.OptionalDouble;
 import java.util.OptionalInt;
 
 /**
- * Wrapper for Tessellator/BufferBuilder. Since the API changes between different versions of Minecraft,
- * this wrapper helps standardize the rendering/drawing calls. This is modified for Minecraft 1.21.5+.
+ * Wrapper for Tessellator/BufferBuilder. Since the API changes between
+ * different versions of Minecraft,
+ * this wrapper helps standardize the rendering/drawing calls. This is modified
+ * for Minecraft 1.21.5+.
  */
 @Environment(EnvType.CLIENT)
 public final class QuadBuffer {
@@ -49,7 +51,8 @@ public final class QuadBuffer {
             .withBlend(BlendFunction.PANORAMA) // vanilla style alpha blending
             .build();
 
-    private QuadBuffer() {}
+    private QuadBuffer() {
+    }
 
     // begin
     public QuadBuffer begin() {
@@ -98,13 +101,15 @@ public final class QuadBuffer {
     }
 
     public void draw() {
-        if (buf == null) return;
+        if (buf == null)
+            return;
 
         try (MeshData meshData = buf.buildOrThrow()) {
             buf = null; // always clear reference
 
             GpuTexture gpuTex = TextureLoader.lastTexture;
-            if (gpuTex == null) return;
+            if (gpuTex == null)
+                return;
 
             CommandEncoder encoder = RenderSystem.getDevice().createCommandEncoder();
             var vb = DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP
@@ -121,8 +126,7 @@ public final class QuadBuffer {
 
             try (RenderPass pass = encoder.createRenderPass(
                     fb.getColorTexture(), OptionalInt.empty(),
-                    fb.getDepthTexture(), OptionalDouble.empty()
-            )) {
+                    fb.getDepthTexture(), OptionalDouble.empty())) {
                 pass.bindSampler("Sampler0", gpuTex);
                 pass.setVertexBuffer(0, vb);
                 pass.setIndexBuffer(ib, it);

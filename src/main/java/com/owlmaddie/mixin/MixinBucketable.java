@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.mixin;
 
 import com.owlmaddie.chat.ChatDataManager;
@@ -18,7 +18,8 @@ import net.minecraft.world.entity.animal.Bucketable;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * The {@code MixinBucketable} mixin class handles entities that are placed into a bucket, despawned, respawned
+ * The {@code MixinBucketable} mixin class handles entities that are placed into
+ * a bucket, despawned, respawned
  * and updates our chat history for the newly spawned entity.
  */
 @Mixin(Bucketable.class)
@@ -42,7 +43,8 @@ public interface MixinBucketable {
         UUID newUUID = entity.getUUID();
         if (nbt.contains("CCUUID")) {
             UUID originalUUID = nbt.getUUID("CCUUID");
-            LOGGER.info("Duplicating bucketed chat data for original UUID (" + originalUUID + ") to cloned entity: (" + newUUID + ")");
+            LOGGER.info("Duplicating bucketed chat data for original UUID (" + originalUUID + ") to cloned entity: ("
+                    + newUUID + ")");
             ChatDataManager.getServerInstance().updateUUID(originalUUID.toString(), newUUID.toString());
         }
     }

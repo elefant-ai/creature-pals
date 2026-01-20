@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.utils;
 
 import java.util.Arrays;
@@ -11,7 +11,8 @@ import java.util.stream.Stream;
 import com.owlmaddie.i18n.TR;
 
 /**
- * The {@code Randomizer} class provides easy functions for generating a variety of different random numbers
+ * The {@code Randomizer} class provides easy functions for generating a variety
+ * of different random numbers
  * and phrases used by this mod.
  */
 public class Randomizer {
@@ -37,7 +38,21 @@ public class Randomizer {
             new TR("no_response.13", "<tilts head>"),
             new TR("no_response.14", "<checks compass>"),
             new TR("no_response.15", "<studies map>"),
-            new TR("no_response.16", "<rolls eyes>")
+            new TR("no_response.16", "<rolls eyes>"),
+            new TR("no_response.17", "<examines nails>"),
+            new TR("no_response.18", "<whistles softly>"),
+            new TR("no_response.19", "<shifts uncomfortably>"),
+            new TR("no_response.20", "<pretends not to hear>"),
+            new TR("no_response.21", "<fiddles with something>"),
+            new TR("no_response.22", "<gazes into the distance>"),
+            new TR("no_response.23", "<smirks>"),
+            new TR("no_response.24", "<raises an eyebrow>"),
+            new TR("no_response.25", "<clears throat>"),
+            new TR("no_response.26", "<peers over your shoulder>"),
+            new TR("no_response.27", "<fakes a smile>"),
+            new TR("no_response.28", "<mutters under breath>"),
+            new TR("no_response.29", "<counts imaginary stars>")
+
     );
 
     public static final TR ERROR_GENERAL    = new TR("error.general",    "Something unexpected has gone wrong. Find help at %s.");
@@ -85,8 +100,7 @@ public class Randomizer {
             "unpredictable", "wildcard", "stuttering", "hypochondriac", "hypocritical",
             "optimistic", "overconfident", "jumpy", "brief", "flighty", "visionary", "adorable",
             "sparkly", "bubbly", "unstable", "sad", "angry", "bossy", "altruistic", "quirky",
-            "nostalgic", "emotional", "enthusiastic", "unusual", "conspirator", "traitorous"
-    );
+            "nostalgic", "emotional", "enthusiastic", "unusual", "conspirator", "traitorous");
     private static List<String> speakingStyles = Arrays.asList(
             "formal", "casual", "eloquent", "blunt", "humorous", "sarcastic", "mysterious",
             "cheerful", "melancholic", "authoritative", "nervous", "whimsical", "grumpy",
@@ -99,8 +113,7 @@ public class Randomizer {
             "hipster", "mobster", "angry", "heroic", "disagreeable", "minimalist",
             "scientific", "bureaucratic", "DJ", "military", "shy", "tsundere", "theater kid",
             "boomer", "goth", "surfer", "detective noir", "stupid", "auctioneer", "exaggerated British",
-            "corporate jargon", "motivational speaker", "fast-talking salesperson", "slimy"
-    );
+            "corporate jargon", "motivational speaker", "fast-talking salesperson", "slimy");
     private static List<String> classes = Arrays.asList(
             "warrior", "mage", "archer", "rogue", "paladin", "necromancer", "bard", "lorekeeper",
             "sorcerer", "ranger", "cleric", "berserker", "alchemist", "summoner", "shaman",
@@ -113,13 +126,11 @@ public class Randomizer {
             "librarian", "blacksmith", "architect", "trapper", "baker", "mineralogist",
             "beekeeper", "hermit", "farlander", "void searcher", "end explorer", "archeologist",
             "hero", "villain", "mercenary", "guardian", "rebel", "paragon",
-            "antagonist", "avenger", "seeker", "mystic", "outlaw"
-    );
+            "antagonist", "avenger", "seeker", "mystic", "outlaw");
     private static List<String> alignments = Arrays.asList(
             "lawful good", "neutral good", "chaotic good",
             "lawful neutral", "true neutral", "chaotic neutral",
-            "lawful evil", "neutral evil", "chaotic evil"
-    );
+            "lawful evil", "neutral evil", "chaotic evil");
 
     // Get random message by type
     public static String getRandomMessage(RandomType messageType) {

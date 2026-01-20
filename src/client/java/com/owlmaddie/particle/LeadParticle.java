@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.particle;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -14,13 +14,15 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
 /**
- * The {@code LeadParticle} class renders a static LEAD behavior particle (i.e. animated arrow pointing in the direction of lead). It
+ * The {@code LeadParticle} class renders a static LEAD behavior particle (i.e.
+ * animated arrow pointing in the direction of lead). It
  * uses a SpriteProvider for animation.
  */
 public class LeadParticle extends TextureSheetParticle {
     private final SpriteSet spriteProvider;
 
-    public LeadParticle(ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, SpriteSet spriteProvider, double angle) {
+    public LeadParticle(ClientLevel world, double x, double y, double z, double velocityX, double velocityY,
+            double velocityZ, SpriteSet spriteProvider, double angle) {
         super(world, x, y, z, 0, 0, 0);
         this.xd = 0f;
         this.yd = 0f;
@@ -52,16 +54,16 @@ public class LeadParticle extends TextureSheetParticle {
     public void render(VertexConsumer vertexConsumer, Camera camera, float tickDelta) {
         // Get the current position of the particle relative to the camera
         Vec3 cameraPos = camera.getPosition();
-        float particleX = (float)(Mth.lerp((double)tickDelta, this.xo, this.x) - cameraPos.x());
-        float particleY = (float)(Mth.lerp((double)tickDelta, this.yo, this.y) - cameraPos.y());
-        float particleZ = (float)(Mth.lerp((double)tickDelta, this.zo, this.z) - cameraPos.z());
+        float particleX = (float) (Mth.lerp((double) tickDelta, this.xo, this.x) - cameraPos.x());
+        float particleY = (float) (Mth.lerp((double) tickDelta, this.yo, this.y) - cameraPos.y());
+        float particleZ = (float) (Mth.lerp((double) tickDelta, this.zo, this.z) - cameraPos.z());
 
         // Define the four vertices of the particle (keeping it flat on the XY plane)
-        Vector3f[] vertices = new Vector3f[]{
-                new Vector3f(-1.0F, 0.0F, -1.0F),  // Bottom-left
-                new Vector3f(-1.0F, 0.0F, 1.0F),   // Top-left
-                new Vector3f(1.0F, 0.0F, 1.0F),    // Top-right
-                new Vector3f(1.0F, 0.0F, -1.0F)    // Bottom-right
+        Vector3f[] vertices = new Vector3f[] {
+                new Vector3f(-1.0F, 0.0F, -1.0F), // Bottom-left
+                new Vector3f(-1.0F, 0.0F, 1.0F), // Top-left
+                new Vector3f(1.0F, 0.0F, 1.0F), // Top-right
+                new Vector3f(1.0F, 0.0F, -1.0F) // Bottom-right
         };
 
         // Apply scaling and rotation using the particle's angle (in world space)

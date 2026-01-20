@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.controls;
 
 import net.minecraft.world.entity.Mob;
@@ -18,8 +18,10 @@ import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.npc.WanderingTrader;
 
 /**
- * The {@code SpeedControls} class has methods to return adjusted MaxSpeed values for different MobEntity instances.
- * Unfortunately, some entities need to be hard-coded here, for a comfortable max speed.
+ * The {@code SpeedControls} class has methods to return adjusted MaxSpeed
+ * values for different MobEntity instances.
+ * Unfortunately, some entities need to be hard-coded here, for a comfortable
+ * max speed.
  */
 public class SpeedControls {
     public static float getMaxSpeed(Mob entity) {
@@ -55,4 +57,3 @@ public class SpeedControls {
         return speed;
     }
 }
-

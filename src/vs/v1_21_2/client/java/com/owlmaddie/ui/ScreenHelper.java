@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.ui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -14,7 +14,8 @@ import net.minecraft.resources.ResourceLocation;
 
 /**
  * Provides a Screen class which renders a chat-background, and can be modified
- * for different versions of Minecraft (as API changes happen). Modified for Minecraft 1.21.2.
+ * for different versions of Minecraft (as API changes happen). Modified for
+ * Minecraft 1.21.2.
  */
 public abstract class ScreenHelper extends Screen {
     protected int BG_WIDTH, BG_HEIGHT, bgX, bgY, TITLE_OFFSET;
@@ -51,8 +52,7 @@ public abstract class ScreenHelper extends Screen {
                     bgX, bgY,
                     0f, 0f,
                     BG_WIDTH, BG_HEIGHT,
-                    BG_WIDTH, BG_HEIGHT
-            );
+                    BG_WIDTH, BG_HEIGHT);
             RenderSystem.disableBlend();
         }
 
@@ -63,7 +63,7 @@ public abstract class ScreenHelper extends Screen {
 
         // Draw the "Enter your message:" label
         EditBox tf = getTextField();
-        Component           lbl = getLabelText();
+        Component lbl = getLabelText();
         int lw = font.width(lbl);
         int lx = (this.width - lw) / 2;
         int ly = tf.getY() - TITLE_OFFSET;

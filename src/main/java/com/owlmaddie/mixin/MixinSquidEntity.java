@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.mixin;
 
 import com.owlmaddie.controls.ISquidEntity;
@@ -14,7 +14,7 @@ public abstract class MixinSquidEntity implements ISquidEntity {
     @Override
     public void forceSwimVector(Vec3 vec) {
         // 1.20: the public method still exists
-        ((Squid)(Object)this)
-            .setMovementVector((float)vec.x, (float)vec.y, (float)vec.z);
+        ((Squid) (Object) this)
+                .setMovementVector((float) vec.x, (float) vec.y, (float) vec.z);
     }
 }

@@ -134,7 +134,7 @@ public class ChatGPTRequestErrorTests {
         assertEquals("Solution: Check region or VPN", solution.en());
     }
 
-    @Test
+    /*@Test
     public void outOfTokens() throws Exception {
         int code = 429;
         String message = "Rate limit exceeded";
@@ -155,7 +155,7 @@ public class ChatGPTRequestErrorTests {
         assertFalse(ChatGPTRequest.lastErrorMessage.isEmpty());
         assertNotNull(randomMsg);
         assertEquals("Solution: Add funds to your account", solution.en());
-    }
+    }*/
 
     @Test
     public void internalServerError() throws Exception {

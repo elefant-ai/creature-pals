@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.mixin;
 
 import com.owlmaddie.chat.ChatDataManager;
@@ -25,9 +25,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * The {@code MixinLivingEntity} class modifies the behavior of {@link LivingEntity} to integrate
- * custom friendship, chat, and death message mechanics. It prevents friendly entities from targeting players,
- * generates contextual chat messages on attacks, and broadcasts custom death messages for named entities.
+ * The {@code MixinLivingEntity} class modifies the behavior of
+ * {@link LivingEntity} to integrate
+ * custom friendship, chat, and death message mechanics. It prevents friendly
+ * entities from targeting players,
+ * generates contextual chat messages on attacks, and broadcasts custom death
+ * messages for named entities.
  */
 @Mixin(LivingEntity.class)
 public class MixinLivingEntity {
@@ -53,7 +56,8 @@ public class MixinLivingEntity {
     @Inject(method = "hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z", at = @At("RETURN"))
     private void onDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         if (!cir.getReturnValue()) {
-            // If damage method returned false, it means the damage was not applied (possibly due to invulnerability).
+            // If damage method returned false, it means the damage was not applied
+            // (possibly due to invulnerability).
             return;
         }
 
@@ -63,15 +67,16 @@ public class MixinLivingEntity {
 
         // If PLAYER attacks MOB then
         if (attacker instanceof Player && thisEntity instanceof Mob && !thisEntity.isDeadOrDying()) {
-            // Generate attacked message (only if the previous user message was not an attacked message)
-            // We don't want to constantly generate messages during a prolonged, multi-damage event
+            // Generate attacked message (only if the previous user message was not an
+            // attacked message)
+            // We don't want to constantly generate messages during a prolonged,
+            // multi-damage event
             ServerPlayer player = (ServerPlayer) attacker;
             EntityChatData chatData = getChatData(thisEntity);
             PlayerData playerData = chatData.getPlayerData(player.getDisplayName().getString());
             playerData.lastDamageFriendship = playerData.friendship;
-            playerData.wordsmithDamaged = true;
-            if (!chatData.characterSheet.isEmpty()) {
-
+            playerData.wordsmithDamaged = true;if (!chatData.characterSheet.isEmpty()
+                    ) {
                 ItemStack weapon = player.getMainHandItem();
                 String weaponName = weapon.isEmpty() ? "with fists" : "with " + weapon.getItem().toString();
 
@@ -79,7 +84,8 @@ public class MixinLivingEntity {
                 boolean isIndirect = attacker != null && attacker != source.getDirectEntity();
                 String directness = isIndirect ? "indirectly" : "directly";
 
-                String attackedMessage = "<" + player.getDisplayName().getString() + " attacked you " + directness + " with " + weaponName + ">";
+                String attackedMessage = "<" + player.getDisplayName().getString() + " attacked you " + directness + " with "
+                        + weaponName + ">";
                 EventQueueManager.addUserMessage(thisEntity, "N/A", player, attackedMessage, true);
             }
         }

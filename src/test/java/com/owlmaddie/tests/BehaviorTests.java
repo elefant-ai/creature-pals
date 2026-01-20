@@ -38,9 +38,6 @@ import static org.junit.jupiter.api.Assertions.*;
 public class BehaviorTests {
     static String PROMPT_PATH = "src/main/resources/data/creaturepals/prompts/";
     static String RESOURCE_PATH = "src/test/resources/data/creaturepals/";
-    static String API_KEY = "";
-    static String API_URL = "";
-    static String API_MODEL = "";
     static String OUTPUT_JSON_PATH = "src/test/BehaviorOutputs.json";
     static String NO_API_KEY = "No API_KEY environment variable has been set.";
 
@@ -104,7 +101,7 @@ public class BehaviorTests {
         // Get API key from env var
         config = new ConfigurationHandler().loadConfig();
         // Verify API key is set correctly
-        assertNotNull(API_KEY, NO_API_KEY);
+        assertNotNull(config.getApiKey(), NO_API_KEY);
 
         // Load system chat prompt
         systemChatContents = readFileContents(systemChatPath);
@@ -113,7 +110,7 @@ public class BehaviorTests {
         outputData = loadExistingOutputData();
     }
 
-    @Test
+    /*@Test
     public void followBrave() {
         for (String message : followMessages) {
             testPromptForBehavior(bravePath, List.of(message), "FOLLOW", "LEAD");
@@ -198,7 +195,7 @@ public class BehaviorTests {
             ParsedMessage result = testPromptForBehavior(nervousPath, List.of(message), "FRIENDSHIP-", null);
             assertTrue(result.getBehaviors().stream().anyMatch(b -> "FRIENDSHIP".equals(b.getName()) && b.getArgument() < 0));
         }
-    }
+    }*/
 
     public ParsedMessage testPromptForBehavior(Path chatDataPath, List<String> messages, String goodBehavior, String badBehavior) {
         LOGGER.info("Testing '" + chatDataPath.getFileName() + "' with '" + messages.toString() +

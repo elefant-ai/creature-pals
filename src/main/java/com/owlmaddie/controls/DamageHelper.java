@@ -1,19 +1,22 @@
 // SPDX-FileCopyrightText: 2025 owlmaddie LLC
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Assets CC-BY-NC-SA-4.0; CreatureChat™ trademark © owlmaddie LLC - unauthorized use prohibited
+
 package com.owlmaddie.controls;
 
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 
 /**
- * Damage helper class to isolate our calls to damange, since the API changes in later versions of Minecraft.
+ * Damage helper class to isolate our calls to damange, since the API changes in
+ * later versions of Minecraft.
  */
 public final class DamageHelper {
-    private DamageHelper() {}
+    private DamageHelper() {
+    }
 
     /**
      * Applies a 1-point “leap” damage from attacker to target.
+     * 
      * @return true if damage was applied
      */
     public static boolean applyLeapDamage(LivingEntity attacker, LivingEntity target, float amount) {
