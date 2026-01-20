@@ -18,7 +18,7 @@ public final class AdvancementBackgroundHelper {
      * The returned path does not include the "textures/" prefix.
      */
     public static ResourceLocation ui(String name) {
-        return new ResourceLocation("creaturechat", "ui/" + name);
+        return new ResourceLocation("creaturepals", "ui/" + name);
     }
 
     /**

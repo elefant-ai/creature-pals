@@ -47,7 +47,7 @@ public abstract class MixinOnChat {
     }
 
     @Inject(method = "handlePlayerCommand", at = @At("HEAD"), cancellable = true)
-    private void creaturechat$openMobInventory(ServerboundPlayerCommandPacket packet, CallbackInfo ci) {
+    private void creaturepals$openMobInventory(ServerboundPlayerCommandPacket packet, CallbackInfo ci) {
         if (packet.getAction() != ServerboundPlayerCommandPacket.Action.OPEN_INVENTORY) {
             return;
         }
@@ -81,7 +81,7 @@ public abstract class MixinOnChat {
 
             @Override
             public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player p) {
-                return new MobInventoryMenu(syncId, playerInventory, ((ChatInventory) mob).creaturechat$getInventory(), mob, serverPlayer);
+                return new MobInventoryMenu(syncId, playerInventory, ((ChatInventory) mob).creaturepals$getInventory(), mob, serverPlayer);
             }
         };
 

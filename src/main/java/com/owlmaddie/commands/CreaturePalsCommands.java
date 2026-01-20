@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * The {@code CreatureChatCommands} class registers custom commands to set new
+ * The {@code CreaturePalsCommands} class registers custom commands to set new
  * API key, model, and url.
  * Permission level set to 4 (server owner), since this deals with API keys and
  * potential costs.

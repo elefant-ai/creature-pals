@@ -24,7 +24,7 @@
           "com.owlmaddie.ClientInit"
         ],
         "fabric-datagen": [
-          "com.owlmaddie.datagen.CreatureChatDataGenerator"
+			"com.owlmaddie.datagen.CreaturePalsDataGenerator"
         ]
     },
 	"mixins": [

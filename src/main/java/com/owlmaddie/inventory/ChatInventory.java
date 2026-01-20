@@ -5,7 +5,7 @@ package com.owlmaddie.inventory;
 import net.minecraft.world.Container;
 
 /**
- * Interface for entities that hold a CreatureChat inventory.
+ * Interface for entities that hold a CreaturePals inventory.
  */
 public interface ChatInventory {
     /**
@@ -13,5 +13,5 @@ public interface ChatInventory {
      *
      * @return the {@link Container} for this entity
      */
-    Container creaturechat$getInventory();
+    Container creaturepals$getInventory();
 }

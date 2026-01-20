@@ -12,7 +12,7 @@ import net.minecraft.world.level.biome.Biome;
  */
 public class InventoryLootTables {
     private static ResourceLocation id(String name) {
-        return new ResourceLocation("creaturechat", "biomes/" + name);
+        return new ResourceLocation("creaturepals", "biomes/" + name);
     }
 
     public static ResourceLocation forBiome(Holder<Biome> biome) {

@@ -20,8 +20,8 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
  * <p>The Fabric datagen API added a registry lookup parameter and changed the
  * {@code generate} signature beginning with 1.20.5.</p>
  */
-public class CreatureChatLootTableProvider extends SimpleFabricLootTableProvider {
-    public CreatureChatLootTableProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+public class CreaturePalsLootTableProvider extends SimpleFabricLootTableProvider {
+    public CreaturePalsLootTableProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registries) {
         super(output, registries, LootContextParamSets.ALL_PARAMS);
     }
 
@@ -32,7 +32,7 @@ public class CreatureChatLootTableProvider extends SimpleFabricLootTableProvider
     }
 
     private ResourceLocation id(String path) {
-        return new ResourceLocation("creaturechat", path);
+        return new ResourceLocation("creaturepals", path);
     }
 }
 

@@ -10,8 +10,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 
-public class CreatureChatLootTableProvider extends SimpleFabricLootTableProvider {
-    public CreatureChatLootTableProvider(FabricDataOutput output) {
+public class CreaturePalsLootTableProvider extends SimpleFabricLootTableProvider {
+    public CreaturePalsLootTableProvider(FabricDataOutput output) {
         super(output, LootContextParamSets.ALL_PARAMS);
     }
 
@@ -22,6 +22,6 @@ public class CreatureChatLootTableProvider extends SimpleFabricLootTableProvider
     }
 
     private ResourceLocation id(String path) {
-        return new ResourceLocation("creaturechat", path);
+        return new ResourceLocation("creaturepals", path);
     }
 }

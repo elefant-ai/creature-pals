@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
  * Utility for retrieving loot tables in a version-agnostic way.
  */
 public class LootTableHelper {
-    private static final Logger LOGGER = LoggerFactory.getLogger("creaturechat");
+    private static final Logger LOGGER = LoggerFactory.getLogger("creaturepals");
 
     public static LootTable get(ServerLevel level, ResourceLocation id) {
         LootTable table = level.getServer().getLootData().getLootTable(id);

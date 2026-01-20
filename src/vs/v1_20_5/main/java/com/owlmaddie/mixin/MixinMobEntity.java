@@ -38,11 +38,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(Mob.class)
 public class MixinMobEntity implements ChatInventory, HasCustomInventoryScreen {
 
-    private final SimpleContainer creaturechat$inventory = new SimpleContainer(15);
+    private final SimpleContainer creaturepals$inventory = new SimpleContainer(15);
 
     @Override
-    public SimpleContainer creaturechat$getInventory() {
-        return creaturechat$inventory;
+    public SimpleContainer creaturepals$getInventory() {
+        return creaturepals$inventory;
     }
 
     @Override
@@ -66,7 +66,7 @@ public class MixinMobEntity implements ChatInventory, HasCustomInventoryScreen {
 
                 @Override
                 public net.minecraft.world.inventory.AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player p) {
-                    return new MobInventoryMenu(syncId, playerInventory, creaturechat$inventory, thisEntity, serverPlayer);
+                    return new MobInventoryMenu(syncId, playerInventory, creaturepals$inventory, thisEntity, serverPlayer);
                 }
             };
             serverPlayer.openMenu(provider);
@@ -74,7 +74,7 @@ public class MixinMobEntity implements ChatInventory, HasCustomInventoryScreen {
     }
 
     @Inject(method = "interact", at = @At("HEAD"), cancellable = true)
-    private void creaturechat$openInventory(Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
+    private void creaturepals$openInventory(Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
         if (player.level().isClientSide()) {
             return;
         }
@@ -113,7 +113,7 @@ public class MixinMobEntity implements ChatInventory, HasCustomInventoryScreen {
 
                 @Override
                 public net.minecraft.world.inventory.AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player p) {
-                    return new MobInventoryMenu(syncId, playerInventory, creaturechat$inventory, thisEntity, serverPlayer);
+                    return new MobInventoryMenu(syncId, playerInventory, creaturepals$inventory, thisEntity, serverPlayer);
                 }
             };
             serverPlayer.openMenu(provider);
@@ -122,11 +122,11 @@ public class MixinMobEntity implements ChatInventory, HasCustomInventoryScreen {
     }
 
     @Inject(method = "addAdditionalSaveData", at = @At("RETURN"))
-    private void creaturechat$saveInventory(CompoundTag tag, CallbackInfo ci) {
+    private void creaturepals$saveInventory(CompoundTag tag, CallbackInfo ci) {
         ListTag listTag = new ListTag();
         HolderLookup.Provider provider = ((Mob) (Object) this).registryAccess();
-        for (int i = 0; i < creaturechat$inventory.getContainerSize(); i++) {
-            ItemStack stack = creaturechat$inventory.getItem(i);
+        for (int i = 0; i < creaturepals$inventory.getContainerSize(); i++) {
+            ItemStack stack = creaturepals$inventory.getItem(i);
             if (!stack.isEmpty()) {
                 CompoundTag wrapper = new CompoundTag();
                 wrapper.putByte("Slot", (byte) i);
@@ -138,17 +138,17 @@ public class MixinMobEntity implements ChatInventory, HasCustomInventoryScreen {
                 listTag.add(wrapper);
             }
         }
-        tag.put("CreatureChatInventory", listTag);
+        tag.put("CreaturePalsInventory", listTag);
     }
 
     @Inject(method = "readAdditionalSaveData", at = @At("RETURN"))
-    private void creaturechat$loadInventory(CompoundTag tag, CallbackInfo ci) {
-        ListTag listTag = tag.getList("CreatureChatInventory", 10);
+    private void creaturepals$loadInventory(CompoundTag tag, CallbackInfo ci) {
+        ListTag listTag = tag.getList("CreaturePalsInventory", 10);
         HolderLookup.Provider provider = ((Mob) (Object) this).registryAccess();
         for (int i = 0; i < listTag.size(); ++i) {
             CompoundTag wrapper = listTag.getCompound(i);
             int slot = wrapper.getByte("Slot") & 255;
-            if (slot >= 0 && slot < creaturechat$inventory.getContainerSize()) {
+            if (slot >= 0 && slot < creaturepals$inventory.getContainerSize()) {
                 CompoundTag itemTag;
                 if (wrapper.contains("Item", 10)) {
                     itemTag = wrapper.getCompound("Item");
@@ -157,7 +157,7 @@ public class MixinMobEntity implements ChatInventory, HasCustomInventoryScreen {
                     itemTag.remove("Slot");
                 }
                 ItemStack parsed = ItemStack.parse(provider, itemTag).orElse(ItemStack.EMPTY);
-                creaturechat$inventory.setItem(slot, parsed);
+                creaturepals$inventory.setItem(slot, parsed);
             }
         }
     }

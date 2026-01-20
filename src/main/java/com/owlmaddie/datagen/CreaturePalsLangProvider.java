@@ -9,25 +9,20 @@ import com.owlmaddie.utils.Randomizer;
 
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
-import net.minecraft.core.HolderLookup;
 
 /**
- * 1.20.5+ variant of the language provider.
- *
- * <p>The Fabric datagen API added a registry lookup parameter beginning with
- * 1.20.5.</p>
+ * Generates the English fallback language file.
  */
-public class CreatureChatLangProvider extends FabricLanguageProvider {
-    public CreatureChatLangProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registryLookup) {
-        super(output, registryLookup);
+public class CreaturePalsLangProvider extends FabricLanguageProvider {
+    public CreaturePalsLangProvider(FabricDataOutput output) {
+        super(output, "creaturepals");
     }
 
     @Override
-    public void generateTranslations(HolderLookup.Provider registryLookup, TranslationBuilder builder) {
+    public void generateTranslations(TranslationBuilder builder) {
         Map<String, String> en = new TreeMap<>();
         Stream.of(
                 Randomizer.allErrorText(),
@@ -45,6 +40,6 @@ public class CreatureChatLangProvider extends FabricLanguageProvider {
 
     @Override
     public String getName() {
-        return "CreatureChat Lang";
+        return "CreaturePals Lang";
     }
 }

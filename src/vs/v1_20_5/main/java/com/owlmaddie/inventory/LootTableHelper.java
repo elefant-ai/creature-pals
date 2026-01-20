@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
  * Version-specific helper for retrieving loot tables on 1.20.5+.
  */
 public class LootTableHelper {
-    private static final Logger LOGGER = LoggerFactory.getLogger("creaturechat");
+    private static final Logger LOGGER = LoggerFactory.getLogger("creaturepals");
 
     public static LootTable get(ServerLevel level, ResourceLocation id) {
         ResourceKey<LootTable> key = ResourceKey.create(Registries.LOOT_TABLE, id);

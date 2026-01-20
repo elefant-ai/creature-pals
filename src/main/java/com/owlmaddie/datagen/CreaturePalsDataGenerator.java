@@ -5,12 +5,12 @@ package com.owlmaddie.datagen;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 
-public class CreatureChatDataGenerator implements DataGeneratorEntrypoint {
+public class CreaturePalsDataGenerator implements DataGeneratorEntrypoint {
     @Override
     public void onInitializeDataGenerator(FabricDataGenerator fabricDataGenerator) {
         FabricDataGenerator.Pack pack = fabricDataGenerator.createPack();
-        pack.addProvider(CreatureChatLootTableProvider::new);
-        pack.addProvider(CreatureChatAdvancementProvider::new);
-        pack.addProvider(CreatureChatLangProvider::new);
+        pack.addProvider(CreaturePalsLootTableProvider::new);
+        pack.addProvider(CreaturePalsAdvancementProvider::new);
+        pack.addProvider(CreaturePalsLangProvider::new);
     }
 }

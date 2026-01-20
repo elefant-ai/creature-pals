@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Redirect abstract villager inventory to CreatureChat inventory when chat data exists.
+ * Redirect abstract villager inventory to CreaturePals inventory when chat data exists.
  */
 @Mixin(AbstractVillager.class)
 public abstract class MixinAbstractVillagerEntity {
@@ -26,11 +26,11 @@ public abstract class MixinAbstractVillagerEntity {
     private SimpleContainer inventory;
 
     @Inject(method = "getInventory", at = @At("HEAD"), cancellable = true)
-    private void creaturechat$useChatInventory(CallbackInfoReturnable<SimpleContainer> cir) {
+    private void creaturepals$useChatInventory(CallbackInfoReturnable<SimpleContainer> cir) {
         Mob mob = (Mob) (Object) this;
         ChatDataManager manager = ChatDataManager.getServerInstance();
         if (manager.entityChatDataMap.containsKey(mob.getStringUUID())) {
-            SimpleContainer chatInv = (SimpleContainer) ((ChatInventory) mob).creaturechat$getInventory();
+            SimpleContainer chatInv = (SimpleContainer) ((ChatInventory) mob).creaturepals$getInventory();
             if (inventory != chatInv) {
                 if (!inventory.isEmpty()) {
                     for (int i = 0; i < Math.min(inventory.getContainerSize(), chatInv.getContainerSize()); i++) {

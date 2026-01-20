@@ -25,8 +25,8 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
-public class CreatureChatAdvancementProvider extends FabricAdvancementProvider {
-    public CreatureChatAdvancementProvider(FabricDataOutput output,
+public class CreaturePalsAdvancementProvider extends FabricAdvancementProvider {
+    public CreaturePalsAdvancementProvider(FabricDataOutput output,
                                            CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(output, registryLookup);
     }
@@ -91,6 +91,6 @@ public class CreatureChatAdvancementProvider extends FabricAdvancementProvider {
 
     @Override
     public String getName() {
-        return "CreatureChat Advancements (mojmap 1.21.5+)";
+        return "CreaturePals Advancements (mojmap 1.21.5+)";
     }
 }

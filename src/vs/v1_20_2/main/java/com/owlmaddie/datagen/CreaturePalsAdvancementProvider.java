@@ -10,7 +10,7 @@ import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.DisplayInfo;
-import net.minecraft.advancements.AdvancementType;
+import net.minecraft.advancements.FrameType;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.advancements.critereon.ImpossibleTrigger;
 import net.minecraft.resources.ResourceLocation;
@@ -20,11 +20,10 @@ import com.owlmaddie.utils.AdvancementBackgroundHelper;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Consumer;
 
-public class CreatureChatAdvancementProvider extends FabricAdvancementProvider {
-    public CreatureChatAdvancementProvider(FabricDataOutput output) {
+public class CreaturePalsAdvancementProvider extends FabricAdvancementProvider {
+    public CreaturePalsAdvancementProvider(FabricDataOutput output) {
         super(output);
     }
 
@@ -49,8 +48,8 @@ public class CreatureChatAdvancementProvider extends FabricAdvancementProvider {
                 new ItemStack(adv.icon),
                 adv.title.comp(),
                 adv.description.comp(),
-                Optional.ofNullable(bg),
-                toAdvancementType(adv.type),
+                bg,
+                toFrameType(adv.type),
                 true,
                 true,
                 adv.hidden
@@ -76,16 +75,16 @@ public class CreatureChatAdvancementProvider extends FabricAdvancementProvider {
         return saved;
     }
 
-    private static AdvancementType toAdvancementType(Advancements.Type type) {
+    private static FrameType toFrameType(Advancements.Type type) {
         return switch (type) {
-            case TASK -> AdvancementType.TASK;
-            case GOAL -> AdvancementType.GOAL;
-            case CHALLENGE -> AdvancementType.CHALLENGE;
+            case TASK -> FrameType.TASK;
+            case GOAL -> FrameType.GOAL;
+            case CHALLENGE -> FrameType.CHALLENGE;
         };
     }
 
     @Override
     public String getName() {
-        return "CreatureChat Advancements (mojmap 1.20.3+)";
+        return "CreaturePals Advancements (mojmap 1.20.2+)";
     }
 }

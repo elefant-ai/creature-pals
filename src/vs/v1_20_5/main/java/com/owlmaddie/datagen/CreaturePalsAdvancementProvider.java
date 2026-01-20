@@ -25,8 +25,8 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
-public class CreatureChatAdvancementProvider extends FabricAdvancementProvider {
-    public CreatureChatAdvancementProvider(FabricDataOutput output,
+public class CreaturePalsAdvancementProvider extends FabricAdvancementProvider {
+    public CreaturePalsAdvancementProvider(FabricDataOutput output,
                                            CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(output, registryLookup);
     }
@@ -48,7 +48,7 @@ public class CreatureChatAdvancementProvider extends FabricAdvancementProvider {
 
         ResourceLocation bgLoc = AdvancementBackgroundHelper.prependTextures(adv.background);
 
-        Optional<ResourceLocation> bg = Optional.ofNullable(bgLoc);
+        Optional<ResourceLocation> bg = bgLoc == null ? Optional.empty() : Optional.of(bgLoc);
 
         DisplayInfo display = new DisplayInfo(
                 new ItemStack(adv.icon),
@@ -91,6 +91,6 @@ public class CreatureChatAdvancementProvider extends FabricAdvancementProvider {
 
     @Override
     public String getName() {
-        return "CreatureChat Advancements (mojmap 1.21+)";
+        return "CreaturePals Advancements (mojmap 1.20.5)";
     }
 }

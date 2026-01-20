@@ -20,7 +20,7 @@ public final class LangSync {
     private static Path findLangDir() {
         Path dir = Path.of(System.getProperty("user.dir"));
         for (int i = 0; i < 5 && dir != null; i++) {
-            Path candidate = dir.resolve(Path.of("src", "main", "resources", "assets", "creaturechat", "lang"));
+            Path candidate = dir.resolve(Path.of("src", "main", "resources", "assets", "creaturepals", "lang"));
             if (Files.isDirectory(candidate)) {
                 return candidate;
             }

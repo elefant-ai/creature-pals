@@ -19,7 +19,7 @@ import java.util.UUID;
 import com.owlmaddie.utils.ServerEntityFinder;
 
 public class AdvancementHelper {
-    private static final Logger LOGGER = LoggerFactory.getLogger("creaturechat");
+    private static final Logger LOGGER = LoggerFactory.getLogger("creaturepals");
 
     private static void award(ServerPlayer player, ResourceLocation id) {
         if (player == null) {

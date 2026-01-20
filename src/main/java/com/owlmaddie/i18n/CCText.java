@@ -5,11 +5,11 @@ package com.owlmaddie.i18n;
 import java.util.List;
 
 /**
- * Central translation buckets for CreatureChat.
+ * Central translation buckets for CreaturePals.
  */
 public class CCText {
     // UI text
-    public static final TR UI_CHAT_TITLE = new TR("ui.chat_title", "CreatureChat");
+    public static final TR UI_CHAT_TITLE = new TR("ui.chat_title", "CreaturePals");
     public static final TR UI_ENTER_MESSAGE = new TR("ui.enter_message", "Enter your message:");
     public static final List<TR> UI_TEXT = List.of(
             UI_CHAT_TITLE,

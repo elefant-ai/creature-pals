@@ -19,7 +19,7 @@ public class ModMenus {
 
     public static void register() {
         MOB_INVENTORY = Registry.register(BuiltInRegistries.MENU,
-                new ResourceLocation("creaturechat", "mob_inventory"),
+                new ResourceLocation("creaturepals", "mob_inventory"),
                 new ExtendedScreenHandlerType<>((syncId, inv, buf) -> {
                     int entityId = buf.readVarInt();
                     Mob mob = (Mob) inv.player.level().getEntity(entityId);

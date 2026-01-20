@@ -13,13 +13,13 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 /**
- * Central registry for all CreatureChat advancements.
+ * Central registry for all CreaturePals advancements.
  * Provides a single source of truth for IDs, titles, descriptions and types
  * so version-specific code only needs to map these values to the respective
  * Minecraft APIs.
  */
 public enum Advancements {
-    ROOT("root", "CreatureChat", "Your world just got way more alive.", Type.TASK,
+    ROOT("root", "CreaturePals", "Your world just got way more alive.", Type.TASK,
             Items.BOOK, null, 0, false,
             AdvancementBackgroundHelper.ui("advancements-background")),
 
@@ -125,7 +125,7 @@ public enum Advancements {
     }
 
     Advancements(String path, String title, String description, Type type, Item icon, Advancements parent, int rewardXp, boolean hidden, ResourceLocation background) {
-        this.id = new ResourceLocation("creaturechat", path);
+        this.id = new ResourceLocation("creaturepals", path);
         this.title = new TR("advancement." + path + ".title", title);
         this.description = new TR("advancement." + path + ".desc", description);
         this.type = type;

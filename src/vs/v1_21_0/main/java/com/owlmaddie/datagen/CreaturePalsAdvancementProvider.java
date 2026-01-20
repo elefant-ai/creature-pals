@@ -8,27 +8,31 @@ import net.fabricmc.fabric.api.datagen.v1.provider.FabricAdvancementProvider;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementRewards;
+import net.minecraft.advancements.AdvancementType;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.DisplayInfo;
-import net.minecraft.advancements.FrameType;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.advancements.critereon.ImpossibleTrigger;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import com.owlmaddie.chat.Advancements;
 import com.owlmaddie.utils.AdvancementBackgroundHelper;
 
+import java.util.Optional;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
-public class CreatureChatAdvancementProvider extends FabricAdvancementProvider {
-    public CreatureChatAdvancementProvider(FabricDataOutput output) {
-        super(output);
+public class CreaturePalsAdvancementProvider extends FabricAdvancementProvider {
+    public CreaturePalsAdvancementProvider(FabricDataOutput output,
+                                           CompletableFuture<HolderLookup.Provider> registryLookup) {
+        super(output, registryLookup);
     }
 
     @Override
-    public void generateAdvancement(Consumer<AdvancementHolder> out) {
+    public void generateAdvancement(HolderLookup.Provider lookup, Consumer<AdvancementHolder> out) {
         Map<Advancements, AdvancementHolder> built = new HashMap<>();
         for (Advancements adv : Advancements.values()) {
             build(out, adv, built);
@@ -42,14 +46,16 @@ public class CreatureChatAdvancementProvider extends FabricAdvancementProvider {
 
         AdvancementHolder parent = adv.parent == null ? null : build(out, adv.parent, built);
 
-        ResourceLocation bg = AdvancementBackgroundHelper.prependTextures(adv.background);
+        ResourceLocation bgLoc = AdvancementBackgroundHelper.prependTextures(adv.background);
+
+        Optional<ResourceLocation> bg = Optional.ofNullable(bgLoc);
 
         DisplayInfo display = new DisplayInfo(
                 new ItemStack(adv.icon),
                 adv.title.comp(),
                 adv.description.comp(),
                 bg,
-                toFrameType(adv.type),
+                toAdvancementType(adv.type),
                 true,
                 true,
                 adv.hidden
@@ -75,16 +81,16 @@ public class CreatureChatAdvancementProvider extends FabricAdvancementProvider {
         return saved;
     }
 
-    private static FrameType toFrameType(Advancements.Type type) {
+    private static AdvancementType toAdvancementType(Advancements.Type type) {
         return switch (type) {
-            case TASK -> FrameType.TASK;
-            case GOAL -> FrameType.GOAL;
-            case CHALLENGE -> FrameType.CHALLENGE;
+            case TASK -> AdvancementType.TASK;
+            case GOAL -> AdvancementType.GOAL;
+            case CHALLENGE -> AdvancementType.CHALLENGE;
         };
     }
 
     @Override
     public String getName() {
-        return "CreatureChat Advancements (mojmap 1.20.2+)";
+        return "CreaturePals Advancements (mojmap 1.21+)";
     }
 }

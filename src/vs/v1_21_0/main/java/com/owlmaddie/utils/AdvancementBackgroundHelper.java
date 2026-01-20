@@ -14,7 +14,7 @@ public final class AdvancementBackgroundHelper {
 
     /** Returns the base UI texture location for the given name. */
     public static ResourceLocation ui(String name) {
-        return new ResourceLocation("creaturechat", "ui/" + name);
+        return new ResourceLocation("creaturepals", "ui/" + name);
     }
 
     /** Returns the provided location unchanged. */
