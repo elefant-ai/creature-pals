@@ -55,7 +55,7 @@ public class ClickHandler {
     }
 
     public static boolean shouldCancelAction(Level world) {
-        if (world.isClientSide) {
+        if (world.isClientSide()) {
             Minecraft client = Minecraft.getInstance();
             if (client != null && client.options.keyUse.isDown()) {
                 return handleUseKeyClick(client);

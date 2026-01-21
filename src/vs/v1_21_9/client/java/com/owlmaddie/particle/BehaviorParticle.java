@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
  * that gradually decreases, ensuring it never moves downward.
  */
 public class BehaviorParticle extends Particle {
-    protected BehaviorParticle(ClientLevel world, double x, double y, double z, double velocityX, double velocityY,
+    public BehaviorParticle(ClientLevel world, double x, double y, double z, double velocityX, double velocityY,
                                double velocityZ) {
         super(world, x, y, z, velocityX, velocityY, velocityZ);
         this.scale(2f);
@@ -61,7 +61,7 @@ public class BehaviorParticle extends Particle {
         P create(ClientLevel level, double x, double y, double z, double velocityX, double velocityY, double velocityZ);
     }
 
-    protected static <P extends BehaviorParticle> ParticleProvider<SimpleParticleType> createProvider(BehaviorParticle.CreatureParticleFactory<P> factory) {
+    public static <P extends BehaviorParticle> ParticleProvider<SimpleParticleType> createProvider(BehaviorParticle.CreatureParticleFactory<P> factory) {
         return (options, level, x, y, z, xd, yd, zd, random) -> factory.create(level, x, y, z, xd, yd, zd);
     }
 
