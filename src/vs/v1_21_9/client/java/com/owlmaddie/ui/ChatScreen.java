@@ -12,6 +12,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.client.input.KeyEvent;
 import org.lwjgl.glfw.GLFW;
 
 /**
@@ -103,17 +104,17 @@ public class ChatScreen extends ScreenHelper {
         onClose();
     }
 
-    // TODO: MAKE THIS LOGIC GOOD
-    /*@Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    @Override
+    public boolean keyPressed(KeyEvent event) {
+        int keyCode = event.key();
         if ((keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER)
                 && textField.isFocused()
                 && !textField.getValue().isEmpty()) {
             sendChatMessage();
             return true;
         }
-        return super.keyPressed(keyCode, scanCode, modifiers);
-    }*/
+        return super.keyPressed(event);
+    }
 
     private void onTextChanged(String text) {
         // Enable the button only if the text field is not empty

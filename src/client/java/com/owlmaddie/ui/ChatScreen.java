@@ -103,8 +103,7 @@ public class ChatScreen extends ScreenHelper {
         onClose();
     }
 
-    // TODO: move this to actually properly initialised keypress
-    /*@Override
+    @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if ((keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER)
                 && textField.isFocused()
@@ -113,7 +112,7 @@ public class ChatScreen extends ScreenHelper {
             return true;
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
-    }*/
+    }
 
     private void onTextChanged(String text) {
         // Enable the button only if the text field is not empty
