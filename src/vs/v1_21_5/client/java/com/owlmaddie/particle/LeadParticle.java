@@ -96,7 +96,7 @@ public class LeadParticle extends TextureSheetParticle {
      * behavior. It passes along the 'angle' to rotate the particle. It also
      * sets the motion/acceleration to 0.
      */
-    public class LeadParticleFactory implements ParticleProvider<LeadParticleEffect> {
+    public static class LeadParticleFactory implements ParticleProvider<LeadParticleEffect> {
         private final SpriteSet spriteProvider;
 
         public LeadParticleFactory(SpriteSet spriteProvider) {

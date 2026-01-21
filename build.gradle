@@ -184,9 +184,20 @@ test {
 
 processResources {
 	inputs.property "version", project.version
+	inputs.property "minecraft_version", project.minecraft_version
 
 	filesMatching("fabric.mod.json") {
 		expand "version": project.version
+	}
+
+	// Add 1.21.9-specific mixin config for WorldRenderMixin
+	doLast {
+		if (project.minecraft_version == "1.21.9") {
+			def modJson = file("$destinationDir/fabric.mod.json")
+			def json = new groovy.json.JsonSlurper().parse(modJson)
+			json.mixins << [config: "creaturepals.1_21_9.mixins.json", environment: "client"]
+			modJson.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(json))
+		}
 	}
 }
 

@@ -6,6 +6,7 @@ package com.owlmaddie.particle;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.particle.TextureSheetParticle;
@@ -93,5 +94,25 @@ public class LeadParticle extends TextureSheetParticle {
         vertexConsumer.addVertex(vertices[3].x(), vertices[3].y(), vertices[3].z())
                 .setUv(minU, maxV).setColor(this.rCol, this.gCol, this.bCol, this.alpha)
                 .setLight(light).setOverlay(0);
+    }
+
+    /**
+     * The {@code LeadParticleFactory} class generates new arrow particles for LEAD
+     * behavior. It passes along the 'angle' to rotate the particle. It also
+     * sets the motion/acceleration to 0.
+     */
+    public static class LeadParticleFactory implements ParticleProvider<LeadParticleEffect> {
+        private final SpriteSet spriteProvider;
+
+        public LeadParticleFactory(SpriteSet spriteProvider) {
+            this.spriteProvider = spriteProvider;
+        }
+
+        @Override
+        public LeadParticle createParticle(LeadParticleEffect effect, ClientLevel world, double x, double y, double z,
+                                           double velocityX, double velocityY, double velocityZ) {
+            double angle = effect.angle();
+            return new LeadParticle(world, x, y, z, 0, 0, 0, this.spriteProvider, angle);
+        }
     }
 }

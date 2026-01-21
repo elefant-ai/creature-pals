@@ -5,9 +5,7 @@ package com.owlmaddie;
 import com.owlmaddie.chat.ClientChatDataManager;
 import com.owlmaddie.network.ClientPackets;
 import com.owlmaddie.particle.BehaviorParticle;
-import com.owlmaddie.particle.BehaviorParticle.CreatureParticleFactory;
 import com.owlmaddie.particle.LeadParticle;
-import com.owlmaddie.particle.LeadParticle.LeadParticleFactory;
 import com.owlmaddie.particle.Particles;
 import com.owlmaddie.player2.HeartbeatManager;
 import com.owlmaddie.ui.BubbleRenderer;
@@ -28,25 +26,35 @@ import net.minecraft.client.gui.screens.MenuScreens;
  * The {@code ClientInit} class initializes this mod in the client and defines
  * all hooks into the
  * render pipeline to draw chat bubbles, text, and entity icons.
+ *
+ * This is the 1.21.9+ version with updated particle registration API.
  */
 public class ClientInit implements ClientModInitializer {
     private static long tickCounter = 0;
 
+    /**
+     * Returns the current tick counter for mixin-based rendering.
+     * Used by WorldRenderMixin in 1.21.9 since Fabric API removed WorldRenderEvents.
+     */
+    public static long getTickCounter() {
+        return tickCounter;
+    }
+
     @Override
     public void onInitializeClient() {
-        // Register particle factories
-        ParticleFactoryRegistry.getInstance().register(Particles.HEART_SMALL_PARTICLE, CreatureParticleFactory::new);
-        ParticleFactoryRegistry.getInstance().register(Particles.HEART_BIG_PARTICLE, CreatureParticleFactory::new);
-        ParticleFactoryRegistry.getInstance().register(Particles.FIRE_SMALL_PARTICLE, CreatureParticleFactory::new);
-        ParticleFactoryRegistry.getInstance().register(Particles.FIRE_BIG_PARTICLE, CreatureParticleFactory::new);
-        ParticleFactoryRegistry.getInstance().register(Particles.ATTACK_PARTICLE, CreatureParticleFactory::new);
-        ParticleFactoryRegistry.getInstance().register(Particles.FLEE_PARTICLE, CreatureParticleFactory::new);
-        ParticleFactoryRegistry.getInstance().register(Particles.FOLLOW_FRIEND_PARTICLE, CreatureParticleFactory::new);
-        ParticleFactoryRegistry.getInstance().register(Particles.FOLLOW_ENEMY_PARTICLE, CreatureParticleFactory::new);
-        ParticleFactoryRegistry.getInstance().register(Particles.PROTECT_PARTICLE, CreatureParticleFactory::new);
-        ParticleFactoryRegistry.getInstance().register(Particles.LEAD_FRIEND_PARTICLE, CreatureParticleFactory::new);
-        ParticleFactoryRegistry.getInstance().register(Particles.LEAD_ENEMY_PARTICLE, CreatureParticleFactory::new);
-        ParticleFactoryRegistry.getInstance().register(Particles.LEAD_PARTICLE, LeadParticleFactory::new);
+        // Register particle factories (1.21.9+ API)
+        ParticleFactoryRegistry.getInstance().register(Particles.HEART_SMALL_PARTICLE, BehaviorParticle.createProvider(BehaviorParticle::new));
+        ParticleFactoryRegistry.getInstance().register(Particles.HEART_BIG_PARTICLE, BehaviorParticle.createProvider(BehaviorParticle::new));
+        ParticleFactoryRegistry.getInstance().register(Particles.FIRE_SMALL_PARTICLE, BehaviorParticle.createProvider(BehaviorParticle::new));
+        ParticleFactoryRegistry.getInstance().register(Particles.FIRE_BIG_PARTICLE, BehaviorParticle.createProvider(BehaviorParticle::new));
+        ParticleFactoryRegistry.getInstance().register(Particles.ATTACK_PARTICLE, BehaviorParticle.createProvider(BehaviorParticle::new));
+        ParticleFactoryRegistry.getInstance().register(Particles.FLEE_PARTICLE, BehaviorParticle.createProvider(BehaviorParticle::new));
+        ParticleFactoryRegistry.getInstance().register(Particles.FOLLOW_FRIEND_PARTICLE, BehaviorParticle.createProvider(BehaviorParticle::new));
+        ParticleFactoryRegistry.getInstance().register(Particles.FOLLOW_ENEMY_PARTICLE, BehaviorParticle.createProvider(BehaviorParticle::new));
+        ParticleFactoryRegistry.getInstance().register(Particles.PROTECT_PARTICLE, BehaviorParticle.createProvider(BehaviorParticle::new));
+        ParticleFactoryRegistry.getInstance().register(Particles.LEAD_FRIEND_PARTICLE, BehaviorParticle.createProvider(BehaviorParticle::new));
+        ParticleFactoryRegistry.getInstance().register(Particles.LEAD_ENEMY_PARTICLE, BehaviorParticle.createProvider(BehaviorParticle::new));
+        ParticleFactoryRegistry.getInstance().register(Particles.LEAD_PARTICLE, LeadParticle.createProvider(LeadParticle::new));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             tickCounter++;

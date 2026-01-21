@@ -411,7 +411,7 @@ public class BubbleRenderer {
                 false, textMatrix, immediate, DisplayMode.NORMAL, 0, fullBright);
     }
 
-    public static void drawTextAboveEntities(WorldRenderContext context, long tick, float partialTicks) {
+    public static void drawTextAboveEntities(Object context, long tick, float partialTicks) {
         // Set some rendering constants
         float lineSpacing = 1F;
         float textHeaderHeight = 40F;
@@ -420,7 +420,7 @@ public class BubbleRenderer {
         double renderDistance = 11.0;
 
         // Get camera
-        Camera camera = context.camera();
+        Camera camera = WorldRenderContextHelper.getCamera(context);
         Entity cameraEntity = camera.getEntity();
         if (cameraEntity == null)
             return;
@@ -433,8 +433,8 @@ public class BubbleRenderer {
 
         // Init font render, matrix, and vertex producer
         Font fontRenderer = Minecraft.getInstance().font;
-        PoseStack matrices = context.matrixStack();
-        MultiBufferSource immediate = context.consumers();
+        PoseStack matrices = WorldRenderContextHelper.getMatrices(context);
+        MultiBufferSource immediate = WorldRenderContextHelper.getConsumers(context);
 
         // Get camera position
         Vec3 interpolatedCameraPos = new Vec3(camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
