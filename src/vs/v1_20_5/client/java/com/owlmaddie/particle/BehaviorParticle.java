@@ -1,5 +1,3 @@
-// SPDX-FileCopyrightText: 2025 owlmaddie LLC
-// SPDX-License-Identifier: GPL-3.0-or-later
 package com.owlmaddie.particle;
 
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -16,7 +14,7 @@ import net.minecraft.core.particles.SimpleParticleType;
  */
 public class BehaviorParticle extends TextureSheetParticle {
     protected BehaviorParticle(ClientLevel world, double x, double y, double z, double velocityX, double velocityY,
-            double velocityZ) {
+                               double velocityZ) {
         super(world, x, y, z, velocityX, velocityY, velocityZ);
         this.scale(2f);
         this.setLifetime(35);
@@ -54,9 +52,9 @@ public class BehaviorParticle extends TextureSheetParticle {
     /**
      * The {@code CreatureParticleFactory} class is responsible for creating
      * instances of
-     * {@link BehaviorParticle} with the specified parameters.
+     * {@link BehaviorParticle} with the specified parameters. Minecraft 1.20.5+
+     * override of this class.
      */
-
     public static class CreatureParticleFactory implements ParticleProvider<SimpleParticleType> {
         private final SpriteSet spriteProvider;
 
@@ -68,8 +66,9 @@ public class BehaviorParticle extends TextureSheetParticle {
         public BehaviorParticle createParticle(SimpleParticleType type, ClientLevel world, double x, double y, double z,
                                                double velocityX, double velocityY, double velocityZ) {
             BehaviorParticle particle = new BehaviorParticle(world, x, y, z, velocityX, velocityY, velocityZ);
-            particle.pickSprite(this.spriteProvider);
+            particle.setSpriteFromAge(this.spriteProvider);
             return particle;
         }
     }
+
 }

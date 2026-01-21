@@ -4,9 +4,9 @@
 package com.owlmaddie.ui;
 
 import com.owlmaddie.chat.ChatDataManager;
+import com.owlmaddie.i18n.CCText;
 import com.owlmaddie.network.ClientPackets;
 import com.owlmaddie.utils.TextureLoader;
-import com.owlmaddie.i18n.CCText;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
@@ -103,7 +103,7 @@ public class ChatScreen extends ScreenHelper {
         onClose();
     }
 
-    // TODO: move this to actually properly initialised keypress
+    // TODO: MAKE THIS LOGIC GOOD
     /*@Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if ((keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER)

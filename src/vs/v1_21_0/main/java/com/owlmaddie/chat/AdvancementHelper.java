@@ -25,7 +25,7 @@ public class AdvancementHelper {
         if (player == null) {
             return;
         }
-        MinecraftServer server = player.getServer();
+        MinecraftServer server = player.level().getServer();
         AdvancementHolder adv = server.getAdvancements().get(id);
         if (adv != null) {
             boolean awarded = player.getAdvancements().award(adv, "triggered");

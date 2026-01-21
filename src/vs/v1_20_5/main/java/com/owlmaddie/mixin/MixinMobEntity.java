@@ -4,6 +4,7 @@ package com.owlmaddie.mixin;
 
 import com.owlmaddie.chat.ChatDataManager;
 import com.owlmaddie.chat.EntityChatData;
+import com.owlmaddie.chat.EventQueueManager;
 import com.owlmaddie.chat.PlayerData;
 import com.owlmaddie.inventory.ChatInventory;
 import com.owlmaddie.inventory.MobInventoryMenu;
@@ -223,7 +224,7 @@ public class MixinMobEntity implements ChatInventory, HasCustomInventoryScreen {
                         action_verb + "you " + itemCount + " " + itemName + ">";
 
                 if (!entityData.characterSheet.isEmpty()) {
-                    ServerPackets.generate_chat("N/A", entityData, serverPlayer, thisEntity, giveItemMessage, true);
+                    EventQueueManager.addGreeting(thisEntity, entityData, giveItemMessage, serverPlayer, true);
                 }
 
             } else if (itemStack.isEmpty() && playerData.friendship == 3) {

@@ -5,18 +5,20 @@ package com.owlmaddie.particle;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.util.RandomSource;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * The {@code BehaviorParticle} class defines a custom CreaturePals behavior
  * particle with an initial upward velocity
  * that gradually decreases, ensuring it never moves downward.
  */
-public class BehaviorParticle extends TextureSheetParticle {
+public class BehaviorParticle extends Particle {
     protected BehaviorParticle(ClientLevel world, double x, double y, double z, double velocityX, double velocityY,
-            double velocityZ) {
+                               double velocityZ) {
         super(world, x, y, z, velocityX, velocityY, velocityZ);
         this.scale(2f);
         this.setLifetime(35);
@@ -29,8 +31,8 @@ public class BehaviorParticle extends TextureSheetParticle {
     }
 
     @Override
-    public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_OPAQUE;
+    public ParticleRenderType getGroup() {
+        return ParticleRenderType.SINGLE_QUADS;
     }
     @Override
     public int getLightColor(float tint) {
@@ -51,25 +53,16 @@ public class BehaviorParticle extends TextureSheetParticle {
             this.yd = 0;
         }
     }
-    /**
-     * The {@code CreatureParticleFactory} class is responsible for creating
-     * instances of
-     * {@link BehaviorParticle} with the specified parameters.
-     */
 
-    public static class CreatureParticleFactory implements ParticleProvider<SimpleParticleType> {
-        private final SpriteSet spriteProvider;
 
-        public CreatureParticleFactory(SpriteSet spriteProvider) {
-            this.spriteProvider = spriteProvider;
-        }
+    @FunctionalInterface
+    public interface CreatureParticleFactory<P extends BehaviorParticle> {
 
-        @Override
-        public BehaviorParticle createParticle(SimpleParticleType type, ClientLevel world, double x, double y, double z,
-                                               double velocityX, double velocityY, double velocityZ) {
-            BehaviorParticle particle = new BehaviorParticle(world, x, y, z, velocityX, velocityY, velocityZ);
-            particle.pickSprite(this.spriteProvider);
-            return particle;
-        }
+        P create(ClientLevel level, double x, double y, double z, double velocityX, double velocityY, double velocityZ);
     }
+
+    protected static <P extends BehaviorParticle> ParticleProvider<SimpleParticleType> createProvider(BehaviorParticle.CreatureParticleFactory<P> factory) {
+        return (options, level, x, y, z, xd, yd, zd, random) -> factory.create(level, x, y, z, xd, yd, zd);
+    }
+
 }

@@ -18,8 +18,11 @@ import com.owlmaddie.goals.TalkPlayerGoal;
 import com.owlmaddie.inventory.ChatInventory;
 import com.owlmaddie.inventory.InventoryLootTables;
 import com.owlmaddie.inventory.LootTableHelper;
+import com.owlmaddie.particle.LeadParticleEffect;
 import com.owlmaddie.particle.Particles;
 import com.owlmaddie.utils.Compression;
+import com.owlmaddie.utils.GetOpStatus;
+import com.owlmaddie.utils.GetPlayerName;
 import com.owlmaddie.utils.ServerEntityFinder;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
@@ -37,6 +40,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.PlayerList;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
@@ -111,7 +115,7 @@ public class ServerPackets {
     public static final ParticleType<?> PROTECT_PARTICLE = Particles.PROTECT_PARTICLE;
     public static final ParticleType<?> LEAD_FRIEND_PARTICLE = Particles.LEAD_FRIEND_PARTICLE;
     public static final ParticleType<?> LEAD_ENEMY_PARTICLE = Particles.LEAD_ENEMY_PARTICLE;
-    public static final ParticleType<?> LEAD_PARTICLE = Particles.LEAD_PARTICLE;
+    public static final ParticleType<LeadParticleEffect> LEAD_PARTICLE = Particles.LEAD_PARTICLE;
 
     private static final Map<UUID, UUID> pendingAuthRequests = new ConcurrentHashMap<>();
 
@@ -492,9 +496,10 @@ public class ServerPackets {
 
     // Send a clickable message to ALL Ops
     public static void sendErrorToAllOps(MinecraftServer server, String message) {
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+        PlayerList playerList = server.getPlayerList();
+        for (ServerPlayer player : playerList.getPlayers()) {
             // Check if the player is an operator
-            if (server.getPlayerList().isOp(player.getGameProfile())) {
+            if (GetOpStatus.isOp(playerList, player)) {
                 ServerPackets.SendClickableError(player, message, "https://player2.game/discord");
             }
         }
@@ -513,7 +518,7 @@ public class ServerPackets {
         if (player.isPresent()) {
             ServerPlayer realPlayer = player.get();
             PacketHelper.send(realPlayer, PACKET_S2C_AUTH_REQUEST, buffer);
-            LOGGER.info("Sent API key request to '{}' with requestId={}", realPlayer.getGameProfile().getName(), requestId);
+            LOGGER.info("Sent API key request to '{}' with requestId={}", GetPlayerName.getName(realPlayer), requestId);
 
         }
         return requestId;

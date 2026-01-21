@@ -8,18 +8,13 @@ import com.owlmaddie.chat.EventQueueManager;
 import com.owlmaddie.chat.PlayerData;
 import com.owlmaddie.inventory.ChatInventory;
 import com.owlmaddie.inventory.MobInventoryMenu;
-import com.owlmaddie.network.ServerPackets;
-import net.minecraft.world.entity.HasCustomInventoryScreen;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
+import net.minecraft.world.entity.HasCustomInventoryScreen;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.npc.Villager;
@@ -28,9 +23,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
@@ -123,47 +121,28 @@ public class MixinMobEntity implements ChatInventory, HasCustomInventoryScreen {
     }
 
     @Inject(method = "addAdditionalSaveData", at = @At("RETURN"))
-    private void creaturepals$saveInventory(CompoundTag tag, CallbackInfo ci) {
-        ListTag listTag = new ListTag();
-        HolderLookup.Provider provider = ((Mob) (Object) this).registryAccess();
-
-        for (int i = 0; i < creaturepals$inventory.getContainerSize(); i++) {
-            ItemStack stack = creaturepals$inventory.getItem(i);
-            if (!stack.isEmpty()) {
-                CompoundTag wrapper = new CompoundTag();
-                wrapper.putByte("Slot", (byte) i);
-
-                // ItemStack#save now returns the tag instead of mutating a provided instance.
-                // Write that returned tag directly so the item id is preserved.
-                wrapper.put("Item", stack.save(provider));
-
-                listTag.add(wrapper);
-            }
-        }
-
-        tag.put("CreaturePalsInventory", listTag);
+    private void creaturepals$saveInventory(ValueOutput tag, CallbackInfo ci) {
+        creaturepals$inventory.storeAsItemList(tag.list("CreaturePalsInventory", ItemStack.CODEC));
     }
 
     @Inject(method = "readAdditionalSaveData", at = @At("RETURN"))
-    private void creaturepals$loadInventory(CompoundTag tag, CallbackInfo ci) {
-        HolderLookup.Provider provider = ((Mob) (Object) this).registryAccess();
-        tag.getList("CreaturePalsInventory").ifPresent(listTag -> {
-            for (int i = 0; i < listTag.size(); ++i) {
-                listTag.getCompound(i).ifPresent(wrapper -> {
-                    int slot = wrapper.getByte("Slot").orElse((byte) 0) & 255;
-                    if (slot >= 0 && slot < creaturepals$inventory.getContainerSize()) {
-                        wrapper.getCompound("Item").ifPresentOrElse(itemTag -> {
-                            ItemStack parsed = ItemStack.parse(provider, itemTag).orElse(ItemStack.EMPTY);
-                            creaturepals$inventory.setItem(slot, parsed);
-                        }, () -> {
-                            CompoundTag copy = wrapper.copy();
-                            copy.remove("Slot");
-                            ItemStack parsed = ItemStack.parse(provider, copy).orElse(ItemStack.EMPTY);
-                            creaturepals$inventory.setItem(slot, parsed);
-                        });
+    private void creaturepals$loadInventory(ValueInput tag, CallbackInfo ci) {
+        tag.childrenList("CreaturePalsInventory").ifPresent(list -> {
+            if (!list.isEmpty()) {
+                ValueInput first = list.stream().findFirst().orElse(null);
+                if (first != null && first.child("Item").isPresent()) {
+                    for (ValueInput wrapper : list) {
+                        int slot = wrapper.getByteOr("Slot", (byte) 0) & 255;
+                        if (slot >= 0 && slot < creaturepals$inventory.getContainerSize()) {
+                            wrapper.read("Item", ItemStack.CODEC)
+                                .ifPresent(stack -> creaturepals$inventory.setItem(slot, stack));
+                        }
                     }
-                });
+                    return;
+                }
             }
+            tag.list("CreaturePalsInventory", ItemStack.CODEC)
+                .ifPresent(creaturepals$inventory::fromItemList);
         });
     }
 
@@ -233,7 +212,7 @@ public class MixinMobEntity implements ChatInventory, HasCustomInventoryScreen {
 
             } else if (itemStack.isEmpty() && playerData.friendship == 3) {
                 // Player's hand is empty, Ride your best friend!
-                player.startRiding(thisEntity, true);
+                player.startRiding(thisEntity, true, true);
             }
         }
     }
