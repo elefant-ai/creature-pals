@@ -1,0 +1,152 @@
+name: Publish to Modrinth & CurseForge
+
+on:
+  workflow_run:
+    workflows: ["Auto release builds"]
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to publish (e.g., v1.3.13)'
+        required: true
+        type: string
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    outputs:
+      tag: ${{ steps.get-tag.outputs.tag }}
+      version: ${{ steps.get-tag.outputs.version }}
+    steps:
+      - name: Get release tag
+        id: get-tag
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            TAG="${{ inputs.tag }}"
+          else
+            # Extract tag from the triggering workflow's branch name (action/release-to-v1.2.3 -> v1.2.3)
+            BRANCH="${{ github.event.workflow_run.head_branch }}"
+            TAG="${BRANCH#action/release-to-}"
+          fi
+
+          # Validate tag format
+          if [ -z "$TAG" ]; then
+            echo "::error::Failed to determine release tag"
+            exit 1
+          fi
+          if ! [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid tag format: $TAG (expected v#.#.#)"
+            exit 1
+          fi
+
+          VERSION="${TAG#v}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Publishing release $TAG (version $VERSION)"
+
+  publish-fabric:
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        mc:
+          - "1.20"
+          - "1.20.1"
+          - "1.20.2"
+          - "1.20.3"
+          - "1.20.4"
+          - "1.20.5"
+          - "1.20.6"
+          - "1.21.1"
+          - "1.21.2"
+          - "1.21.3"
+          - "1.21.4"
+          - "1.21.5"
+          - "1.21.6"
+          - "1.21.7"
+          - "1.21.8"
+          - "1.21.9"
+          - "1.21.10"
+    steps:
+      - name: Download release asset
+        run: |
+          mkdir -p artifacts
+          gh release download "${{ needs.prepare.outputs.tag }}" \
+            --repo ${{ github.repository }} \
+            --pattern "creaturepals-${{ needs.prepare.outputs.version }}-${{ matrix.mc }}.jar" \
+            --dir artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish Fabric to Modrinth & CurseForge
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-id: ${{ secrets.MODRINTH_ID }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          curseforge-id: ${{ secrets.CURSEFORGE_ID }}
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+
+          files: artifacts/creaturepals-${{ needs.prepare.outputs.version }}-${{ matrix.mc }}.jar
+
+          name: Creature Pals ${{ needs.prepare.outputs.version }} for ${{ matrix.mc }}
+          version: ${{ needs.prepare.outputs.version }}+${{ matrix.mc }}
+          version-type: release
+
+          loaders: fabric
+          game-versions: ${{ matrix.mc }}
+
+          dependencies: |
+            fabric-api@*(required)
+
+          retry-attempts: 3
+          retry-delay: 15000
+
+  publish-forge:
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        mc:
+          - "1.20.1"
+          - "1.21.1"
+    steps:
+      - name: Download Forge release asset
+        run: |
+          mkdir -p artifacts
+          gh release download "${{ needs.prepare.outputs.tag }}" \
+            --repo ${{ github.repository }} \
+            --pattern "creaturepals-${{ needs.prepare.outputs.version }}-${{ matrix.mc }}-forge.jar" \
+            --dir artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish Forge to Modrinth & CurseForge
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-id: ${{ secrets.MODRINTH_ID }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          curseforge-id: ${{ secrets.CURSEFORGE_ID }}
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+
+          files: artifacts/creaturepals-${{ needs.prepare.outputs.version }}-${{ matrix.mc }}-forge.jar
+
+          name: Creature Pals ${{ needs.prepare.outputs.version }} for ${{ matrix.mc }} (Forge)
+          version: ${{ needs.prepare.outputs.version }}+${{ matrix.mc }}-forge
+          version-type: release
+
+          loaders: |
+            forge
+            neoforge
+          game-versions: ${{ matrix.mc }}
+
+          dependencies: |
+            forgified-fabric-api@*(required){curseforge:876540}{modrinth:Aqlf1Shp}
+            sinytra-connector@*(required){curseforge:889135}{modrinth:u58R1TMW}
+
+          retry-attempts: 3
+          retry-delay: 15000
