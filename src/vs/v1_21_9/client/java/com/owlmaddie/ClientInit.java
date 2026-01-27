@@ -4,8 +4,8 @@ package com.owlmaddie;
 
 import com.owlmaddie.chat.ClientChatDataManager;
 import com.owlmaddie.network.ClientPackets;
-import com.owlmaddie.particle.BehaviorParticle;
-import com.owlmaddie.particle.LeadParticle;
+import com.owlmaddie.particle.BehaviorParticle.CreatureParticleFactory;
+import com.owlmaddie.particle.LeadParticle.LeadParticleFactory;
 import com.owlmaddie.particle.Particles;
 import com.owlmaddie.player2.HeartbeatManager;
 import com.owlmaddie.ui.BubbleRenderer;
@@ -43,18 +43,18 @@ public class ClientInit implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         // Register particle factories (1.21.9+ API)
-        ParticleFactoryRegistry.getInstance().register(Particles.HEART_SMALL_PARTICLE, BehaviorParticle.createProvider(BehaviorParticle::new));
-        ParticleFactoryRegistry.getInstance().register(Particles.HEART_BIG_PARTICLE, BehaviorParticle.createProvider(BehaviorParticle::new));
-        ParticleFactoryRegistry.getInstance().register(Particles.FIRE_SMALL_PARTICLE, BehaviorParticle.createProvider(BehaviorParticle::new));
-        ParticleFactoryRegistry.getInstance().register(Particles.FIRE_BIG_PARTICLE, BehaviorParticle.createProvider(BehaviorParticle::new));
-        ParticleFactoryRegistry.getInstance().register(Particles.ATTACK_PARTICLE, BehaviorParticle.createProvider(BehaviorParticle::new));
-        ParticleFactoryRegistry.getInstance().register(Particles.FLEE_PARTICLE, BehaviorParticle.createProvider(BehaviorParticle::new));
-        ParticleFactoryRegistry.getInstance().register(Particles.FOLLOW_FRIEND_PARTICLE, BehaviorParticle.createProvider(BehaviorParticle::new));
-        ParticleFactoryRegistry.getInstance().register(Particles.FOLLOW_ENEMY_PARTICLE, BehaviorParticle.createProvider(BehaviorParticle::new));
-        ParticleFactoryRegistry.getInstance().register(Particles.PROTECT_PARTICLE, BehaviorParticle.createProvider(BehaviorParticle::new));
-        ParticleFactoryRegistry.getInstance().register(Particles.LEAD_FRIEND_PARTICLE, BehaviorParticle.createProvider(BehaviorParticle::new));
-        ParticleFactoryRegistry.getInstance().register(Particles.LEAD_ENEMY_PARTICLE, BehaviorParticle.createProvider(BehaviorParticle::new));
-        ParticleFactoryRegistry.getInstance().register(Particles.LEAD_PARTICLE, LeadParticle.createProvider(LeadParticle::new));
+        ParticleFactoryRegistry.getInstance().register(Particles.HEART_SMALL_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(Particles.HEART_BIG_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(Particles.FIRE_SMALL_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(Particles.FIRE_BIG_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(Particles.ATTACK_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(Particles.FLEE_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(Particles.FOLLOW_FRIEND_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(Particles.FOLLOW_ENEMY_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(Particles.PROTECT_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(Particles.LEAD_FRIEND_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(Particles.LEAD_ENEMY_PARTICLE, CreatureParticleFactory::new);
+        ParticleFactoryRegistry.getInstance().register(Particles.LEAD_PARTICLE, LeadParticleFactory::new);
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             tickCounter++;
